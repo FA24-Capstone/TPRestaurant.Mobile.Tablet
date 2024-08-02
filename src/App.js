@@ -7,7 +7,7 @@ function App() {
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <View style={{ backgroundColor: "red", height: 100, width: 100 }} />
       <View style={{ backgroundColor: "blue", height: 100, width: 100 }} />
-      <Text>Hello, world!</Text>
+      <Text>Hello, world! hi</Text>
     </View>
   );
 }
