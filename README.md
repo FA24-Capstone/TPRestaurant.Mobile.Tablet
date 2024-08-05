@@ -1,8 +1,6 @@
 <div align="center">
   <br />
-    <a href="https://www.youtube.com/channel/UCzrpTaJWhZZNLLE_3obvE2Q" target="_blank">
-      <img src="https://i.postimg.cc/rygDVH1m/React-Native-Git-Hub-Cover.png" alt="Project Banner">
-    </a>
+
   <br />
 
   <div>
@@ -11,7 +9,7 @@
     <img src="https://img.shields.io/badge/NativeWind-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="nativewind" />
   </div>
 
-  <h3 align="center">Meditation and Affirmations App</h3>
+  <h3 align="center">RESTAURANT THIEN PHU APP FOR TABLET </h3>
 
  
 </div>
