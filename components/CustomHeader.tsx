@@ -20,7 +20,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
         alignItems: "center",
         paddingHorizontal: 20,
         backgroundColor: "#fff",
-        paddingTop: 40,
+        paddingTop: 20,
         paddingBottom: 20,
         justifyContent: "space-between",
         shadowColor: "#000", // Màu của shadow
@@ -32,21 +32,21 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
     >
       <TouchableOpacity
         onPress={() => navigation.openDrawer()}
-        className="mx-4"
+        className="mx-4 p-3 rounded-lg bg-[#ffffff] shadow-lg"
       >
-        <MaterialCommunityIcons name="menu" size={24} color="black" />
+        <MaterialCommunityIcons name="menu" size={30} color="black" />
       </TouchableOpacity>
 
       <View className="flex-row items-center flex-1">
-        <Text className="font-bold text-2xl text-gray-800 mr-6">{title}</Text>
+        {/* <Text className="font-bold text-2xl text-gray-800 mr-6">{title}</Text> */}
         <View className="flex-row justify-center items-center mr-2">
-          <Text className="font-semibold uppercase text-lg text-gray-600 mr-2">
+          <Text className="font-bold uppercase text-[18px] text-gray-600 mr-2">
             Xin chào, Phương
           </Text>
           <MaterialCommunityIcons
             name="hand-peace"
-            size={20}
-            color="black"
+            size={26}
+            color="#EDAA16"
             style={{ marginRight: 10 }}
           />
         </View>
@@ -59,16 +59,16 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
       </View>
 
       <View className="flex-row justify-end items-center mr-10">
-        <TouchableOpacity className="flex-row justify-center items-center mr-9 px-3 py-2 rounded-md shadow-lg">
+        <TouchableOpacity className="flex-row justify-center items-center mr-9 py-2 px-4  rounded-md shadow-lg">
           <FontAwesome name="phone" size={20} color="green" />
-          <Text className="text-green-900 ml-3 font-semibold text-base">
+          <Text className="text-green-900 ml-3 font-semibold text-lg  ">
             Gọi Nhân Viên
           </Text>
         </TouchableOpacity>
 
         <View className="flex-row justify-center items-center mr-8">
           <FontAwesome name="calendar" size={20} color="gray" />
-          <Text className="ml-2 font-semibold text-base text-gray-700">
+          <Text className="ml-2 font-semibold text-lg text-gray-700">
             October 18th 2002, 10:00AM
           </Text>
         </View>
