@@ -47,7 +47,7 @@ const SliderBanner = () => {
   }, [activeIndex]);
 
   const renderItem = ({ item }: { item: DataItem }) => (
-    <Surface className="w-[615px] overflow-hidden border-md items-center rounded-lg mx-3 ">
+    <Surface className="w-[615px] overflow-hidden border-md shadow-lg items-center rounded-lg mx-3 ">
       <Image
         source={item.image} // Sử dụng nguồn hình ảnh đã được yêu cầu
         className="w-full h-[300px]"

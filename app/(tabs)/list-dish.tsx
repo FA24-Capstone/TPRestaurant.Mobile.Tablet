@@ -1,12 +1,13 @@
+import ListDish from "@/components/List/ListDish";
 import React from "react";
 import { View, Text } from "react-native";
 
-const ListDish: React.FC = () => {
+const MenuScreen: React.FC = () => {
   return (
-    <View>
-      <Text>List Dish Component</Text>
+    <View className="flex-1">
+      <ListDish />
     </View>
   );
 };
 
-export default ListDish;
+export default MenuScreen;

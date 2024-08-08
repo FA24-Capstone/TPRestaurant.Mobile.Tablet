@@ -9,7 +9,7 @@ const HomeScreen: React.FC = () => {
     <PaperProvider>
       <ScrollView className="bg-[#FFFFFF] flex-1">
         <View className="flex-row justify-center mx-auto w-fit">
-          <Text className="uppercase font-semibold text-2xl text-center my-6 pb-4 border-b-2 text-[#333333] border-gray-400">
+          <Text className="uppercase font-bold text-[28px] text-center my-8 pb-4 border-b-2 text-[#970C1A] border-[#970C1A]">
             CHÀO MỪNG BẠN ĐẾN VỚI NHÀ HÀNG THIÊN PHÚ!
           </Text>
         </View>
