@@ -51,7 +51,15 @@ export default function RootLayout() {
                 : "Lịch sử đặt món"; // Fallback title if route doesn't match
             return <CustomHeader title={title} />;
           },
-          drawerActiveTintColor: Colors.primary,
+          // drawerActiveTintColor: Colors.primary,
+          drawerActiveTintColor: "#FFFFFF", // Màu chữ khi active
+          drawerInactiveTintColor: "#FFFFFF", // Màu chữ khi inactive
+          drawerStyle: {
+            backgroundColor: "#970C1A", // Màu nền
+          },
+          drawerLabelStyle: {
+            color: "#FFFFFF", // Màu chữ
+          },
         }}
       >
         <Drawer.Screen
