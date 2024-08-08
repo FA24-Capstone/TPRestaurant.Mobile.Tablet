@@ -51,24 +51,26 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
           />
         </View>
 
-        <TextInput
+        {/* <TextInput
           placeholder="Search"
           className="border-2 border-gray-300 rounded-md px-4 h-10 flex-1 mr-4"
           style={{ minWidth: 100 }} // Minimum width for search input
-        />
+        /> */}
       </View>
 
       <View className="flex-row justify-end items-center mr-10">
-        <TouchableOpacity className="flex-row justify-center items-center mr-4 px-3 py-2 rounded-md shadow-lg">
+        <TouchableOpacity className="flex-row justify-center items-center mr-9 px-3 py-2 rounded-md shadow-lg">
           <FontAwesome name="phone" size={20} color="green" />
-          <Text className="text-green-900 ml-3 text-semibold">
+          <Text className="text-green-900 ml-3 font-semibold text-base">
             Gọi Nhân Viên
           </Text>
         </TouchableOpacity>
 
-        <View className="flex-row justify-center items-center mr-4">
-          <FontAwesome name="calendar" size={20} color="black" />
-          <Text className="ml-2">October 18th 2002, 10:00AM</Text>
+        <View className="flex-row justify-center items-center mr-8">
+          <FontAwesome name="calendar" size={20} color="gray" />
+          <Text className="ml-2 font-semibold text-base text-gray-700">
+            October 18th 2002, 10:00AM
+          </Text>
         </View>
 
         <View
