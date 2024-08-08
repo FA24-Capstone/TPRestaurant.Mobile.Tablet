@@ -23,6 +23,11 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
         paddingTop: 40,
         paddingBottom: 20,
         justifyContent: "space-between",
+        shadowColor: "#000", // Màu của shadow
+        shadowOffset: { width: 0, height: 2 }, // Offset của shadow
+        shadowOpacity: 0.25, // Độ mờ của shadow
+        shadowRadius: 3.84, // Bán kính của shadow
+        elevation: 5, // Độ cao của shadow (Android)
       }}
     >
       <TouchableOpacity
@@ -53,7 +58,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
         />
       </View>
 
-      <View className="flex-row justify-center items-center mr-10">
+      <View className="flex-row justify-end items-center mr-10">
         <TouchableOpacity className="flex-row justify-center items-center mr-4 px-3 py-2 rounded-md shadow-lg">
           <FontAwesome name="phone" size={20} color="green" />
           <Text className="text-green-900 ml-3 text-semibold">

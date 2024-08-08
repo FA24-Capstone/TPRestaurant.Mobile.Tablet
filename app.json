@@ -25,6 +25,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "expo": {
+      "jsEngine": "jsc"
+    },
     "plugins": ["expo-router", "expo-font"]
   }
 }
