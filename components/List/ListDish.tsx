@@ -4,7 +4,11 @@ import SearchBar from "../SearchBar";
 import CategoryTabs from "../Tabs/CategoryTabs";
 import DishCard from "../Cards/DishCard";
 
-const ListDish: React.FC = () => {
+interface ListDishProps {
+  isPanelOpen: boolean;
+}
+
+const ListDish: React.FC<ListDishProps> = ({ isPanelOpen }) => {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
 
   const categories = [
@@ -92,8 +96,8 @@ const ListDish: React.FC = () => {
   return (
     <ScrollView className="flex-1 bg-[#F9F9F9]">
       <View className="p-4 mx-2">
-        <View className="flex-row items-center justify-between mx-2 mb-6 mt-2 ">
-          <Text className="text-[28px] font-bold uppercase pb-4 border-b-2 text-[#970C1A] border-[#970C1A] ">
+        <View className="flex-row items-center justify-between mx-2 mb-6 mt-2">
+          <Text className="text-[28px] font-bold uppercase pb-4 border-b-2 text-[#970C1A] border-[#970C1A]">
             Thực đơn hôm nay
           </Text>
           <SearchBar />
@@ -105,9 +109,12 @@ const ListDish: React.FC = () => {
             onSelectCategory={setSelectedCategory}
           />
         </View>
-        <View className="flex-row flex-wrap">
+        <View className="flex-row flex-wrap justify-start">
           {filteredDishes.map((dish) => (
-            <View className="w-[20%] p-1" key={dish.id}>
+            <View
+              className={isPanelOpen ? "w-[30%] p-1" : "w-[20%] p-1"} // 30% nếu panel mở, 50% nếu panel đóng
+              key={dish.id}
+            >
               <DishCard
                 image={dish.image}
                 name={dish.name}
