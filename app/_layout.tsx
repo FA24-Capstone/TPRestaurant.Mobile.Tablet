@@ -12,6 +12,8 @@ import CustomHeader from "@/components/CustomHeader";
 import CustomDrawerContent from "@/components/CustomDrawerContent"; // Import your custom drawer content
 import OrderDrawer from "@/components/Order/OrderDrawer";
 import OrderPanel from "@/components/Order/OrderPanel";
+import store from "@/redux/store";
+import { Provider } from "react-redux";
 
 const Drawer = createDrawerNavigator();
 const NativeStack = createNativeStackNavigator();
@@ -124,31 +126,35 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <TimerProvider>
-        <NativeStack.Navigator>
-          <NativeStack.Screen
-            name="index"
-            component={require("./index").default}
-            options={{ headerShown: false }}
-          />
-          <NativeStack.Screen
-            name="(tabs)"
-            component={MyDrawer}
-            options={{ headerShown: false }}
-          />
-          <NativeStack.Screen
-            name="meditate/[id]"
-            component={require("./meditate/[id]").default}
-            options={{ headerShown: false }}
-          />
-          <NativeStack.Screen
-            name="(modal)/adjust-meditation-duration"
-            component={require("./(modal)/adjust-meditation-duration").default}
-            options={{ headerShown: false, presentation: "modal" }}
-          />
-        </NativeStack.Navigator>
-      </TimerProvider>
-    </SafeAreaProvider>
+    <Provider store={store}>
+      <SafeAreaProvider>
+        <TimerProvider>
+          <NativeStack.Navigator>
+            <NativeStack.Screen
+              name="index"
+              component={require("./index").default}
+              options={{ headerShown: false }}
+            />
+            <NativeStack.Screen
+              name="(tabs)"
+              component={MyDrawer}
+              options={{ headerShown: false }}
+            />
+            <NativeStack.Screen
+              name="meditate/[id]"
+              component={require("./meditate/[id]").default}
+              options={{ headerShown: false }}
+            />
+            <NativeStack.Screen
+              name="(modal)/adjust-meditation-duration"
+              component={
+                require("./(modal)/adjust-meditation-duration").default
+              }
+              options={{ headerShown: false, presentation: "modal" }}
+            />
+          </NativeStack.Navigator>
+        </TimerProvider>
+      </SafeAreaProvider>
+    </Provider>
   );
 }
