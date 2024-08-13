@@ -10,7 +10,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Colors from "@/constants/Colors";
 import CustomHeader from "@/components/CustomHeader";
 import CustomDrawerContent from "@/components/CustomDrawerContent"; // Import your custom drawer content
-import OrderDrawer from "@/components/Order/OrderDrawer";
 import OrderPanel from "@/components/Order/OrderPanel";
 import store from "@/redux/store";
 import { Provider } from "react-redux";
@@ -82,8 +81,8 @@ export default function RootLayout() {
         />
         <Drawer.Screen
           name="list-dish"
-          // component={require("./(tabs)/list-dish").default}
-          component={OrderPanel}
+          component={require("./(tabs)/list-dish").default}
+          // component={OrderPanel}
           options={{
             drawerLabel: "MENU",
             drawerIcon: ({ color }) => (
