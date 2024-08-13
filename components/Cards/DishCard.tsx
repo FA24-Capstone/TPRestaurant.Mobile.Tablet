@@ -61,7 +61,7 @@ const DishCard: React.FC<DishCardProps> = ({
           {price}
         </Text>
         <TouchableOpacity
-          className="border-[#E45834] border-2 p-2 rounded-[20px]  w-[70%] mx-auto mb-4 mt-2"
+          className="border-[#E45834] border-2 p-2 rounded-[20px]  w-[60%] mx-auto mb-4 mt-2"
           onPress={handleAddDish}
         >
           <Text className="text-[#E45834] text-center font-bold text-lg">

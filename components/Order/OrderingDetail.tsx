@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -74,11 +67,11 @@ const OrderingDetail: React.FC = () => {
             </Text>
           </TouchableOpacity>
           <OrderItemList />
+          <View>
+            <OrderFooter />
+          </View>
         </View>
       )}
-      <View>
-        <OrderFooter />
-      </View>
     </View>
   );
 };
