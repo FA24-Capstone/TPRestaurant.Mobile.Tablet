@@ -1,19 +1,6 @@
+import { HistoryOrderCardProps } from "@/app/types";
 import React from "react";
 import { Image, Text, View } from "react-native";
-
-interface Dish {
-  id: number;
-  image: string | number; // URL or local image
-  name: string;
-  rating: number;
-  ratingCount: number;
-  type: string;
-  price: string;
-}
-
-interface HistoryOrderCardProps {
-  dish: Dish;
-}
 
 const HistoryOrderCard: React.FC<HistoryOrderCardProps> = ({ dish }) => {
   return (

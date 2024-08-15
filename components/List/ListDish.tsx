@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import SearchBar from "../SearchBar";
 import CategoryTabs from "../Tabs/CategoryTabs";
 import DishCard from "../Cards/DishCard";
+import MarqueeText from "../MarqueeText";
+import { Dish } from "@/app/types";
+import { fetchDishes } from "@/api/dishesApi";
 
 interface ListDishProps {
   isPanelOpen: boolean;
@@ -10,6 +13,10 @@ interface ListDishProps {
 
 const ListDish: React.FC<ListDishProps> = ({ isPanelOpen }) => {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+  const [dishes, setDishes] = useState<Dish[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  // console.log("dishes", dishes);
 
   const categories = [
     "Tất cả",
@@ -20,81 +27,37 @@ const ListDish: React.FC<ListDishProps> = ({ isPanelOpen }) => {
     "Khác",
   ];
 
-  // Giả sử bạn có dữ liệu cho các món ăn
-  const dishes = [
-    {
-      id: 1,
-      image: require("../../assets/banner/Banner1.jpg"),
-      name: "Món Chiên 1",
-      rating: 4.5,
-      ratingCount: 20,
-      type: "Món Chiên",
-      price: "50.000 VNĐ",
-    },
-    {
-      id: 2,
-      image: require("../../assets/banner/Banner1.jpg"),
-      name: "Món Chiên 2",
-      rating: 4.5,
-      ratingCount: 20,
-      type: "Món Chiên",
-      price: "50.000 VNĐ",
-    },
-    {
-      id: 3,
-      image: require("../../assets/banner/Banner1.jpg"),
-      name: "Món Chiên 3",
-      rating: 4.5,
-      ratingCount: 20,
-      type: "Món Chiên",
-      price: "50.000 VNĐ",
-    },
-    {
-      id: 4,
-      image: require("../../assets/banner/Banner1.jpg"),
-      name: "Món Chiên 4",
-      rating: 4.5,
-      ratingCount: 20,
-      type: "Món Chiên",
-      price: "50.000 VNĐ",
-    },
-    {
-      id: 5,
-      image: require("../../assets/banner/Banner1.jpg"),
-      name: "Món Chiên 5",
-      rating: 4.5,
-      ratingCount: 20,
-      type: "Món Chiên",
-      price: "50.000 VNĐ",
-    },
-    {
-      id: 6,
-      image: require("../../assets/banner/Banner1.jpg"),
-      name: "Món Lẩu 1",
-      rating: 4.5,
-      ratingCount: 20,
-      type: "Lẩu",
-      price: "50.000 VNĐ",
-    },
-    {
-      id: 7,
-      image: require("../../assets/banner/Banner1.jpg"),
-      name: "Món Nướng 1",
-      rating: 4.5,
-      ratingCount: 20,
-      type: "Nướng",
-      price: "50.000 VNĐ",
-    },
-    // ... thêm các món ăn khác
-  ];
+  useEffect(() => {
+    const loadDishes = async () => {
+      try {
+        const fetchedDishes = await fetchDishes(); // Fetch dishes from the API
+        setDishes(fetchedDishes);
+      } catch (err) {
+        setError("Failed to load dishes");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDishes();
+  }, []);
 
   const filteredDishes =
     selectedCategory === "Tất cả"
       ? dishes
       : dishes.filter((dish) => dish.type === selectedCategory);
 
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>{error}</Text>;
+  }
+
   return (
     <View className="flex-1 bg-[#F9F9F9]">
+      <MarqueeText />
       <View className="p-4 mx-2">
         <View className="flex-row items-center justify-between mx-2 mb-6 mt-2">
           <Text className="text-[28px] font-bold uppercase pb-4 border-b-2 text-[#970C1A] border-[#970C1A]">
@@ -102,7 +65,7 @@ const ListDish: React.FC<ListDishProps> = ({ isPanelOpen }) => {
           </Text>
           <SearchBar />
         </View>
-        <View className="flex-row justify-center mb-5">
+        <View className="flex-row justify-center mb-2">
           <CategoryTabs
             categories={categories}
             selectedCategory={selectedCategory}
@@ -119,7 +82,7 @@ const ListDish: React.FC<ListDishProps> = ({ isPanelOpen }) => {
             >
               <DishCard
                 id={dish.id}
-                image={dish.image}
+                image={dish.image} // Assuming image is a URL
                 name={dish.name}
                 rating={dish.rating}
                 ratingCount={dish.ratingCount}

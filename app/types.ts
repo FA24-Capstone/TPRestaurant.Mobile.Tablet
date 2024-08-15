@@ -1,11 +1,14 @@
 export interface Dish {
-  id: number;
+  id: string; // This matches the type from the API
   image: string | number;
   name: string;
   rating: number;
   ratingCount: number;
   type: string;
   price: string;
+  quantity?: number;
+  description?: string;
+  isAvailable?: boolean;
 }
 
 export interface Order {
@@ -21,6 +24,26 @@ export interface OrderHistoryItemProps {
   index: number;
 }
 
+export interface HistoryOrderCardProps {
+  dish: Dish;
+}
+
 export interface ListOrderProps {
   orders: Order[];
+}
+
+export interface DishesApiResponse {
+  result: {
+    items: {
+      dishId: string;
+      name: string;
+      description: string;
+      image: string;
+      dishItemType: {
+        id: number;
+        name: string;
+      };
+      isAvailable: boolean;
+    }[];
+  };
 }

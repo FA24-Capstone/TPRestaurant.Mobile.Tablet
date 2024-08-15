@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { addOrUpdateDish } from "../../redux/slices/dishesSlice";
 
 interface DishCardProps {
-  id: number; // Assume id is passed
+  id: string; // Assume id is passed as a string from the API
   image: number | string; // Adjust type to handle local and URL images
   name: string;
   rating: number;
@@ -15,7 +15,7 @@ interface DishCardProps {
 }
 
 const DishCard: React.FC<DishCardProps> = ({
-  id, // Assume id is passed as a prop
+  id,
   image,
   name,
   rating,
@@ -28,7 +28,7 @@ const DishCard: React.FC<DishCardProps> = ({
   const handleAddDish = () => {
     dispatch(
       addOrUpdateDish({
-        id,
+        id: Number(id), // Convert id to a number if necessary
         image,
         name,
         rating,
