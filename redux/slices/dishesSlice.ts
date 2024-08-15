@@ -1,4 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+//src/ redux / slices / dishesSlice.ts
+import { fetchDishes } from "@/api/dishesApi";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { isLoading } from "expo-font";
 
 interface Dish {
   id: number;
@@ -19,9 +22,30 @@ const initialState: DishesState = {
   selectedDishes: [],
 };
 
+export const loadDishes = createAsyncThunk(
+  "dishes/loadDishes",
+  async ({
+    pageNumber = 1,
+    pageSize = 10,
+    keyword = "",
+    type = null,
+  }: {
+    pageNumber?: number;
+    pageSize?: number;
+    keyword?: string;
+    type?: number | null;
+  }) => {
+    const data = await fetchDishes(pageNumber, pageSize, keyword, type);
+    return data;
+  }
+);
+
+// console.log("loadDishes", loadDishes);
+
 const dishesSlice = createSlice({
   name: "dishes",
   initialState,
+
   reducers: {
     addOrUpdateDish: (state, action: PayloadAction<Dish>) => {
       const index = state.selectedDishes.findIndex(

@@ -9,7 +9,7 @@ const mockOrders: Order[] = [
     id: 173826,
     dishes: [
       {
-        id: 1,
+        id: "1",
         image: require("../../assets/banner/Banner1.jpg"), // Replace with actual image URL or local image
         name: "Sui cao nhân tôm thịt sốt Tứ Xuyên",
         rating: 4.5,
@@ -18,7 +18,7 @@ const mockOrders: Order[] = [
         price: "200.000vnd",
       },
       {
-        id: 2,
+        id: "2",
         image: require("../../assets/banner/Banner1.jpg"), // Replace with actual image URL or local image
         name: "Sui cao nhân tôm thịt sốt Tứ Xuyên",
         rating: 4.5,
@@ -36,7 +36,7 @@ const mockOrders: Order[] = [
     id: 173827,
     dishes: [
       {
-        id: 1,
+        id: "1",
         image: require("../../assets/banner/Banner1.jpg"), // Replace with actual image URL or local image
         name: "Sui cao nhân tôm thịt sốt Tứ Xuyên",
         rating: 4.5,
@@ -45,7 +45,7 @@ const mockOrders: Order[] = [
         price: "200.000vnd",
       },
       {
-        id: 2,
+        id: "2",
         image: require("../../assets/banner/Banner1.jpg"), // Replace with actual image URL or local image
         name: "Sui cao nhân tôm thịt sốt Tứ Xuyên",
         rating: 4.5,
