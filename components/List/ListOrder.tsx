@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, View } from "react-native";
 import OrderHistoryItem from "../HistoryOrder/HistoryOrderItem";
-import { ListOrderProps } from "@/app/types";
+import { ListOrderProps } from "@/app/types/dishes_type";
 
 const ListOrder: React.FC<ListOrderProps> = ({ orders }) => {
   return (

@@ -1,7 +1,8 @@
 import axios from "axios"; // Import Axios directly
-import { Dish, DishesApiResponse } from "@/app/types";
+import { Dish, DishesApiResponse } from "@/app/types/dishes_type";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
+// const API_URL = "http://localhost:3000";
 
 export const fetchDishes = async (
   pageNumber: number = 1,
@@ -19,24 +20,47 @@ export const fetchDishes = async (
         },
       }
     );
+    // console.log("response", response); // Debugging line
 
-    // Map the response data to the Dish interface
-    const dishes: Dish[] = response.data.result.items.map((item) => ({
-      id: item.dishId,
-      name: item.name,
-      description: item.description,
-      image: item.image,
-      type: item.dishItemType.name,
-      isAvailable: item.isAvailable,
-      rating: 4.5, // Placeholder value, adjust as needed
-      ratingCount: 150, // Placeholder value, adjust as needed
-      price: "200.000vnd", // Placeholder value, adjust as needed
-      quantity: 1, // Optional, can be set later in the app
-    }));
+    // Ánh xạ dữ liệu trả về từ API
+    const dishes: Dish[] = response.data.result.items.map((item) => {
+      const dishData = item.dish; // Lấy dữ liệu dish từ object chính
+
+      return {
+        id: dishData.dishId, // Sử dụng dishId thay vì id
+        name: dishData.name,
+        description: dishData.description,
+        image: dishData.image,
+        dishItemTypeId: dishData.dishItemTypeId,
+        isAvailable: dishData.isAvailable,
+        dishItemType: {
+          id: dishData.dishItemType.id,
+          name: dishData.dishItemType.name,
+          vietnameseName: dishData.dishItemType.vietnameseName,
+        },
+        dishSizeDetails: item.dishSizeDetails.map((detail) => ({
+          dishSizeDetailId: detail.dishSizeDetailId,
+          isAvailable: detail.isAvailable,
+          price: detail.price,
+          discount: detail.discount,
+          dishId: detail.dishId,
+          dishSizeId: detail.dishSizeId,
+          dishSize: {
+            id: detail.dishSize.id,
+            name: detail.dishSize.name,
+            vietnameseName: detail.dishSize.vietnameseName,
+          },
+        })),
+        rating: 4.5, // Placeholder value
+        ratingCount: 150, // Placeholder value
+        price: "200.000vnd", // Placeholder value
+        quantity: 1, // Optional
+      };
+    });
 
     return dishes;
   } catch (error) {
-    console.log("Full error:", error); // This will give you more details
+    console.error("Full error:", error); // Chi tiết lỗi sẽ được in ra console
     throw error;
   }
 };

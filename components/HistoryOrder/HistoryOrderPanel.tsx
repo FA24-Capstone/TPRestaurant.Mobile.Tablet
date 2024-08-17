@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import ListOrder from "../List/ListOrder";
-import { Order } from "@/app/types";
+import { Order } from "@/app/types/dishes_type";
 
 const mockOrders: Order[] = [
   {

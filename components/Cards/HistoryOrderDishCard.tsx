@@ -1,4 +1,4 @@
-import { HistoryOrderCardProps } from "@/app/types";
+import { HistoryOrderCardProps } from "@/app/types/dishes_type";
 import React from "react";
 import { Image, Text, View } from "react-native";
 

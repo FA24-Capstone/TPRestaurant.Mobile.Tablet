@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, Button, TouchableOpacity } from "react-native";
 import HistoryOrderCard from "../Cards/HistoryOrderDishCard";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { OrderHistoryItemProps } from "@/app/types";
+import { OrderHistoryItemProps } from "@/app/types/dishes_type";
 
 const OrderHistoryItem: React.FC<OrderHistoryItemProps> = ({
   order,
