@@ -7,7 +7,7 @@ const SearchBar: React.FC = () => {
       <TextInput
         placeholder="Tìm món ăn..."
         className="flex-1"
-        style={{ padding: 4 }} // Điều chỉnh padding
+        style={{ padding: 2 }} // Điều chỉnh padding
       />
     </View>
   );

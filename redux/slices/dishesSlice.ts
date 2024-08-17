@@ -6,7 +6,7 @@ import { isLoading } from "expo-font";
 interface Dish {
   id: number;
   name: string;
-  price: string;
+  price: number;
   image: string | number; // Update to accept both local and URL images
   quantity: number;
   rating: number;

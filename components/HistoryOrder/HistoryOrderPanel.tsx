@@ -15,7 +15,7 @@ const mockOrders: Order[] = [
         rating: 4.5,
         ratingCount: 150,
         type: "Main",
-        price: "200.000vnd",
+        price: 200000,
       },
       {
         id: "2",
@@ -24,7 +24,7 @@ const mockOrders: Order[] = [
         rating: 4.5,
         ratingCount: 150,
         type: "Main",
-        price: "200.000vnd",
+        price: 200000,
       },
       // Add more dishes as needed
     ],
@@ -42,7 +42,7 @@ const mockOrders: Order[] = [
         rating: 4.5,
         ratingCount: 150,
         type: "Main",
-        price: "200.000vnd",
+        price: 200000,
       },
       {
         id: "2",
@@ -51,7 +51,7 @@ const mockOrders: Order[] = [
         rating: 4.5,
         ratingCount: 150,
         type: "Main",
-        price: "200.000vnd",
+        price: 200000,
       },
       // Add more dishes as needed
     ],
