@@ -13,7 +13,7 @@ import { addOrUpdateDish, removeDish } from "../../redux/slices/dishesSlice";
 interface Dish {
   id: number;
   name: string;
-  price: string;
+  price: number;
   image: string | number;
   quantity: number;
   rating: number;

@@ -6,7 +6,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const fetchDishes = async (
   pageNumber: number = 1,
-  pageSize: number = 10,
+  pageSize: number = 6,
   keyword: string = "",
   type: number | null = null
 ): Promise<Dish[]> => {
@@ -25,6 +25,10 @@ export const fetchDishes = async (
     // Ánh xạ dữ liệu trả về từ API
     const dishes: Dish[] = response.data.result.items.map((item) => {
       const dishData = item.dish; // Lấy dữ liệu dish từ object chính
+      const dishSizeDetail = item.dishSizeDetails.filter(
+        (item) => item.dishSizeId === 0
+      ); // Lấy dữ liệu dish từ object chính
+      console.log("dishSizeDetailne", dishSizeDetail);
 
       return {
         id: dishData.dishId, // Sử dụng dishId thay vì id
@@ -53,7 +57,7 @@ export const fetchDishes = async (
         })),
         rating: 4.5, // Placeholder value
         ratingCount: 150, // Placeholder value
-        price: "200.000vnd", // Placeholder value
+        price: dishSizeDetail[0].price, // Placeholder value
         quantity: 1, // Optional
       };
     });

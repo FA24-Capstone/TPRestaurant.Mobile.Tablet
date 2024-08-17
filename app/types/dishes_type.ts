@@ -40,7 +40,7 @@ export interface Dish {
   rating: number;
   ratingCount: number;
   dishItemTypeId: number;
-  price: string;
+  price: number;
   quantity?: number;
   description?: string;
   isAvailable?: boolean;
