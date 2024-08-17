@@ -1,5 +1,5 @@
 // src/api/ordersApi.ts
-import apiClient from "./index";
+import apiClient from "./config/index";
 
 export const fetchOrders = async () => {
   try {

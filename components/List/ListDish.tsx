@@ -4,7 +4,7 @@ import SearchBar from "../SearchBar";
 import CategoryTabs from "../Tabs/CategoryTabs";
 import DishCard from "../Cards/DishCard";
 import MarqueeText from "../MarqueeText";
-import { Dish } from "@/app/types";
+import { Dish } from "@/app/types/dishes_type";
 import { fetchDishes } from "@/api/dishesApi";
 
 interface ListDishProps {
@@ -16,16 +16,39 @@ const ListDish: React.FC<ListDishProps> = ({ isPanelOpen }) => {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // console.log("dishes", dishes);
+  console.log("dishesList", dishes);
 
   const categories = [
     "Tất cả",
-    "Món Chiên",
+    "Khai vị",
+    "Súp",
     "Lẩu",
     "Nướng",
     "Tráng miệng",
-    "Khác",
+    "Đồ uống",
+    "Món ăn kèm",
+    "Nước chấm",
+    "Khác", // Thêm các loại khác nếu cần
   ];
+
+  const DishItemTypeTranslations = {
+    APPETIZER: "Khai vị",
+    SOUP: "Súp",
+    HOTPOT: "Lẩu",
+    BBQ: "Nướng",
+    HOTPOT_BROTH: "Nước lẩu",
+    HOTPOT_MEAT: "Thịt cho lẩu",
+    HOTPOT_SEAFOOD: "Hải sản cho lẩu",
+    HOTPOT_VEGGIE: "Rau củ cho lẩu",
+    BBQ_MEAT: "Thịt cho BBQ",
+    BBQ_SEAFOOD: "Hải sản cho BBQ",
+    HOTPOT_TOPPING: "Topping cho lẩu",
+    BBQ_TOPPING: "Topping cho BBQ",
+    SIDEDISH: "Món ăn kèm",
+    DRINK: "Đồ uống",
+    DESSERT: "Tráng miệng",
+    SAUCE: "Nước chấm",
+  };
 
   useEffect(() => {
     const loadDishes = async () => {
@@ -45,7 +68,11 @@ const ListDish: React.FC<ListDishProps> = ({ isPanelOpen }) => {
   const filteredDishes =
     selectedCategory === "Tất cả"
       ? dishes
-      : dishes.filter((dish) => dish.type === selectedCategory);
+      : dishes.filter(
+          (dish) =>
+            DishItemTypeTranslations[dish.dishItemType.name] ===
+            selectedCategory
+        );
 
   if (loading) {
     return <Text>Loading...</Text>;
@@ -86,7 +113,10 @@ const ListDish: React.FC<ListDishProps> = ({ isPanelOpen }) => {
                 name={dish.name}
                 rating={dish.rating}
                 ratingCount={dish.ratingCount}
-                type={dish.type}
+                type={
+                  DishItemTypeTranslations[dish.dishItemType.name] ||
+                  "Loại không xác định"
+                }
                 price={dish.price}
               />
             </View>
