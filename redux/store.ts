@@ -1,11 +1,13 @@
 // src/redux/store.ts
-import { configureStore } from '@reduxjs/toolkit';
-import dishesReducer from './slices/dishesSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import dishesReducer from "./slices/dishesSlice";
+import authReducer from "./slices/authSlice";
 
 const store = configureStore({
   reducer: {
-    dishes: dishesReducer
-  }
+    dishes: dishesReducer,
+    auth: authReducer,
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

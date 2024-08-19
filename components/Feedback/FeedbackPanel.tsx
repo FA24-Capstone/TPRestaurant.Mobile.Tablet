@@ -62,7 +62,7 @@ const FeedbackPanel: React.FC = () => {
     >
       <View className="flex-1 bg-[#F9F9F9]">
         <View className="flex-row items-center justify-center mx-2 ">
-          <Text className="text-2xl mt-14 mb-10  font-bold text-[#970C1A] pb-4 border-b-2 border-[#970C1A] text-center uppercase">
+          <Text className="text-2xl mt-10 mb-10  font-bold text-[#970C1A] pb-4 border-b-2 border-[#970C1A] text-center uppercase">
             Đánh giá chất lượng món ăn và phục vụ
           </Text>
         </View>
