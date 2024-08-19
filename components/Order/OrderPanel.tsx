@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Dimensions } from "react-native";
-import ListDish from "@/components/List/ListDish";
+import Menu from "@/components/List/Menu";
 import { IconButton } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import OrderingDetail from "./OrderingDetail";
@@ -29,7 +29,7 @@ const OrderPanel: React.FC = () => {
   return (
     <View className="flex-row flex-1 relative">
       <View style={{ width: listWidth }}>
-        <ListDish isPanelOpen={isPanelOpen} />
+        <Menu isPanelOpen={isPanelOpen} />
       </View>
       {!isPanelOpen && (
         <View className="absolute right-2 top-1/2 transform -translate-y-1/2  rounded-md bg-gray-300">

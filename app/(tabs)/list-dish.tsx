@@ -1,4 +1,4 @@
-import ListDish from "@/components/List/ListDish";
+import ListDish from "@/components/List/Menu";
 import OrderPanel from "@/components/Order/OrderPanel";
 import React from "react";
 import { View, Text } from "react-native";
