@@ -52,6 +52,8 @@ const ListCombo: React.FC<ListComboProps> = ({
             DishItemTypeTranslations[combo.category.name] === selectedCategory
         );
 
+  console.log("filteredCombos", filteredCombos);
+
   return (
     <View>
       {filteredCombos.length > 0 && (
@@ -77,7 +79,6 @@ const ListCombo: React.FC<ListComboProps> = ({
                   }
                   price={combo.price}
                   description={combo.description}
-                  dishSizeDetails={[]} // Nếu không có dishSizeDetails, truyền mảng rỗng
                 />
               </View>
             ))}

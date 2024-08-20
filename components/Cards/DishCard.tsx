@@ -41,7 +41,7 @@ const DishCard: React.FC<DishCardProps> = ({
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
 
   const handleAddDish = () => {
-    console.log("dishSizeDetailsNe", dishSizeDetails);
+    // console.log("dishSizeDetailsNe", dishSizeDetails);
 
     if (dishSizeDetails && dishSizeDetails.length > 0) {
       // Hiển thị modal nếu có dishSizeDetails

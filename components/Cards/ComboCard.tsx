@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,23 +6,25 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useDispatch } from "react-redux";
 import { addOrUpdateDish } from "../../redux/slices/dishesSlice";
 import { DishSizeDetail } from "@/app/types/dishes_type";
 import { formatPriceVND } from "../Format/formatPrice";
+import { fetchComboById } from "@/api/comboApi";
+import { Combo, DishCombo } from "@/app/types/combo_type";
 
 interface ComboCardProps {
   id: string;
-  image: number | string;
   name: string;
+  description?: string;
+  image: number | string;
+  price: number;
   rating: number;
   ratingCount: number;
   type: string;
-  price: number;
-  description?: string;
-  dishSizeDetails?: DishSizeDetail[];
 }
 
 const ComboCard: React.FC<ComboCardProps> = ({
@@ -34,96 +36,133 @@ const ComboCard: React.FC<ComboCardProps> = ({
   type,
   price,
   description,
-  dishSizeDetails,
 }) => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
+  const [comboDetails, setComboDetails] = useState<Combo | null>(null);
+  const [dishCombos, setDishCombos] = useState<DishCombo[]>([]);
+  const [selectedDishes, setSelectedDishes] = useState({});
+  const [maxOptionSetNumber, setMaxOptionSetNumber] = useState(0);
 
-  const handleAddDish = () => {
-    console.log("dishSizeDetailsNe", dishSizeDetails);
+  console.log("maxOptionSetNumber", maxOptionSetNumber);
+  console.log("dishCombosNe", dishCombos);
 
-    if (dishSizeDetails && dishSizeDetails.length > 0) {
-      // Hiển thị modal nếu có dishSizeDetails
-      setModalVisible(true);
-    } else {
-      // Thêm món vào giỏ nếu không có dishSizeDetails
-      dispatch(
-        addOrUpdateDish({
-          id: Number(id), // Convert id to a number if necessary
-          image,
-          name,
-          rating,
-          ratingCount,
-          type,
-          price,
-          quantity: 1,
-        })
-      );
-    }
-  };
-
-  const handleAddToOrder = () => {
-    if (selectedSizeId) {
-      const selectedSize = dishSizeDetails?.find(
-        (detail) => detail.dishSizeDetailId === selectedSizeId
-      );
-
-      if (selectedSize) {
-        dispatch(
-          addOrUpdateDish({
-            id: Number(id),
-            image,
-            name,
-            rating,
-            ratingCount,
-            type,
-            price,
-            quantity: 1,
-          })
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchComboById(id);
+        setComboDetails(data.result.combo);
+        setDishCombos(data.result.dishCombo);
+        const maxNum = Math.max(
+          ...data.result.dishCombo.map(
+            (item) => item.comboOptionSet.optionSetNumber
+          )
         );
-        setModalVisible(false);
+        setMaxOptionSetNumber(maxNum);
+      } catch (error) {
+        console.error("Error fetching combo details:", error);
+        alert("Failed to load combo details.");
       }
-    } else {
-      alert("Vui lòng chọn kích cỡ món ăn trước khi thêm vào order.");
+    };
+
+    fetchData();
+  }, [id]);
+
+  const handleAddDish = async () => {
+    try {
+      const data = await fetchComboById(id);
+      setComboDetails(data.result.combo);
+      setDishCombos(data.result.dishCombo);
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching combo details:", error);
+      alert("Failed to load combo details.");
     }
   };
 
-  const renderDishSizeDetail = ({ item }: { item: DishSizeDetail }) => {
-    const isSelected = item.dishSizeDetailId === selectedSizeId;
+  const handleDishSelection = (setId, dishId) => {
+    setSelectedDishes((prev) => {
+      const currentSelection = prev[setId] || [];
+      const maxChoices =
+        dishCombos.find((set) => set.comboOptionSet.optionSetNumber === setId)
+          ?.comboOptionSet.numOfChoice || 0;
 
-    return (
-      <TouchableOpacity
-        onPress={() => setSelectedSizeId(item.dishSizeDetailId)}
-        className={`mb-2 p-4 rounded-md mr-4 mt-4 ${
-          isSelected ? "bg-[#F2D2D5] border-2 border-[#F2D2D5]" : "bg-gray-200"
-        }`}
-      >
-        <Text
-          className={`font-semibold text-center text-lg ${
-            isSelected ? "text-[#C01D2E]" : "text-gray-600"
-          }`}
-        >
-          {item.dishSize.name}
+      if (currentSelection.includes(dishId)) {
+        return {
+          ...prev,
+          [setId]: currentSelection.filter((id) => id !== dishId),
+        };
+      } else if (currentSelection.length < maxChoices) {
+        return { ...prev, [setId]: [...currentSelection, dishId] };
+      }
+      return prev;
+    });
+  };
+
+  // const handleAddToOrder = () => {
+
+  //       dispatch(
+  //         addOrUpdateDish({
+  //           id: Number(id),
+  //           image,
+  //           name,
+  //           rating,
+  //           ratingCount,
+  //           type,
+  //           price,
+  //           quantity: 1,
+  //         })
+  //       );
+  //       setModalVisible(false);
+  //     }
+
+  // };
+
+  const closeModal = () => setModalVisible(false);
+
+  const renderOptionSets = () => {
+    return Array.from({ length: maxOptionSetNumber }, (_, index) => (
+      <View key={index + 1} className="py-2">
+        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+          Bộ chọn {index + 1} (Chọn{" "}
+          {
+            dishCombos.find(
+              (combo) => combo.comboOptionSet.optionSetNumber === index + 1
+            )?.comboOptionSet.numOfChoice
+          }{" "}
+          món):
         </Text>
-        <View className="flex-row items-center justify-center mt-2">
-          <Text
-            className={`font-semibold text-center text-lg ${
-              isSelected ? "text-[#C01D2E]" : "text-gray-600"
-            }`}
-          >
-            {formatPriceVND(item.price)}
-          </Text>
-          {item.discount > 0 && (
-            <Text
-              className={`ml-4 ${isSelected ? "text-white" : "text-gray-600"}`}
-            >
-              (- {item.discount}%)
-            </Text>
+        <FlatList
+          data={dishCombos.filter(
+            (combo) => combo.comboOptionSet.optionSetNumber === index + 1
           )}
-        </View>
-      </TouchableOpacity>
-    );
+          horizontal
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              key={item.dishCombo[0].dishComboId}
+              style={{ margin: 10, alignItems: "center" }}
+              onPress={() =>
+                handleDishSelection(index + 1, item.dishCombo[0].dishComboId)
+              }
+            >
+              <Image
+                source={{ uri: item.dishCombo[0].dishSizeDetail.dish.image }}
+                style={{ height: 100, width: 100, borderRadius: 50 }}
+              />
+              <Text>{item.dishCombo[0].dishSizeDetail.dish.name}</Text>
+              <Text>
+                {formatPriceVND(item.dishCombo[0].dishSizeDetail.price)}
+              </Text>
+              {selectedDishes[index + 1]?.includes(
+                item.dishCombo[0].dishComboId
+              ) && <Icon name="check" size={20} color="#FF0000" />}
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.dishCombo[0].dishComboId}
+          showsHorizontalScrollIndicator={false}
+        />
+      </View>
+    ));
   };
 
   return (
@@ -156,74 +195,75 @@ const ComboCard: React.FC<ComboCardProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Modal để chọn dish size */}
-      {dishSizeDetails && (
-        <Modal
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View className="flex-1 justify-center items-center bg-[#22222391] bg-opacity-50">
-            <View className="bg-white rounded-lg p-4 w-[70%]">
-              <View className="flex-row ">
-                <Image
-                  source={typeof image === "string" ? { uri: image } : image}
-                  className="w-[400px] h-full rounded-lg mb-4"
-                  resizeMode="cover"
-                />
-                <View className=" ml-6">
-                  <Text className="font-bold text-2xl mb-2 text-gray-700">
-                    {name}
-                  </Text>
-                  <View className="flex-row items-center">
-                    <Text className="text-gray-600 text-lg mr-4 mb-2">
-                      {type} -
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View className="h-[200px] flex-1 justify-center items-center bg-[#22222391] bg-opacity-50">
+          <View
+            style={{
+              margin: 50,
+              padding: 20,
+            }}
+            className=" bg-white rounded-lg"
+          >
+            <View className="flex-row bg-white w-[80%]  rounded-lg">
+              <Image
+                source={{
+                  uri: typeof image === "string" ? image : String(image),
+                }}
+                style={{ height: 400, width: 400, resizeMode: "cover" }}
+                className=" rounded-lg mr-6"
+                resizeMode="cover"
+              />
+              <View>
+                <Text style={{ fontSize: 24, fontWeight: "bold" }}>{name}</Text>
+                <Text className="text-gray-600 text-lg font-semibold mr-4 mb-2">
+                  {type} - {description}
+                </Text>
+
+                <Text className="font-bold  text-xl text-[#C01D2E] mb-4">
+                  {formatPriceVND(price)}
+                </Text>
+                <Text className="font-semibold text-xl">
+                  Các lựa chọn món ăn:
+                </Text>
+
+                <ScrollView
+                  style={{
+                    backgroundColor: "white",
+                    padding: 20,
+                    marginBottom: 50,
+                    height: 400,
+                  }}
+                >
+                  {renderOptionSets()}
+                </ScrollView>
+                <View className=" flex-row justify-end">
+                  <TouchableOpacity
+                    className="mt-4 bg-gray-500 p-2 rounded-lg w-[100px] mr-6"
+                    onPress={closeModal}
+                  >
+                    <Text className="text-white text-center font-semibold text-lg uppercase">
+                      Huỷ
                     </Text>
-                    <View className="flex-row items-center mb-2">
-                      <Icon name="star" size={20} color="#FFD700" />
-                      <Text className=" text-gray-500 ml-1 text-base font-semibold">
-                        {rating}
-                      </Text>
-                      <Text className="text-gray-500 text-base ml-1 font-semibold">
-                        ({ratingCount})
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className="mb-4 text-lg">{description}</Text>
-                  <Text className="font-semibold">Các lựa chọn kích cỡ:</Text>
-                  <FlatList
-                    data={dishSizeDetails?.sort(
-                      (a, b) => a.dishSizeId - b.dishSizeId
-                    )}
-                    renderItem={renderDishSizeDetail}
-                    keyExtractor={(item) => item.dishSizeDetailId} // Chuyển id thành chuỗi nếu cần thiết
-                    horizontal={true} // Thiết lập FlatList hiển thị theo chiều ngang
-                    showsHorizontalScrollIndicator={false} // Ẩn thanh cuộn ngang nếu không cần thiết
-                  />
-                  <View className=" flex-row justify-end">
-                    <TouchableOpacity
-                      className="mt-4 bg-gray-500 p-2 rounded-lg w-[100px] mr-6"
-                      onPress={() => setModalVisible(false)}
-                    >
-                      <Text className="text-white text-center font-semibold text-lg uppercase">
-                        Huỷ
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      className="mt-4 bg-[#C01D2E] w-[200px] p-2 rounded-lg"
-                      onPress={handleAddToOrder}
-                    >
-                      <Text className="text-white text-center font-semibold text-lg uppercase">
-                        Thêm vào order
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="mt-4 bg-[#C01D2E] w-[200px] p-2 rounded-lg"
+                    // onPress={handleAddToOrder}
+                  >
+                    <Text className="text-white text-center font-semibold text-lg uppercase">
+                      Thêm vào order
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
           </View>
-        </Modal>
-      )}
+        </View>
+      </Modal>
     </View>
   );
 };
