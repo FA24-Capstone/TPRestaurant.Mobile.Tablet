@@ -44,6 +44,7 @@ export interface Dish {
   dishId: string;
   name: string;
   description: string;
+  price: number;
   image: string;
   dishItemTypeId: number;
   dishItemType: any;
@@ -65,6 +66,7 @@ export interface DishDetail {
   dishId: string;
   name: string;
   description: string;
+  price: number;
   image: string;
   dishItemTypeId: number;
   dishItemType: any; // Replace 'any' with actual type if available

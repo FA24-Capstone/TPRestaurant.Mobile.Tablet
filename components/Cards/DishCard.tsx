@@ -50,7 +50,7 @@ const DishCard: React.FC<DishCardProps> = ({
       // Thêm món vào giỏ nếu không có dishSizeDetails
       dispatch(
         addOrUpdateDish({
-          id: Number(id), // Convert id to a number if necessary
+          id: id, // Convert id to a number if necessary
           image,
           name,
           rating,
@@ -70,15 +70,19 @@ const DishCard: React.FC<DishCardProps> = ({
       );
 
       if (selectedSize) {
+        // Chắc chắn rằng id được chuyển đổi một cách chính xác
+        // Chỉ dispatch nếu numericId là một số hợp lệ
         dispatch(
           addOrUpdateDish({
-            id: Number(id),
+            id: id,
             image,
             name,
             rating,
             ratingCount,
             type,
-            price,
+            price: selectedSize.price, // Sử dụng giá của size được chọn
+            size: selectedSize.dishSize.name, // Lưu tên size
+            sizePrice: selectedSize.price, // Lưu giá của size được chọn
             quantity: 1,
           })
         );

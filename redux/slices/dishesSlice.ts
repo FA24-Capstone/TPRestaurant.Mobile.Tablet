@@ -1,10 +1,11 @@
 //src/ redux / slices / dishesSlice.ts
 import { fetchDishes } from "@/api/dishesApi";
+import { ComboOrder } from "@/app/types/order_type";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { isLoading } from "expo-font";
 
 interface Dish {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string | number; // Update to accept both local and URL images
@@ -12,14 +13,28 @@ interface Dish {
   rating: number;
   ratingCount: number;
   type: string;
+  size?: string;
+  sizePrice?: number; // Add sizePrice field to store the price of the selected size
 }
 
 interface DishesState {
   selectedDishes: Dish[];
+  selectedCombos: ComboOrder[];
 }
+
+// interface ComboOrder {
+//   id?: string; // Normalized ID for rendering
+//   comboId: string;
+//   comboName: string;
+//   comboImage: string | number;
+//   comboPrice: number;
+//   selectedDishes: { id: string; name: string; price: number }[];
+//   type?: string; // Added to differentiate in renderItem
+// }
 
 const initialState: DishesState = {
   selectedDishes: [],
+  selectedCombos: [],
 };
 
 export const loadDishes = createAsyncThunk(
@@ -47,27 +62,51 @@ const dishesSlice = createSlice({
   initialState,
 
   reducers: {
-    addOrUpdateDish: (state, action: PayloadAction<Dish>) => {
-      const index = state.selectedDishes.findIndex(
-        (dish) => dish.id === action.payload.id
+    addOrUpdateCombo: (state, action: PayloadAction<ComboOrder>) => {
+      const index = state.selectedCombos.findIndex(
+        (combo) => combo.comboId === action.payload.comboId
       );
       if (index !== -1) {
-        // Simply increment the existing quantity by 1 instead of adding payload quantity
+        state.selectedCombos[index] = {
+          ...state.selectedCombos[index],
+          ...action.payload,
+        };
+      } else {
+        state.selectedCombos.push(action.payload);
+      }
+    },
+    removeCombo: (state, action: PayloadAction<string>) => {
+      state.selectedCombos = state.selectedCombos.filter(
+        (combo) => combo.comboId !== action.payload
+      );
+    },
+    addOrUpdateDish: (state, action: PayloadAction<Dish>) => {
+      const uniqueKey = `${action.payload.id}_${action.payload.size}`;
+      const index = state.selectedDishes.findIndex(
+        (dish) => `${dish.id}_${dish.size}` === uniqueKey
+      );
+      // // Tìm index dựa trên id và size
+      // const index = state.selectedDishes.findIndex(
+      //   (dish) =>
+      //     dish.id === action.payload.id && dish.size === action.payload.size
+      // );
+      if (index !== -1) {
+        // Nếu tìm thấy món ăn với cùng id và size, tăng số lượng
         state.selectedDishes[index].quantity += 1;
       } else {
-        // Add new dish if it doesn't exist with initial quantity set to 1 (ignore payload quantity for new adds)
+        // Nếu không, thêm món mới với số lượng khởi tạo là 1
         const newDish = {
           ...action.payload,
-          quantity: 1, // Initialize with 1 when adding new
+          quantity: 1, // Khởi tạo với số lượng là 1 khi thêm mới
         };
         state.selectedDishes.push(newDish);
       }
     },
-    removeDish: (state, action: PayloadAction<number>) => {
-      const index = state.selectedDishes.findIndex(
-        (dish) => dish.id === action.payload
-      );
 
+    removeDishQuanti: (state, action: PayloadAction<string>) => {
+      const index = state.selectedDishes.findIndex(
+        (dish) => `${dish.id}_${dish.size}` === action.payload
+      );
       if (index >= 0) {
         if (state.selectedDishes[index].quantity > 1) {
           state.selectedDishes[index].quantity -= 1;
@@ -76,11 +115,24 @@ const dishesSlice = createSlice({
         }
       }
     },
+    removeDishItem: (state, action: PayloadAction<string>) => {
+      state.selectedDishes = state.selectedDishes.filter(
+        (dish) => `${dish.id}_${dish.size}` !== action.payload
+      );
+    },
     clearDishes: (state) => {
       state.selectedDishes = [];
+      state.selectedCombos = [];
     },
   },
 });
 
-export const { addOrUpdateDish, removeDish, clearDishes } = dishesSlice.actions;
+export const {
+  addOrUpdateDish,
+  removeDishQuanti,
+  clearDishes,
+  removeCombo,
+  removeDishItem,
+  addOrUpdateCombo,
+} = dishesSlice.actions;
 export default dishesSlice.reducer;

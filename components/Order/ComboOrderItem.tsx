@@ -1,39 +1,36 @@
+// import { ComboOrder } from "@/app/types/order_type";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import { useDispatch } from "react-redux";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import {
-  addOrUpdateDish,
-  removeDishItem,
-  removeDishQuanti,
-} from "../../redux/slices/dishesSlice";
+import { useDispatch } from "react-redux";
 import { formatPriceVND } from "../Format/formatPrice";
-// import { DishOrder } from "@/app/types/order_type";
 
-interface DishOrder {
+interface ComboDish {
   id: string;
   name: string;
   price: number;
-  image: string | number;
+}
+
+export interface ComboOrder {
+  type?: "combo";
+  comboId: string;
+  comboName: string;
   quantity: number;
-  rating: number;
-  ratingCount: number;
-  type: string;
-  size?: string;
-  sizePrice?: number; // Thêm trường sizePrice để lưu trữ giá của size được chọn
+  comboImage: string | number;
+  comboPrice: number;
+  selectedDishes: ComboDish[];
 }
 
-interface OrderItemProps {
-  item: DishOrder;
+interface ComboOrderItemProps {
+  item: ComboOrder;
 }
-
-const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
+const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
   const dispatch = useDispatch();
   const translateX = useSharedValue(0);
 
@@ -55,19 +52,9 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
     transform: [{ translateX: translateX.value }],
   }));
 
-  const handleRemoveQuantity = () => {
-    const dishKey = `${item.id}_${item.size}`;
-    dispatch(removeDishQuanti(dishKey));
-  };
-
-  const handleRemoveDish = () => {
-    const dishKey = `${item.id}_${item.size}`;
-    dispatch(removeDishItem(dishKey));
-  };
-
   const renderRightActions = () => (
     <TouchableOpacity
-      onPress={handleRemoveDish}
+      // onPress={handleRemoveDish}
       className="bg-[#C01D2E] justify-center items-center rounded-md px-6 h-full"
     >
       <Image
@@ -76,7 +63,9 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
       />
     </TouchableOpacity>
   );
-
+  console.log("====================================");
+  console.log("item.selectedDishes", item.selectedDishes);
+  console.log("====================================");
   return (
     <GestureDetector gesture={gesture}>
       <View className="flex-row rounded-lg overflow-hidden items-center justify-between">
@@ -84,31 +73,36 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
           className="flex-row bg-[#EAF0F0] w-full my-2.5 rounded-lg shadow p-2.5"
           style={animatedStyle}
         >
-          <Image
-            source={
-              typeof item.image === "string" ? { uri: item.image } : item.image
-            }
-            className="h-20 w-20 rounded-md mr-4"
-          />
-          <View className="flex-row justify-between w-[70%]">
-            <View className="h-[100%]">
-              <Text className="flex-1 text-lg font-semibold h-[20px] mr-2.5">
-                {item.name.length > 15
-                  ? `${item.name.substring(0, 15)}...`
-                  : item.name}
-              </Text>
-              <Text className="text-lg font-semibold text-gray-500">
-                {item.size}
-              </Text>
+          <View className="flex-row">
+            <Image
+              source={
+                typeof item.comboImage === "string"
+                  ? { uri: item.comboImage }
+                  : item.comboImage
+              }
+              className="h-20 w-20 rounded-md"
+            />
+            <View className="ml-5 flex-1">
+              <Text className="text-lg font-bold">{item.comboName}</Text>
               <Text className="text-lg font-bold text-[#C01D2E]">
-                {formatPriceVND(item.price)}
+                {formatPriceVND(item.comboPrice)}
               </Text>
+              {item.selectedDishes.length > 0 && (
+                <View>
+                  <Text className="mt-1">Selected Dishes:</Text>
+                  {item.selectedDishes.map((dish) => (
+                    <Text key={dish.id} className="text-sm text-gray-700">
+                      - {dish.name} ({formatPriceVND(dish.price)})
+                    </Text>
+                  ))}
+                </View>
+              )}
             </View>
             <View className="items-center">
               <Text className="text-lg">Số lượng:</Text>
               <View className="flex-row items-center my-2 px-2 py-1 bg-white rounded-full">
                 <TouchableOpacity
-                  onPress={handleRemoveQuantity}
+                  // onPress={handleRemoveQuantity}
                   className="p-1"
                 >
                   <MaterialCommunityIcons
@@ -119,11 +113,11 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
                 </TouchableOpacity>
                 <Text className="text-lg mx-2">{item.quantity}</Text>
                 <TouchableOpacity
-                  onPress={() =>
-                    dispatch(
-                      addOrUpdateDish({ ...item, quantity: item.quantity + 1 })
-                    )
-                  }
+                  // onPress={() =>
+                  //   dispatch(
+                  //     addOrUpdateDish({ ...item, quantity: item.quantity + 1 })
+                  //   )
+                  // }
                   className="p-1"
                 >
                   <MaterialCommunityIcons
@@ -144,4 +138,4 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
   );
 };
 
-export default OrderItem;
+export default ComboOrderItem;

@@ -11,6 +11,9 @@ const OrderingDetail: React.FC = () => {
   const selectedDishes = useSelector(
     (state: RootState) => state.dishes.selectedDishes
   );
+  const selectedCombos = useSelector(
+    (state: RootState) => state.dishes.selectedCombos
+  );
 
   const dispatch = useDispatch();
 
@@ -48,7 +51,7 @@ const OrderingDetail: React.FC = () => {
           </View>
         </View>
       </View>
-      {selectedDishes.length === 0 ? (
+      {selectedDishes.length === 0 && selectedCombos.length === 0 ? (
         <View className="flex-1 justify-center items-center">
           <Image
             source={require("../../assets/Icons/NoProduct.png")}

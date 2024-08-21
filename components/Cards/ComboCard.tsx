@@ -10,12 +10,18 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useDispatch } from "react-redux";
-import { addOrUpdateDish } from "../../redux/slices/dishesSlice";
+import {
+  addOrUpdateCombo,
+  addOrUpdateDish,
+} from "../../redux/slices/dishesSlice";
 import { DishSizeDetail } from "@/app/types/dishes_type";
 import { formatPriceVND } from "../Format/formatPrice";
 import { fetchComboById } from "@/api/comboApi";
-import { Combo, DishCombo } from "@/app/types/combo_type";
+import { Combo, DishCombo, DishComboDetail } from "@/app/types/combo_type";
 
+interface SelectedDishes {
+  [setId: number]: string[]; // Use number if setId is numeric
+}
 interface ComboCardProps {
   id: string;
   name: string;
@@ -41,11 +47,11 @@ const ComboCard: React.FC<ComboCardProps> = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [comboDetails, setComboDetails] = useState<Combo | null>(null);
   const [dishCombos, setDishCombos] = useState<DishCombo[]>([]);
-  const [selectedDishes, setSelectedDishes] = useState({});
+  const [selectedDishes, setSelectedDishes] = useState<SelectedDishes>({});
   const [maxOptionSetNumber, setMaxOptionSetNumber] = useState(0);
 
-  console.log("maxOptionSetNumber", maxOptionSetNumber);
-  console.log("dishCombosNe", dishCombos);
+  // console.log("maxOptionSetNumber", maxOptionSetNumber);
+  // console.log("dishCombosNe", dishCombos);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,6 +64,8 @@ const ComboCard: React.FC<ComboCardProps> = ({
             (item) => item.comboOptionSet.optionSetNumber
           )
         );
+        console.log("maxNum", maxNum);
+
         setMaxOptionSetNumber(maxNum);
       } catch (error) {
         console.error("Error fetching combo details:", error);
@@ -99,24 +107,61 @@ const ComboCard: React.FC<ComboCardProps> = ({
     });
   };
 
-  // const handleAddToOrder = () => {
+  const allChoicesMade = () => {
+    return (
+      Object.keys(selectedDishes).length === maxOptionSetNumber &&
+      Object.values(selectedDishes).every((choices, index) => {
+        const requiredChoices = dishCombos.filter(
+          (combo) => combo.comboOptionSet.optionSetNumber === index + 1
+        )[0]?.comboOptionSet.numOfChoice;
+        return choices.length === requiredChoices;
+      })
+    );
+  };
 
-  //       dispatch(
-  //         addOrUpdateDish({
-  //           id: Number(id),
-  //           image,
-  //           name,
-  //           rating,
-  //           ratingCount,
-  //           type,
-  //           price,
-  //           quantity: 1,
-  //         })
-  //       );
-  //       setModalVisible(false);
-  //     }
+  const handleAddToOrder = () => {
+    // Check if there are options to choose from and if all choices have been made
+    if (dishCombos.length > 0 && !allChoicesMade()) {
+      alert("Please complete all selections before adding to order.");
+      return; // Exit early if not all choices are made
+    }
 
-  // };
+    // Map selected dishes to their details
+    const selectedDishesDetails = Object.entries(selectedDishes).flatMap(
+      ([setId, dishIds]) => {
+        return dishIds
+          .map((dishId) => {
+            const dishDetail = dishCombos.find(
+              (dish) => dish.dishCombo[0].dishComboId === dishId
+            )?.dishCombo[0].dishSizeDetail;
+
+            // Filter out null values to ensure all dishes have valid details
+            return dishDetail
+              ? {
+                  id: dishDetail.dish.dishId,
+                  name: dishDetail.dish.name,
+                  price: dishDetail.price,
+                }
+              : null;
+          })
+          .filter((detail) => detail !== null); // Ensure no null values are included
+      }
+    );
+
+    // Prepare the order object based on the combo details and the selected dishes
+    const dishComboOrder = {
+      comboId: id,
+      comboName: name,
+      comboImage: image,
+      comboPrice: price,
+      selectedDishes: selectedDishesDetails,
+      quantity: 1,
+    };
+
+    // Dispatch the order to the Redux store
+    dispatch(addOrUpdateCombo(dishComboOrder));
+    setModalVisible(false);
+  };
 
   const closeModal = () => setModalVisible(false);
 
@@ -137,27 +182,64 @@ const ComboCard: React.FC<ComboCardProps> = ({
             (combo) => combo.comboOptionSet.optionSetNumber === index + 1
           )}
           horizontal
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              key={item.dishCombo[0].dishComboId}
-              style={{ margin: 10, alignItems: "center" }}
-              onPress={() =>
-                handleDishSelection(index + 1, item.dishCombo[0].dishComboId)
-              }
-            >
-              <Image
-                source={{ uri: item.dishCombo[0].dishSizeDetail.dish.image }}
-                style={{ height: 100, width: 100, borderRadius: 50 }}
-              />
-              <Text>{item.dishCombo[0].dishSizeDetail.dish.name}</Text>
-              <Text>
-                {formatPriceVND(item.dishCombo[0].dishSizeDetail.price)}
-              </Text>
-              {selectedDishes[index + 1]?.includes(
-                item.dishCombo[0].dishComboId
-              ) && <Icon name="check" size={20} color="#FF0000" />}
-            </TouchableOpacity>
-          )}
+          renderItem={({ item }) => {
+            const isSelected = selectedDishes[index + 1]?.includes(
+              item.dishCombo[0].dishComboId
+            );
+
+            return (
+              <TouchableOpacity
+                key={item.dishCombo[0].dishComboId}
+                style={{
+                  margin: 10,
+                  alignItems: "center",
+                  position: "relative",
+                }}
+                onPress={() =>
+                  handleDishSelection(index + 1, item.dishCombo[0].dishComboId)
+                }
+              >
+                <Image
+                  source={{ uri: item.dishCombo[0].dishSizeDetail.dish.image }}
+                  style={{ height: 100, width: 100, borderRadius: 10 }}
+                />
+                {isSelected && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: "rgba(255, 255, 255, 0.4)",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: 5, // Khoảng cách so với cạnh trên
+                        // right: 5, // Khoảng cách so với cạnh phải
+                        backgroundColor: "#ffffff",
+                        padding: 5,
+                        borderRadius: 10,
+                      }}
+                    >
+                      <Icon name="check" size={20} color="#C01D2E" />
+                    </View>
+                  </View>
+                )}
+                <Text className="font-semibold text-gray-600 text-base my-1 ">
+                  {item.dishCombo[0].dishSizeDetail.dish.name}
+                </Text>
+                <Text className="font-bold text-base text-center text-[#C01D2E]">
+                  {formatPriceVND(item.dishCombo[0].dishSizeDetail.price)}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
           keyExtractor={(item) => item.dishCombo[0].dishComboId}
           showsHorizontalScrollIndicator={false}
         />
@@ -227,20 +309,24 @@ const ComboCard: React.FC<ComboCardProps> = ({
                 <Text className="font-bold  text-xl text-[#C01D2E] mb-4">
                   {formatPriceVND(price)}
                 </Text>
-                <Text className="font-semibold text-xl">
-                  Các lựa chọn món ăn:
-                </Text>
+                {dishCombos.length > 0 && (
+                  <View>
+                    <Text className="font-semibold text-xl">
+                      Các lựa chọn món ăn:
+                    </Text>
 
-                <ScrollView
-                  style={{
-                    backgroundColor: "white",
-                    padding: 20,
-                    marginBottom: 50,
-                    height: 400,
-                  }}
-                >
-                  {renderOptionSets()}
-                </ScrollView>
+                    <ScrollView
+                      style={{
+                        backgroundColor: "white",
+                        padding: 20,
+                        marginBottom: 50,
+                        height: 400,
+                      }}
+                    >
+                      {renderOptionSets()}
+                    </ScrollView>
+                  </View>
+                )}
                 <View className=" flex-row justify-end">
                   <TouchableOpacity
                     className="mt-4 bg-gray-500 p-2 rounded-lg w-[100px] mr-6"
@@ -253,6 +339,8 @@ const ComboCard: React.FC<ComboCardProps> = ({
                   <TouchableOpacity
                     className="mt-4 bg-[#C01D2E] w-[200px] p-2 rounded-lg"
                     // onPress={handleAddToOrder}
+                    onPress={handleAddToOrder}
+                    // disabled={!allChoicesMade()}
                   >
                     <Text className="text-white text-center font-semibold text-lg uppercase">
                       Thêm vào order
