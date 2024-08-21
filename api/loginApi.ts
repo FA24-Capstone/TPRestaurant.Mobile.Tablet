@@ -1,4 +1,6 @@
 import { LoginResponse } from "@/app/types/login_type";
+import { login } from "@/redux/slices/authSlice";
+import { AppDispatch } from "@/redux/store";
 import axios from "axios";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
@@ -6,8 +8,9 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 // Create the login function
 export const loginDevice = async (
   deviceCode: string,
-  password: string
-): Promise<LoginResponse> => {
+  password: string,
+  dispatch: AppDispatch
+): Promise<void> => {
   try {
     const response = await axios.post<LoginResponse>(
       `${API_URL}/device/login-device`,
@@ -17,9 +20,20 @@ export const loginDevice = async (
       }
     );
 
-    return response.data;
+    const { token, deviceResponse } = response.data.result;
+
+    // Dispatch to Redux store
+    dispatch(
+      login({
+        token,
+        deviceId: deviceResponse.deviceId,
+        deviceCode: deviceResponse.deviceCode,
+        tableId: deviceResponse.tableId,
+        tableName: deviceResponse.tableName,
+      })
+    );
   } catch (error) {
-    console.error("Login error:", error); // Log detailed error
+    console.error("Login error:", error);
     throw error;
   }
 };

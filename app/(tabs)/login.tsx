@@ -26,17 +26,8 @@ const LoginScreen: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const data = await loginDevice(deviceCode, password);
-
-      if (data.isSuccess) {
-        dispatch(login(data.result.token));
-        setIsLoginSuccessful(true);
-      } else {
-        Alert.alert(
-          "Đăng nhập thất bại",
-          "Vui lòng kiểm tra thông tin đăng nhập."
-        );
-      }
+      await loginDevice(deviceCode, password, dispatch);
+      setIsLoginSuccessful(true);
     } catch (error) {
       console.error("Login error:", error);
       Alert.alert("Đăng nhập thất bại", "Đã xảy ra lỗi. Vui lòng thử lại.");

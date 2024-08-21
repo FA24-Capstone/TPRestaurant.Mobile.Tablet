@@ -9,6 +9,7 @@ export interface LoginResponse {
       deviceCode: string;
       devicePassword: string;
       tableId: string;
+      tableName: string;
       mainRole: string;
     };
   };
