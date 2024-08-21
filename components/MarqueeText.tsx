@@ -1,7 +1,17 @@
-import React, { useRef, useEffect } from "react";
+import { RootState } from "@/redux/store";
+import React, { useRef, useEffect, useState } from "react";
 import { View, Text, Animated, Dimensions } from "react-native";
+import { useSelector } from "react-redux";
+import moment from "moment-timezone";
+import { fetchReservationWithTime } from "@/api/reservationApi";
 
 const MarqueeText = () => {
+  const { deviceId, deviceCode, tableId, tableName } = useSelector(
+    (state: RootState) => state.auth
+  );
+
+  const [reservationText, setReservationText] = useState<string>("");
+
   const animatedValue = useRef(new Animated.Value(0)).current;
   const { width } = Dimensions.get("window");
 
@@ -21,22 +31,64 @@ const MarqueeText = () => {
     startAnimation();
   }, [animatedValue, width]);
 
-  const text =
-    "Bàn số 001 đã có quý khách hàng Msr.Phương đặt bàn vào lúc 13:00 PM, hôm nay (20/06/2024). Chúc quý khách dùng bữa tại nhà hàng Thiên Phú ngon miệng! ";
+  useEffect(() => {
+    const fetchReservation = async () => {
+      if (tableId) {
+        try {
+          const now = moment()
+            .tz("Asia/Ho_Chi_Minh")
+            .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
+          // const data = await fetchReservationWithTime(
+          //   tableId,
+          //   "2024-08-06 14:11:35.7460000"
+          // );
+          const data = await fetchReservationWithTime(tableId, now);
+
+          console.log("datafetchReservationWithTime:", data);
+          if (data.result !== null) {
+            const reservation = data.result.reservation;
+            const customerName = reservation.customerInfo
+              ? reservation.customerInfo.name
+              : " ẩn danh";
+
+            const reservationTime = moment(reservation.reservationDate).format(
+              "HH:mm A, DD/MM/YYYY"
+            );
+
+            console.log("reservationTimeNe:", reservationTime);
+
+            setReservationText(
+              `Bàn số ${tableName} đã có quý khách ${customerName} đặt bàn vào lúc ${reservationTime}. Chúc quý khách dùng bữa tại nhà hàng Thiên Phú ngon miệng!`
+            );
+          }
+        } catch (error) {
+          console.error("Failed to fetch reservation:", error);
+        }
+      }
+    };
+
+    fetchReservation();
+  }, [tableId, tableName]);
+
+  // const text = `Bàn số ${tableName} đã có quý khách hàng Msr.Phương đặt bàn vào lúc 13:00 PM, hôm nay (20/06/2024). Chúc quý khách dùng bữa tại nhà hàng Thiên Phú ngon miệng! `;
 
   return (
-    <View
-      style={{ overflow: "hidden", width: width + 100 }}
-      className="bg-[#FFD77E] p-2"
-    >
-      <Animated.Text
-        style={{
-          transform: [{ translateX: animatedValue }],
-        }}
-        className={"text-lg text-[#C01D2E] font-semibold"}
-      >
-        {text}
-      </Animated.Text>
+    <View>
+      {reservationText && (
+        <View
+          style={{ overflow: "hidden", width: width + 100 }}
+          className="bg-[#FFD77E] p-2"
+        >
+          <Animated.Text
+            style={{
+              transform: [{ translateX: animatedValue }],
+            }}
+            className={"text-lg text-[#C01D2E] font-semibold"}
+          >
+            {reservationText}
+          </Animated.Text>
+        </View>
+      )}
     </View>
   );
 };
