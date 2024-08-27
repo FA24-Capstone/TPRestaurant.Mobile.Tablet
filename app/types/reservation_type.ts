@@ -121,3 +121,11 @@ export interface ReservationApiResponse {
   isSuccess: boolean;
   messages: string[];
 }
+
+export interface ReservationByPhoneApiResponse {
+  result: {
+    items: Reservation[];
+  };
+  isSuccess: boolean;
+  messages: string[];
+}
