@@ -12,6 +12,7 @@ import CustomDrawerContent from "@/components/CustomDrawerContent"; // Import yo
 import Colors from "@/constants/Colors";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import LoginScreen from "./(tabs)/login";
+import FlashMessage from "react-native-flash-message";
 
 const Drawer = createDrawerNavigator();
 const NativeStack = createNativeStackNavigator();
@@ -151,6 +152,7 @@ function RootLayout() {
       ) : (
         <LoginScreen />
       )}
+      <FlashMessage style={{ zIndex: 999 }} />
     </SafeAreaProvider>
   );
 }

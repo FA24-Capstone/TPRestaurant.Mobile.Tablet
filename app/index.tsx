@@ -26,8 +26,15 @@ import { NativeWindStyleSheet } from "nativewind";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import moment from "moment-timezone";
-import { fetchReservationWithTime } from "@/api/reservationApi";
+import {
+  fetchReservationByPhone,
+  fetchReservationWithTime,
+} from "@/api/reservationApi";
 import { Button } from "react-native-paper";
+import {
+  showErrorMessage,
+  showSuccessMessage,
+} from "@/components/FlashMessageHelpers";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -61,11 +68,11 @@ const App = () => {
           const now = moment()
             .tz("Asia/Ho_Chi_Minh")
             .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-          // const data = await fetchReservationWithTime(
-          //   tableId,
-          //   "2024-08-06 14:11:35.7460000"
-          // );
-          const data = await fetchReservationWithTime(tableId, now);
+          const data = await fetchReservationWithTime(
+            tableId,
+            "2024-08-06 14:11:35.7460000"
+          );
+          // const data = await fetchReservationWithTime(tableId, now);
 
           console.log("datafetchReservationWithTime:", data);
 
@@ -116,11 +123,21 @@ const App = () => {
     return true;
   };
 
-  const handleConfirmPhoneNumber = () => {
+  const handleConfirmPhoneNumber = async () => {
     if (validatePhoneNumber(phoneNumber)) {
-      console.log("Phone Number:", phoneNumber);
-      setModalVisible(false);
-      router.push("/home-screen");
+      const isSuccess = await fetchReservationByPhone(1, 6, phoneNumber);
+
+      if (isSuccess) {
+        console.log("Phone Number:", phoneNumber);
+        setModalVisible(false);
+        router.push("/home-screen");
+      } else {
+        // Hiển thị thông báo lỗi nếu không tìm thấy đặt chỗ
+        showErrorMessage("Không tìm thấy đặt chỗ cho số điện thoại này.");
+      }
+    } else {
+      // Hiển thị lỗi nếu số điện thoại không hợp lệ
+      showErrorMessage("Số điện thoại không hợp lệ.");
     }
   };
 
@@ -175,6 +192,7 @@ const App = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 backgroundColor: "rgba(0, 0, 0, 0.5)",
+                zIndex: 100,
               }}
             >
               <View
