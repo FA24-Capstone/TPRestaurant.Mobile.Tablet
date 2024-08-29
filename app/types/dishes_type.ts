@@ -35,9 +35,10 @@ export interface DishSizeDetail {
 
 export interface Dish {
   id: string; // This matches the type from the API
-  image: string;
+  image: string | number;
   name: string;
   rating: number;
+  type?: string;
   ratingCount: number;
   dishItemTypeId: number;
   price: number;

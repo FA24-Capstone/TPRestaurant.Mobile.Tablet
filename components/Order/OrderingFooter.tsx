@@ -2,14 +2,13 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 
-const OrderFooter: React.FC = () => {
-  const [note, setNote] = useState("");
+// Define the props interface
+interface OrderFooterProps {
+  note: string;
+  setNote: (note: string) => void;
+}
 
-  const handleOrderNow = () => {
-    // Logic to handle the order
-    console.log("Order placed with note:", note);
-  };
-
+const OrderFooter: React.FC<OrderFooterProps> = ({ note, setNote }) => {
   return (
     <View className="px-4 py-2 border-t border-gray-400">
       <Text className="text-lg font-semibold text-gray-600 mb-2">
@@ -22,14 +21,6 @@ const OrderFooter: React.FC = () => {
         maxLength={70}
         className="border border-gray-300 p-2 rounded mb-4"
       />
-      <TouchableOpacity
-        onPress={handleOrderNow}
-        className="bg-[#C01D2E] p-3 rounded-md"
-      >
-        <Text className="text-white text-center text-lg font-bold uppercase">
-          Đặt món ngay
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 };

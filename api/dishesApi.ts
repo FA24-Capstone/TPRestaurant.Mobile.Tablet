@@ -20,7 +20,6 @@ export const fetchDishes = async (
         },
       }
     );
-    // console.log("response", response); // Debugging line
 
     // Ánh xạ dữ liệu trả về từ API
     const dishes: Dish[] = response.data.result.items.map((item) => {
@@ -28,7 +27,6 @@ export const fetchDishes = async (
       const dishSizeDetail = item.dishSizeDetails.filter(
         (item) => item.dishSizeId === 0
       ); // Lấy dữ liệu dish từ object chính
-      console.log("dishSizeDetailne", dishSizeDetail);
 
       return {
         id: dishData.dishId, // Sử dụng dishId thay vì id

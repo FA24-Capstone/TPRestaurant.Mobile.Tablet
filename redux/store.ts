@@ -2,11 +2,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import dishesReducer from "./slices/dishesSlice";
 import authReducer from "./slices/authSlice";
+import reservationReducer from "./slices/reservationSlice";
 
 const store = configureStore({
   reducer: {
     dishes: dishesReducer,
     auth: authReducer,
+    reservation: reservationReducer,
   },
 });
 

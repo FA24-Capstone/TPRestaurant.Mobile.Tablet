@@ -26,10 +26,13 @@ export const loginDevice = async (
     dispatch(
       login({
         token,
-        deviceId: deviceResponse.deviceId,
-        deviceCode: deviceResponse.deviceCode,
-        tableId: deviceResponse.tableId,
-        tableName: deviceResponse.tableName,
+        deviceResponse: {
+          deviceId: deviceResponse.deviceId,
+          deviceCode: deviceResponse.deviceCode,
+          tableId: deviceResponse.tableId,
+          tableName: deviceResponse.tableName,
+          mainRole: deviceResponse.mainRole,
+        },
       })
     );
   } catch (error) {

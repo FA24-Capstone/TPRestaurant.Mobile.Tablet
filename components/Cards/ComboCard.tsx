@@ -51,7 +51,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
   const [maxOptionSetNumber, setMaxOptionSetNumber] = useState(0);
 
   // console.log("maxOptionSetNumber", maxOptionSetNumber);
-  // console.log("dishCombosNe", dishCombos);
+  // console.log("selectedDishesNe", selectedDishes);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,6 +127,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
     }
 
     // Map selected dishes to their details
+    // Map selected dishes to their details
     const selectedDishesDetails = Object.entries(selectedDishes).flatMap(
       ([setId, dishIds]) => {
         return dishIds
@@ -135,10 +136,10 @@ const ComboCard: React.FC<ComboCardProps> = ({
               (dish) => dish.dishCombo[0].dishComboId === dishId
             )?.dishCombo[0].dishSizeDetail;
 
-            // Filter out null values to ensure all dishes have valid details
+            // Sử dụng dishId trực tiếp từ selectedDishes
             return dishDetail
               ? {
-                  id: dishDetail.dish.dishId,
+                  id: dishId, // Sử dụng id từ selectedDishes thay vì dishDetail.dishId
                   name: dishDetail.dish.name,
                   price: dishDetail.price,
                 }

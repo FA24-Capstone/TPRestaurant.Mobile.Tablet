@@ -25,7 +25,7 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   const [pageSize, setPageSize] = useState<number>(9);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
-  console.log("dishesList", dishes);
+  // console.log("dishesList", dishes);
 
   const categories = [
     "Tất cả",
