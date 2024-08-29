@@ -2,6 +2,12 @@ import {
   ReservationApiResponse,
   ReservationByPhoneApiResponse,
 } from "@/app/types/reservation_type";
+import {
+  fetchReservationFailure,
+  fetchReservationStart,
+  fetchReservationSuccess,
+} from "@/redux/slices/reservationSlice";
+import { AppDispatch } from "@/redux/store";
 import axios from "axios";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -35,13 +41,16 @@ export const fetchReservationWithTime = async (
 };
 
 export const fetchReservationByPhone = async (
+  dispatch: AppDispatch,
   pageNumber: number = 1,
-  pageSize: number = 6,
-  phoneNumber: string = ""
+  pageSize: number = 10,
+  phoneNumber: string = "",
+  status: number = 1
 ): Promise<boolean> => {
+  dispatch(fetchReservationStart());
   try {
     const response = await axios.get<ReservationByPhoneApiResponse>(
-      `${API_URL}/reservation/get-all-reservation-by-phone-number/${pageNumber}/${pageSize}?phoneNumber=${phoneNumber}`,
+      `${API_URL}/reservation/get-all-reservation-by-phone-number/${pageNumber}/${pageSize}?phoneNumber=${phoneNumber}&status=${status}`,
       {
         params: { phoneNumber },
         headers: {
@@ -50,16 +59,22 @@ export const fetchReservationByPhone = async (
       }
     );
 
-    // Log response for debugging
     console.log(
       "API response for reservation by phone number:",
       JSON.stringify(response.data.result, null, 2)
     );
 
-    // Check if the request was successful and items array is not empty
-    return response.data.isSuccess && response.data.result.items.length > 0;
+    if (response.data.isSuccess && response.data.result.items.length > 0) {
+      dispatch(fetchReservationSuccess(response.data));
+      return true;
+    } else {
+      dispatch(fetchReservationFailure("No reservations found."));
+      return false;
+    }
   } catch (error) {
-    console.error("Failed to fetch reservation by phone number:", error);
+    dispatch(
+      fetchReservationFailure("Failed to fetch reservation by phone number.")
+    );
     return false;
   }
 };

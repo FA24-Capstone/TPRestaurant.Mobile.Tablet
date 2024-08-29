@@ -23,7 +23,7 @@ import Animated, {
 
 import beachImage from "../assets/meditation-images/bg-restaurant.jpg";
 import { NativeWindStyleSheet } from "nativewind";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import moment from "moment-timezone";
 import {
@@ -45,13 +45,16 @@ const App = () => {
     (state: RootState) => state.auth
   );
   const router = useRouter();
+  const dispatch = useDispatch();
+
   const { width, height } = Dimensions.get("window");
   const [reservationText, setReservationText] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
-
-  // console.log("reservationText:", reservationText);
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
 
   console.log(`Width: ${width}, Height: ${height}`);
 
@@ -68,13 +71,13 @@ const App = () => {
           const now = moment()
             .tz("Asia/Ho_Chi_Minh")
             .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-          const data = await fetchReservationWithTime(
-            tableId,
-            "2024-08-06 14:11:35.7460000"
-          );
-          // const data = await fetchReservationWithTime(tableId, now);
+          // const data = await fetchReservationWithTime(
+          //   tableId,
+          //   "2024-08-29T22:26:19.2129981"
+          // );
+          const data = await fetchReservationWithTime(tableId, now);
 
-          console.log("datafetchReservationWithTime:", data);
+          // console.log("datafetchReservationWithTime:", data);
 
           if (data.result !== null) {
             const reservation = data.result.reservation;
@@ -100,7 +103,7 @@ const App = () => {
   }, [tableId, tableName]);
 
   const handleStartExploring = () => {
-    if (reservationText) {
+    if (reservationText !== "") {
       setModalVisible(true);
     } else {
       router.push("/home-screen");
@@ -112,10 +115,10 @@ const App = () => {
   console.log("isLandscape", isLandscape);
 
   const validatePhoneNumber = (phone: string) => {
-    const phoneRegex = /^0\d{9}$/g; // Số điện thoại bắt đầu bằng 0 và có 10 chữ số
+    const phoneRegex = /^\d{9,10}$/g; // Số điện thoại bắt đầu bằng 0 và có  chữ số
     if (!phoneRegex.test(phone)) {
       setPhoneError(
-        "Số điện thoại không hợp lệ. Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số."
+        "Số điện thoại không hợp lệ. Số điện thoại phải có ít nhất 9 và nhiều nhất 10 chữ số."
       );
       return false;
     }
@@ -124,20 +127,24 @@ const App = () => {
   };
 
   const handleConfirmPhoneNumber = async () => {
-    if (validatePhoneNumber(phoneNumber)) {
-      const isSuccess = await fetchReservationByPhone(1, 6, phoneNumber);
-
+    try {
+      const isSuccess = await fetchReservationByPhone(
+        dispatch,
+        1,
+        6,
+        phoneNumber
+      );
       if (isSuccess) {
         console.log("Phone Number:", phoneNumber);
+        // Proceed to the next screen or show success message
         setModalVisible(false);
         router.push("/home-screen");
       } else {
-        // Hiển thị thông báo lỗi nếu không tìm thấy đặt chỗ
         showErrorMessage("Không tìm thấy đặt chỗ cho số điện thoại này.");
       }
-    } else {
-      // Hiển thị lỗi nếu số điện thoại không hợp lệ
-      showErrorMessage("Số điện thoại không hợp lệ.");
+    } catch (error) {
+      console.error("Error confirming phone number:", error);
+      showErrorMessage("Đã xảy ra lỗi khi xác nhận số điện thoại.");
     }
   };
 
@@ -217,28 +224,38 @@ const App = () => {
                 >
                   {reservationText}
                 </Text>
-                <TextInput
-                  placeholder="Nhập số điện thoại"
-                  value={phoneNumber}
-                  onChangeText={(text) => {
-                    setPhoneNumber(text);
-                  }}
-                  keyboardType="phone-pad"
-                  maxLength={10}
-                  style={{
-                    width: "40%",
-                    height: 45,
-                    borderColor: phoneError ? "red" : "gray",
-                    borderWidth: 1,
-                    marginBottom: 5,
-                    paddingHorizontal: 10,
-                    borderRadius: 10,
-                    fontSize: 24,
-                    color: "#C01D2E",
-                  }}
-                />
+                <View className="flex-row  items-center mx-auto">
+                  <Text className=" text-2xl mr-4 mb-2 text-[#C01D2E]">
+                    +84
+                  </Text>
+                  <View>
+                    <TextInput
+                      placeholder="Nhập số điện thoại"
+                      value={phoneNumber}
+                      onChangeText={(text) => {
+                        setPhoneNumber(text);
+                      }}
+                      keyboardType="phone-pad"
+                      maxLength={10}
+                      style={{
+                        width: 250,
+                        height: 45,
+                        borderColor: phoneError ? "red" : "gray",
+                        borderWidth: 1,
+                        marginBottom: 5,
+                        paddingHorizontal: 10,
+                        borderRadius: 10,
+                        fontSize: 24,
+                        color: "#C01D2E",
+                      }}
+                    />
+                  </View>
+                </View>
                 {phoneError && (
-                  <Text style={{ color: "red", marginBottom: 20 }}>
+                  <Text
+                    style={{ color: "red", marginBottom: 20 }}
+                    className="no-wrap"
+                  >
                     {phoneError}
                   </Text>
                 )}

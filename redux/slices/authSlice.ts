@@ -7,6 +7,7 @@ interface AuthState {
   deviceCode: string | null;
   tableId: string | null;
   tableName: string | null;
+  mainRole: string | null; // Thêm thuộc tính này để giữ mainRole
 }
 
 const initialState: AuthState = {
@@ -16,6 +17,7 @@ const initialState: AuthState = {
   deviceCode: null,
   tableId: null,
   tableName: null,
+  mainRole: null,
 };
 
 const authSlice = createSlice({
@@ -26,18 +28,22 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{
         token: string;
-        deviceId: string;
-        deviceCode: string;
-        tableId: string;
-        tableName: string;
+        deviceResponse: {
+          deviceId: string;
+          deviceCode: string;
+          tableId: string;
+          tableName: string;
+          mainRole: string;
+        };
       }>
     ) {
       state.isLoggedIn = true;
       state.token = action.payload.token;
-      state.deviceId = action.payload.deviceId;
-      state.deviceCode = action.payload.deviceCode;
-      state.tableId = action.payload.tableId;
-      state.tableName = action.payload.tableName;
+      state.deviceId = action.payload.deviceResponse.deviceId;
+      state.deviceCode = action.payload.deviceResponse.deviceCode;
+      state.tableId = action.payload.deviceResponse.tableId;
+      state.tableName = action.payload.deviceResponse.tableName;
+      state.mainRole = action.payload.deviceResponse.mainRole;
     },
     logout(state) {
       state.isLoggedIn = false;
@@ -46,6 +52,7 @@ const authSlice = createSlice({
       state.deviceCode = null;
       state.tableId = null;
       state.tableName = null;
+      state.mainRole = null;
     },
   },
 });

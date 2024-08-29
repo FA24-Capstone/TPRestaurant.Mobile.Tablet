@@ -14,19 +14,12 @@ import {
   removeDishQuanti,
 } from "../../redux/slices/dishesSlice";
 import { formatPriceVND } from "../Format/formatPrice";
+import { Dish, DishSizeDetail } from "@/app/types/dishes_type";
 // import { DishOrder } from "@/app/types/order_type";
 
-interface DishOrder {
-  id: string;
-  name: string;
-  price: number;
-  image: string | number;
+interface DishOrder extends Omit<Dish, "dishSizeDetails"> {
   quantity: number;
-  rating: number;
-  ratingCount: number;
-  type: string;
-  size?: string;
-  sizePrice?: number; // Thêm trường sizePrice để lưu trữ giá của size được chọn
+  selectedSizeDetail: DishSizeDetail;
 }
 
 interface OrderItemProps {
@@ -56,13 +49,35 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
   }));
 
   const handleRemoveQuantity = () => {
-    const dishKey = `${item.id}_${item.size}`;
-    dispatch(removeDishQuanti(dishKey));
+    dispatch(
+      removeDishQuanti({
+        dishId: item.id,
+        selectedSizeId: item.selectedSizeDetail.dishSizeDetailId,
+      })
+    );
   };
 
   const handleRemoveDish = () => {
-    const dishKey = `${item.id}_${item.size}`;
-    dispatch(removeDishItem(dishKey));
+    dispatch(
+      removeDishItem({
+        dishId: item.id,
+        selectedSizeId: item.selectedSizeDetail.dishSizeDetailId,
+      })
+    );
+  };
+
+  // Translation function
+  const translateSize = (size: string) => {
+    switch (size) {
+      case "SMALL":
+        return "Nhỏ";
+      case "MEDIUM":
+        return "Vừa";
+      case "LARGE":
+        return "Lớn";
+      default:
+        return size; // If none matches, return the original value
+    }
   };
 
   const renderRightActions = () => (
@@ -97,8 +112,8 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
                   ? `${item.name.substring(0, 15)}...`
                   : item.name}
               </Text>
-              <Text className="text-lg font-semibold text-gray-500">
-                {item.size}
+              <Text className="text-lg uppercase font-semibold text-gray-500">
+                {translateSize(item.selectedSizeDetail.dishSize.name)}
               </Text>
               <Text className="text-lg font-bold text-[#C01D2E]">
                 {formatPriceVND(item.price)}
@@ -121,7 +136,20 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
                 <TouchableOpacity
                   onPress={() =>
                     dispatch(
-                      addOrUpdateDish({ ...item, quantity: item.quantity + 1 })
+                      addOrUpdateDish({
+                        dish: {
+                          ...item,
+                          dishSizeDetails: [item.selectedSizeDetail], // Adding required dishSizeDetails array
+                          dishItemTypeId: 0, // Placeholder value, update accordingly
+                          dishItemType: {
+                            id: 0,
+                            name: "",
+                            vietnameseName: null,
+                          }, // Placeholder value, update accordingly
+                        },
+                        selectedSizeId:
+                          item.selectedSizeDetail.dishSizeDetailId,
+                      })
                     )
                   }
                   className="p-1"

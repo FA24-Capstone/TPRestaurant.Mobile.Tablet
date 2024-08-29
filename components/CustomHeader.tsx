@@ -5,6 +5,9 @@ import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { ParamListBase } from "@react-navigation/routers";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import moment from "moment-timezone";
 
 interface CustomHeaderProps {
   title: string;
@@ -12,6 +15,17 @@ interface CustomHeaderProps {
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
+  const { deviceId, deviceCode, tableId, tableName } = useSelector(
+    (state: RootState) => state.auth
+  );
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
+
+  const customerName =
+    reservationData?.result?.items[0]?.customerInfo?.name || "Guest";
+
+  const now = moment().tz("Asia/Ho_Chi_Minh").format("HH:mm,  DD/MM/YYYY ");
 
   return (
     <View
@@ -41,7 +55,10 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
         {/* <Text className="font-bold text-2xl text-gray-800 mr-6">{title}</Text> */}
         <View className="flex-row justify-center items-center mr-2">
           <Text className="font-bold uppercase text-[18px] text-gray-600 mr-2">
-            Xin chào, Phương
+            Xin chào,{" "}
+            <Text className="font-bold uppercase text-[18px] text-gray-600 mr-2">
+              {customerName}
+            </Text>
           </Text>
           <MaterialCommunityIcons
             name="hand-peace"
@@ -69,21 +86,29 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
         <View className="flex-row justify-center items-center mr-8">
           <FontAwesome name="calendar" size={20} color="gray" />
           <Text className="ml-2 font-semibold text-lg text-gray-700">
-            October 18th 2002, 10:00AM
+            {now}
           </Text>
         </View>
+        {/* <View>
+          <Text className="text-lg font-semibold text-[#C01D2E]">
+            {" "}
+            ID bàn: {tableName}
+          </Text>
+        </View> */}
 
         <View
           style={{
-            width: 40,
+            width: 80,
             height: 40,
             borderRadius: 20,
-            backgroundColor: "#ccc", // Placeholder for avatar
+            backgroundColor: "#EDAA16", // Placeholder for avatar
             justifyContent: "center",
             alignItems: "center",
           }}
         >
-          <Text style={{ fontSize: 18, color: "#fff" }}>A</Text>
+          <Text style={{ fontSize: 18, color: "#fff", fontWeight: 700 }}>
+            {tableName}
+          </Text>
         </View>
       </View>
     </View>

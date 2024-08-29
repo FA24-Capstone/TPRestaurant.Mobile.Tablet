@@ -38,11 +38,11 @@ const MarqueeText = () => {
           const now = moment()
             .tz("Asia/Ho_Chi_Minh")
             .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-          const data = await fetchReservationWithTime(
-            tableId,
-            "2024-08-06 14:11:35.7460000"
-          );
-          // const data = await fetchReservationWithTime(tableId, now);
+          // const data = await fetchReservationWithTime(
+          //   tableId,
+          //   "2024-08-29T22:26:19.2129981"
+          // );
+          const data = await fetchReservationWithTime(tableId, now);
 
           console.log("datafetchReservationWithTime:", data);
           if (data.result !== null) {

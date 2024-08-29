@@ -10,7 +10,7 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useDispatch } from "react-redux";
 import { addOrUpdateDish } from "../../redux/slices/dishesSlice";
-import { DishSizeDetail } from "@/app/types/dishes_type";
+import { Dish, DishSizeDetail } from "@/app/types/dishes_type";
 import { formatPriceVND } from "../Format/formatPrice";
 
 interface DishCardProps {
@@ -41,23 +41,29 @@ const DishCard: React.FC<DishCardProps> = ({
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
 
   const handleAddDish = () => {
-    // console.log("dishSizeDetailsNe", dishSizeDetails);
-
     if (dishSizeDetails && dishSizeDetails.length > 0) {
-      // Hiển thị modal nếu có dishSizeDetails
+      // Show modal if there are dishSizeDetails
       setModalVisible(true);
     } else {
-      // Thêm món vào giỏ nếu không có dishSizeDetails
+      // Create the Dish object
+      const dish: Dish = {
+        id,
+        image,
+        name,
+        rating,
+        ratingCount,
+        dishItemTypeId: 1, // Replace with actual type ID if available
+        price,
+        description,
+        dishSizeDetails: [],
+        dishItemType: { id: 1, name: type, vietnameseName: null }, // Replace with actual type if available
+      };
+
+      // Add dish to cart if no dishSizeDetails
       dispatch(
         addOrUpdateDish({
-          id: id, // Convert id to a number if necessary
-          image,
-          name,
-          rating,
-          ratingCount,
-          type,
-          price,
-          quantity: 1,
+          dish, // Pass the entire Dish object
+          selectedSizeId: "", // No size selected
         })
       );
     }
@@ -70,20 +76,24 @@ const DishCard: React.FC<DishCardProps> = ({
       );
 
       if (selectedSize) {
-        // Chắc chắn rằng id được chuyển đổi một cách chính xác
-        // Chỉ dispatch nếu numericId là một số hợp lệ
+        // Create the Dish object with the selected size detail
+        const dish: Dish = {
+          id,
+          image,
+          name,
+          rating,
+          ratingCount,
+          dishItemTypeId: 1, // Replace with actual type ID if available
+          price: selectedSize.price, // Use the price of the selected size
+          description,
+          dishSizeDetails: [selectedSize], // Only include the selected size detail
+          dishItemType: { id: 1, name: type, vietnameseName: null }, // Replace with actual type if available
+        };
+
         dispatch(
           addOrUpdateDish({
-            id: id,
-            image,
-            name,
-            rating,
-            ratingCount,
-            type,
-            price: selectedSize.price, // Sử dụng giá của size được chọn
-            size: selectedSize.dishSize.name, // Lưu tên size
-            sizePrice: selectedSize.price, // Lưu giá của size được chọn
-            quantity: 1,
+            dish, // Pass the entire Dish object
+            selectedSizeId: selectedSize.dishSizeDetailId, // Pass the selected size ID
           })
         );
         setModalVisible(false);
@@ -95,7 +105,19 @@ const DishCard: React.FC<DishCardProps> = ({
 
   const renderDishSizeDetail = ({ item }: { item: DishSizeDetail }) => {
     const isSelected = item.dishSizeDetailId === selectedSizeId;
-
+    // Translation function
+    const translateSize = (size: string) => {
+      switch (size) {
+        case "SMALL":
+          return "Nhỏ";
+        case "MEDIUM":
+          return "Vừa";
+        case "LARGE":
+          return "Lớn";
+        default:
+          return size; // If none matches, return the original value
+      }
+    };
     return (
       <TouchableOpacity
         onPress={() => setSelectedSizeId(item.dishSizeDetailId)}
@@ -104,11 +126,11 @@ const DishCard: React.FC<DishCardProps> = ({
         }`}
       >
         <Text
-          className={`font-semibold text-center text-lg ${
+          className={`font-semibold text-center text-lg uppercase ${
             isSelected ? "text-[#C01D2E]" : "text-gray-600"
           }`}
         >
-          {item.dishSize.name}
+          {translateSize(item.dishSize.name || "")}
         </Text>
         <View className="flex-row items-center justify-center mt-2">
           <Text
@@ -194,7 +216,9 @@ const DishCard: React.FC<DishCardProps> = ({
                     </View>
                   </View>
                   <Text className="mb-4 text-lg">{description}</Text>
-                  <Text className="font-semibold">Các lựa chọn kích cỡ:</Text>
+                  <Text className="font-semibold text-lg">
+                    Các lựa chọn kích cỡ:
+                  </Text>
                   <FlatList
                     data={dishSizeDetails?.sort(
                       (a, b) => a.dishSizeId - b.dishSizeId

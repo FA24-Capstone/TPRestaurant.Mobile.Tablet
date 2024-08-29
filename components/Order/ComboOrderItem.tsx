@@ -63,9 +63,7 @@ const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
       />
     </TouchableOpacity>
   );
-  console.log("====================================");
-  console.log("item.selectedDishes", item.selectedDishes);
-  console.log("====================================");
+
   return (
     <GestureDetector gesture={gesture}>
       <View className="flex-row rounded-lg overflow-hidden items-center justify-between">

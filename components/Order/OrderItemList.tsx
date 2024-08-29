@@ -4,26 +4,14 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import OrderItem from "./OrderItem";
 import ComboOrderItem from "./ComboOrderItem";
+import { Combo } from "@/app/types/combo_type";
 
-const OrderItemList: React.FC = () => {
-  const dishes = useSelector((state: RootState) => state.dishes.selectedDishes);
-  const combos = useSelector((state: RootState) => state.dishes.selectedCombos);
+interface ItemListOrder {
+  dishes: any[];
+  combos: any[];
+}
 
-  console.log("dishesOrdersNe", dishes);
-  console.log("combosOrdersNe", combos);
-
-  const combinedOrders = [
-    ...dishes,
-    ...combos.map((combo) => ({
-      ...combo,
-      id: combo.comboId, // Normalize id for keyExtractor
-      type: "combo", // Add type for distinguishing in renderItem
-    })),
-  ];
-
-  console.log("====================================");
-  console.log("combinedOrdersNe", combinedOrders);
-  console.log("====================================");
+const OrderItemList: React.FC<ItemListOrder> = ({ dishes, combos }) => {
   return (
     <>
       {combos.length > 0 && (

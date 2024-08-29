@@ -1,36 +1,32 @@
 //src/ redux / slices / dishesSlice.ts
 import { fetchDishes } from "@/api/dishesApi";
+import { Dish, DishSizeDetail } from "@/app/types/dishes_type";
 import { ComboOrder } from "@/app/types/order_type";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { isLoading } from "expo-font";
 
-interface Dish {
-  id: string;
-  name: string;
-  price: number;
-  image: string | number; // Update to accept both local and URL images
-  quantity: number;
-  rating: number;
-  ratingCount: number;
-  type: string;
-  size?: string;
-  sizePrice?: number; // Add sizePrice field to store the price of the selected size
+// interface Dish {
+//   id: string;
+//   name: string;
+//   price: number;
+//   image: string | number; // Update to accept both local and URL images
+//   quantity: number;
+//   rating: number;
+//   ratingCount: number;
+//   type: string;
+//   size?: string;
+//   sizePrice?: number; // Add sizePrice field to store the price of the selected size NO
+// }
+
+interface SelectedDish extends Dish {
+  selectedSizeDetail: DishSizeDetail; // Directly include the selected size detail
+  quantity: number; // Ensure quantity is always present
 }
 
 interface DishesState {
-  selectedDishes: Dish[];
+  selectedDishes: SelectedDish[]; // Use SelectedDish type for selected dishes
   selectedCombos: ComboOrder[];
 }
-
-// interface ComboOrder {
-//   id?: string; // Normalized ID for rendering
-//   comboId: string;
-//   comboName: string;
-//   comboImage: string | number;
-//   comboPrice: number;
-//   selectedDishes: { id: string; name: string; price: number }[];
-//   type?: string; // Added to differentiate in renderItem
-// }
 
 const initialState: DishesState = {
   selectedDishes: [],
@@ -80,46 +76,72 @@ const dishesSlice = createSlice({
         (combo) => combo.comboId !== action.payload
       );
     },
-    addOrUpdateDish: (state, action: PayloadAction<Dish>) => {
-      const uniqueKey = `${action.payload.id}_${action.payload.size}`;
-      const index = state.selectedDishes.findIndex(
-        (dish) => `${dish.id}_${dish.size}` === uniqueKey
+
+    addOrUpdateDish: (
+      state,
+      action: PayloadAction<{ dish: Dish; selectedSizeId: string }>
+    ) => {
+      const { dish, selectedSizeId } = action.payload;
+
+      const selectedSizeDetail = dish.dishSizeDetails.find(
+        (sizeDetail) => sizeDetail.dishSizeDetailId === selectedSizeId
       );
-      // // Tìm index dựa trên id và size
-      // const index = state.selectedDishes.findIndex(
-      //   (dish) =>
-      //     dish.id === action.payload.id && dish.size === action.payload.size
-      // );
+
+      if (!selectedSizeDetail) return; // If no selected size detail, do nothing
+
+      const uniqueKey = `${dish.id}_${selectedSizeId}`;
+      const index = state.selectedDishes.findIndex(
+        (selectedDish) =>
+          `${selectedDish.id}_${selectedDish.selectedSizeDetail.dishSizeDetailId}` ===
+          uniqueKey
+      );
+
       if (index !== -1) {
-        // Nếu tìm thấy món ăn với cùng id và size, tăng số lượng
+        // If dish with same id and size exists, increase quantity
         state.selectedDishes[index].quantity += 1;
       } else {
-        // Nếu không, thêm món mới với số lượng khởi tạo là 1
-        const newDish = {
-          ...action.payload,
-          quantity: 1, // Khởi tạo với số lượng là 1 khi thêm mới
-        };
-        state.selectedDishes.push(newDish);
+        // Otherwise, add a new dish with selected size detail and quantity 1
+        state.selectedDishes.push({
+          ...dish,
+          selectedSizeDetail, // Store the selected size detail directly
+          quantity: 1,
+        });
       }
     },
 
-    removeDishQuanti: (state, action: PayloadAction<string>) => {
+    removeDishItem: (
+      state,
+      action: PayloadAction<{ dishId: string; selectedSizeId: string }>
+    ) => {
+      const { dishId, selectedSizeId } = action.payload;
+
+      state.selectedDishes = state.selectedDishes.filter(
+        (selectedDish) =>
+          `${selectedDish.id}_${selectedDish.selectedSizeDetail.dishSizeDetailId}` !==
+          `${dishId}_${selectedSizeId}`
+      );
+    },
+
+    removeDishQuanti: (
+      state,
+      action: PayloadAction<{ dishId: string; selectedSizeId: string }>
+    ) => {
+      const { dishId, selectedSizeId } = action.payload;
+
       const index = state.selectedDishes.findIndex(
-        (dish) => `${dish.id}_${dish.size}` === action.payload
+        (selectedDish) =>
+          `${selectedDish.id}_${selectedDish.dishSizeDetails[0].dishSizeDetailId}` ===
+          `${dishId}_${selectedSizeId}`
       );
       if (index >= 0) {
-        if (state.selectedDishes[index].quantity > 1) {
-          state.selectedDishes[index].quantity -= 1;
+        if ((state.selectedDishes[index].quantity || 0) > 1) {
+          state.selectedDishes[index].quantity! -= 1;
         } else {
           state.selectedDishes.splice(index, 1);
         }
       }
     },
-    removeDishItem: (state, action: PayloadAction<string>) => {
-      state.selectedDishes = state.selectedDishes.filter(
-        (dish) => `${dish.id}_${dish.size}` !== action.payload
-      );
-    },
+
     clearDishes: (state) => {
       state.selectedDishes = [];
       state.selectedCombos = [];
