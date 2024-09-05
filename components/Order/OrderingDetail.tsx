@@ -9,11 +9,18 @@ import OrderFooter from "./OrderingFooter";
 import moment from "moment-timezone";
 import { addTableSession } from "@/api/tableSection";
 import { showErrorMessage, showSuccessMessage } from "../FlashMessageHelpers";
+import { setCurrentSession } from "@/redux/slices/tableSessionSlice";
 
 const OrderingDetail: React.FC = () => {
+  const dispatch = useDispatch();
   const { deviceId, deviceCode, tableId, tableName } = useSelector(
     (state: RootState) => state.auth
   );
+  const tableSession = useSelector(
+    (state: RootState) => state.tableSession.currentSession
+  );
+
+  const startSession = tableSession?.startTime;
   console.log("tableId nha", tableId);
 
   const reservationData = useSelector(
@@ -43,8 +50,6 @@ const OrderingDetail: React.FC = () => {
 
   const numberOfPeople = reservationData?.result?.items[0]?.numberOfPeople || 0;
 
-  const dispatch = useDispatch();
-
   const handleClearAll = () => {
     dispatch(clearDishes()); // Dispatch the action to clear all dishes
   };
@@ -57,12 +62,6 @@ const OrderingDetail: React.FC = () => {
     }
 
     const reservationId = reservationData?.result?.items[0]?.reservationId;
-    // console.log("reservationId nè má", reservationId);
-
-    // if (!reservationId) {
-    //   showErrorMessage("Mã đặt bàn không được tìm thấy.");
-    //   return;
-    // }
 
     // Format data for the API
     const prelistOrderDtos = [
@@ -79,6 +78,9 @@ const OrderingDetail: React.FC = () => {
         },
       })),
     ];
+
+    console.log("dishes order", prelistOrderDtos);
+
     // Create the request body
     const tableSessionData = {
       tableId, // tableId đã được đảm bảo là một chuỗi
@@ -89,13 +91,15 @@ const OrderingDetail: React.FC = () => {
       ...(reservationId && { reservationId }), // Chỉ thêm reservationId nếu nó tồn tại
     };
 
-    // console.log(
-    //   "tableSessionData Nè 2",
-    //   JSON.stringify(tableSessionData, null, 2)
-    // );
-
     try {
       const response = await addTableSession(tableSessionData);
+      console.log("====================================");
+      console.log(
+        "Data response tableSessionData Nè 3",
+        JSON.stringify(response, null, 2)
+      );
+      console.log("====================================");
+      dispatch(setCurrentSession(response.result));
       if (response.isSuccess) {
         showSuccessMessage("Đặt món thành công!");
         console.log("Table session added successfully:", response);
@@ -121,26 +125,23 @@ const OrderingDetail: React.FC = () => {
         <View className="flex-row justify-between items-center">
           <View className="flex-row items-center">
             <MaterialCommunityIcons name="account" size={24} color="gray" />
-            <Text className="text-gray-600 mr-3 ml-2 font-semibold">
-              Số lượng:
-            </Text>
-            <Text className="text-[#EDAA16] text-xl font-semibold">
+            {/* <Text className="text-gray-600 mr-3 ml-2 font-semibold"></Text> */}
+            <Text className="text-[#EDAA16] text-xl ml-2 font-semibold">
               {numberOfPeople} người
             </Text>
           </View>
-          <View className="flex-row items-center">
-            <MaterialCommunityIcons
-              name="table-furniture"
-              size={24}
-              color="gray"
-            />
-            <Text className="text-gray-600 mr-3 ml-2 font-semibold">
-              MÃ BÀN:
-            </Text>
-            <Text className="text-[#EDAA16] text-xl font-semibold">
-              {tableName}
-            </Text>
-          </View>
+          {startSession && (
+            <View className="flex-row items-center">
+              <MaterialCommunityIcons name="clock" size={24} color="gray" />
+              {/* <Text className="text-gray-600 mr-3 ml-2 font-semibold">
+                Bắt đầu từ:
+              </Text> */}
+              <Text className="text-[#EDAA16] text-lg ml-2 font-bold">
+                {moment.utc(startSession).format("HH:mm, DD/MM/YYYY")}
+                {/* {startSession} */}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
       {selectedDishes.length === 0 && selectedCombos.length === 0 ? (

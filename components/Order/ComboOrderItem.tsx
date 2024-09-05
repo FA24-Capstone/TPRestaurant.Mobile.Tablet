@@ -10,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useDispatch } from "react-redux";
 import { formatPriceVND } from "../Format/formatPrice";
+import { removeCombo } from "@/redux/slices/dishesSlice";
 
 interface ComboDish {
   id: string;
@@ -52,9 +53,13 @@ const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
     transform: [{ translateX: translateX.value }],
   }));
 
+  const handleRemoveCombo = (comboId: string) => {
+    dispatch(removeCombo(comboId));
+  };
+
   const renderRightActions = () => (
     <TouchableOpacity
-      // onPress={handleRemoveDish}
+      onPress={() => handleRemoveCombo(item.comboId)}
       className="bg-[#C01D2E] justify-center items-center rounded-md px-6 h-full"
     >
       <Image

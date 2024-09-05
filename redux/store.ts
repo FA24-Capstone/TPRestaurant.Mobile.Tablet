@@ -3,12 +3,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import dishesReducer from "./slices/dishesSlice";
 import authReducer from "./slices/authSlice";
 import reservationReducer from "./slices/reservationSlice";
+import tableSessionReducer from "./slices/tableSessionSlice";
 
 const store = configureStore({
   reducer: {
     dishes: dishesReducer,
     auth: authReducer,
     reservation: reservationReducer,
+    tableSession: tableSessionReducer, // Add this line
   },
 });
 
