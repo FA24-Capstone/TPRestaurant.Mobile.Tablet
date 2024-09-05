@@ -33,10 +33,26 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
         <Text className="text-gray-500">
           {dish.dishSizeDetail.dish.description}
         </Text>
-        <Text className="text-gray-500">Số lượng: {dish.quantity}</Text>
-        <Text className="text-gray-500">
-          Thời gian đặt: {dish.timeArray.join("; ")}
-        </Text>
+        <View className="flex-row justify-between my-2">
+          <Text className=" text-center text-base font-semibold text-[#C01D2E]">
+            {formatPriceVND(dish.dishSizeDetail.price)}
+          </Text>
+          <View className="flex-row items-center">
+            <Text className="text-[#EDAA16] font-semibold mr-4 text-base">
+              + {dish.quantity} món
+            </Text>
+          </View>
+        </View>
+        <View className="mt-2 flex-row">
+          <Text className="text-gray-700 font-semibold">Thời gian đặt:</Text>
+          <View className="ml-4">
+            {dish.timeArray.map((time, index) => (
+              <Text key={index} className="text-gray-500">
+                • {time}
+              </Text>
+            ))}
+          </View>
+        </View>
       </View>
 
       <TouchableOpacity
@@ -66,7 +82,7 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
                     Số lượng:{" "}
                   </Text>
                   <Text className="text-[#EDAA16] font-semibold mr-4 text-lg">
-                    {dish.quantity}
+                    {dish.quantity} món
                   </Text>
                 </View>
 

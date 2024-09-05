@@ -20,8 +20,8 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
 }) => {
   return (
     <View
-      className="flex-1 p-2 m-2 bg-white rounded-md shadow-lg relative"
-      style={{ width: itemWidth, marginHorizontal: 0 }}
+      className="flex-1 p-2 m-2  bg-white rounded-md shadow-lg relative"
+      style={{ width: itemWidth - 20, marginHorizontal: 0 }}
     >
       <Image
         source={{ uri: combo.combo.image }}
@@ -31,10 +31,26 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
       <View className="p-2">
         <Text className="mt-2 text-lg font-bold">{combo.combo.name}</Text>
         <Text className="text-gray-500">{combo.combo.description}</Text>
-        <Text className="text-gray-500">Số lượng: {combo.quantity}</Text>
-        <Text className="text-gray-500">
-          Thời gian đặt: {combo.timeArray.join("; ")}
-        </Text>
+        <View className="flex-row justify-between my-2">
+          <Text className=" text-center text-base font-semibold text-[#C01D2E]">
+            {formatPriceVND(combo.combo.price)}
+          </Text>
+          <View className="flex-row items-center">
+            <Text className="text-[#EDAA16] font-semibold mr-4 text-base">
+              + {combo.quantity} món
+            </Text>
+          </View>
+        </View>
+        <View className="mt-2 flex-row">
+          <Text className="text-gray-700 font-semibold">Thời gian đặt:</Text>
+          <View className="ml-4">
+            {combo.timeArray.map((time, index) => (
+              <Text key={index} className="text-gray-500">
+                • {time}
+              </Text>
+            ))}
+          </View>
+        </View>
       </View>
 
       {comboDetails?.length > 0 && (
@@ -82,7 +98,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
                     Số lượng:{" "}
                   </Text>
                   <Text className="text-[#EDAA16] font-semibold mr-4 text-lg">
-                    {combo.quantity}
+                    {combo.quantity} món
                   </Text>
                 </View>
                 <View className="flex-row  mb-4 items-center">
@@ -125,17 +141,18 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
                         </View>
                       ))}
                     </View>
-                    <View className="flex-row justify-end mt-6 items-center">
-                      <Button
-                        mode="contained"
-                        className=" w-fit bg-[#C01D2E] rounded-md mr-4"
-                        labelStyle={{ fontWeight: "600", fontSize: 16 }}
-                      >
-                        Đặt lại
-                      </Button>
-                    </View>
                   </View>
                 )}
+
+                <View className="flex-row justify-end mt-6 items-center">
+                  <Button
+                    mode="contained"
+                    className=" w-fit bg-[#C01D2E] rounded-md mr-4"
+                    labelStyle={{ fontWeight: "600", fontSize: 16 }}
+                  >
+                    Đặt lại
+                  </Button>
+                </View>
               </View>
             </View>
           )

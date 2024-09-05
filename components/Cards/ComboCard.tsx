@@ -256,7 +256,9 @@ const ComboCard: React.FC<ComboCardProps> = ({
         resizeMode="cover"
       />
       <View className="pt-14 rounded-[16px] z-0 shadow-xl bg-[#FFF1E1]">
-        <Text className="font-bold text-[20px] text-center">{name}</Text>
+        <Text className="font-bold mx-2 text-[20px] text-center h-[50px]">
+          {name}
+        </Text>
         <Text className="text-gray-500 text-center mb-2">{type}</Text>
         <View className="flex-row items-center mx-auto mb-2">
           <Icon name="star" size={20} color="#FFD700" />

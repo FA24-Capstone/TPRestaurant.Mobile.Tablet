@@ -10,7 +10,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { useDispatch } from "react-redux";
 import { formatPriceVND } from "../Format/formatPrice";
-import { removeCombo } from "@/redux/slices/dishesSlice";
+import {
+  decreaseComboQuantity,
+  increaseComboQuantity,
+  removeCombo,
+} from "@/redux/slices/dishesSlice";
 
 interface ComboDish {
   id: string;
@@ -55,6 +59,15 @@ const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
 
   const handleRemoveCombo = (comboId: string) => {
     dispatch(removeCombo(comboId));
+  };
+
+  // New handlers for quantity adjustment
+  const handleIncreaseQuantity = () => {
+    dispatch(increaseComboQuantity(item.comboId));
+  };
+
+  const handleDecreaseQuantity = () => {
+    dispatch(decreaseComboQuantity(item.comboId));
   };
 
   const renderRightActions = () => (
@@ -105,7 +118,7 @@ const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
               <Text className="text-lg">Số lượng:</Text>
               <View className="flex-row items-center my-2 px-2 py-1 bg-white rounded-full">
                 <TouchableOpacity
-                  // onPress={handleRemoveQuantity}
+                  onPress={handleDecreaseQuantity}
                   className="p-1"
                 >
                   <MaterialCommunityIcons
@@ -116,11 +129,7 @@ const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
                 </TouchableOpacity>
                 <Text className="text-lg mx-2">{item.quantity}</Text>
                 <TouchableOpacity
-                  // onPress={() =>
-                  //   dispatch(
-                  //     addOrUpdateDish({ ...item, quantity: item.quantity + 1 })
-                  //   )
-                  // }
+                  onPress={handleIncreaseQuantity}
                   className="p-1"
                 >
                   <MaterialCommunityIcons

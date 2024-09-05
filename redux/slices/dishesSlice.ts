@@ -63,7 +63,23 @@ const dishesSlice = createSlice({
         (combo) => combo.comboId !== action.payload
       );
     },
+    increaseComboQuantity: (state, action: PayloadAction<string>) => {
+      const combo = state.selectedCombos.find(
+        (combo) => combo.comboId === action.payload
+      );
+      if (combo) {
+        combo.quantity += 1;
+      }
+    },
 
+    decreaseComboQuantity: (state, action: PayloadAction<string>) => {
+      const combo = state.selectedCombos.find(
+        (combo) => combo.comboId === action.payload
+      );
+      if (combo && combo.quantity > 1) {
+        combo.quantity -= 1;
+      }
+    },
     addOrUpdateDish: (
       state,
       action: PayloadAction<{ dish: Dish; selectedSizeId: string }>
@@ -143,5 +159,7 @@ export const {
   removeCombo,
   removeDishItem,
   addOrUpdateCombo,
+  increaseComboQuantity,
+  decreaseComboQuantity,
 } = dishesSlice.actions;
 export default dishesSlice.reducer;
