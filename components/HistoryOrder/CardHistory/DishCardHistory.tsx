@@ -35,20 +35,10 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
         </Text>
         <Text className="text-gray-500">Số lượng: {dish.quantity}</Text>
         <Text className="text-gray-500">
-          Thời gian đặt:
-          {moment.utc(dish.orderTime).format("HH:mm, DD/MM/YYYY")}
+          Thời gian đặt: {dish.timeArray.join("; ")}
         </Text>
       </View>
-      {/* <View className="flex-row justify-end my-2 px-4 items-center">
-        <Button
-          mode="contained"
-          className=" w-fit bg-gray-500  mr-4"
-          labelStyle={{ fontWeight: "600", fontSize: 16 }} // Semibold
-        >
-          Đặt lại
-        </Button>
-        <MaterialCommunityIcons name="eye" size={30} color="#E7727E" />
-      </View> */}
+
       <TouchableOpacity
         className="absolute top-3 right-3 rounded-full p-1"
         style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}
@@ -85,20 +75,19 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
                     Thời gian đặt:{" "}
                   </Text>
                   <Text className="text-[#EDAA16] font-semibold mr-4 text-lg">
-                    {moment.utc(dish.orderTime).format("HH:mm, DD/MM/YYYY")}
+                    {dish.timeArray.join("; ")}
                   </Text>
                 </View>
                 <View className="flex-row justify-end mt-6 items-center">
                   <Button
                     mode="contained"
                     className=" w-fit bg-[#C01D2E] rounded-md mr-4"
-                    labelStyle={{ fontWeight: "600", fontSize: 16 }} // Semibold
+                    labelStyle={{ fontWeight: "600", fontSize: 16 }}
                   >
                     Đặt lại
                   </Button>
                 </View>
               </View>
-              {/* Add more detailed content here */}
             </View>
           )
         }

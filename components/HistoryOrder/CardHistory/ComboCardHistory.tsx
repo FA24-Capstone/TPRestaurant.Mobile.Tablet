@@ -33,8 +33,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
         <Text className="text-gray-500">{combo.combo.description}</Text>
         <Text className="text-gray-500">Số lượng: {combo.quantity}</Text>
         <Text className="text-gray-500">
-          Thời gian đặt:
-          {moment.utc(combo.orderTime).format("HH:mm, DD/MM/YYYY")}
+          Thời gian đặt: {combo.timeArray.join("; ")}
         </Text>
       </View>
 
@@ -91,7 +90,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
                     Thời gian đặt:{" "}
                   </Text>
                   <Text className="text-[#EDAA16] font-semibold mr-4 text-lg">
-                    {moment.utc(combo.orderTime).format("HH:mm, DD/MM/YYYY")}
+                    {combo.timeArray.join("; ")}
                   </Text>
                 </View>
 
@@ -130,7 +129,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
                       <Button
                         mode="contained"
                         className=" w-fit bg-[#C01D2E] rounded-md mr-4"
-                        labelStyle={{ fontWeight: "600", fontSize: 16 }} // Semibold
+                        labelStyle={{ fontWeight: "600", fontSize: 16 }}
                       >
                         Đặt lại
                       </Button>

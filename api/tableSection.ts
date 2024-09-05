@@ -1,7 +1,8 @@
 // src/api/tableSession.ts
 import axios from "axios";
 import {
-  AddPrelistTableSessionResponse,
+  AddPrelistTableSessionReponse,
+  AddPrelistTableSessionRequest,
   AddTableSessionRequest,
   AddTableSessionResponse,
   GetTableSessionResponse,
@@ -31,13 +32,11 @@ export const addTableSession = async (
   }
 };
 
-export const addNewPrelistOrder = async (orderData: {
-  tableSessionId: string;
-  orderTime: string;
-  prelistOrderDtos: PrelistOrderDto[];
-}): Promise<AddPrelistTableSessionResponse> => {
+export const addNewPrelistOrder = async (
+  orderData: AddPrelistTableSessionRequest
+): Promise<AddPrelistTableSessionReponse> => {
   try {
-    const response = await axios.post<AddPrelistTableSessionResponse>(
+    const response = await axios.post<AddPrelistTableSessionReponse>(
       `${API_URL}/table-session/add-new-prelist-order`,
       orderData,
       {
