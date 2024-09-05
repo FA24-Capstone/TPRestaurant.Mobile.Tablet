@@ -7,7 +7,7 @@ import OrderItemList from "./OrderItemList";
 import { clearDishes } from "@/redux/slices/dishesSlice";
 import OrderFooter from "./OrderingFooter";
 import moment from "moment-timezone";
-import { addTableSession } from "@/api/tableSection";
+import { addNewPrelistOrder, addTableSession } from "@/api/tableSection";
 import { showErrorMessage, showSuccessMessage } from "../FlashMessageHelpers";
 import { setCurrentSession } from "@/redux/slices/tableSessionSlice";
 
@@ -55,7 +55,6 @@ const OrderingDetail: React.FC = () => {
   };
 
   const handleOrderNow = async () => {
-    // Ensure tableId and reservationId are not null or undefined
     if (!tableId) {
       showErrorMessage("Mã bàn không được tìm thấy.");
       return;
@@ -63,11 +62,9 @@ const OrderingDetail: React.FC = () => {
 
     const reservationId = reservationData?.result?.items[0]?.reservationId;
 
-    // Format data for the API
     const prelistOrderDtos = [
       ...selectedDishes.map((dish) => ({
         quantity: dish.quantity,
-        // reservationDishId: dish.id,
         dishSizeDetailId: dish.selectedSizeDetail.dishSizeDetailId,
       })),
       ...selectedCombos.map((combo) => ({
@@ -79,37 +76,87 @@ const OrderingDetail: React.FC = () => {
       })),
     ];
 
-    console.log("dishes order", prelistOrderDtos);
-
-    // Create the request body
-    const tableSessionData = {
-      tableId, // tableId đã được đảm bảo là một chuỗi
-      startTime: moment()
-        .tz("Asia/Ho_Chi_Minh")
-        .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"), // Sử dụng thời gian hiện tại
-      prelistOrderDtos,
-      ...(reservationId && { reservationId }), // Chỉ thêm reservationId nếu nó tồn tại
-    };
-
     try {
-      const response = await addTableSession(tableSessionData);
-      console.log("====================================");
-      console.log(
-        "Data response tableSessionData Nè 3",
-        JSON.stringify(response, null, 2)
-      );
-      console.log("====================================");
-      dispatch(setCurrentSession(response.result));
-      if (response.isSuccess) {
-        showSuccessMessage("Đặt món thành công!");
-        console.log("Table session added successfully:", response);
-        dispatch(clearDishes());
+      if (tableSession?.tableSessionId) {
+        // Check if the current session has ended
+        if (tableSession.endTime) {
+          // If the session has ended, create a new table session
+          const tableSessionData = {
+            tableId,
+            startTime: moment()
+              .tz("Asia/Ho_Chi_Minh")
+              .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+            prelistOrderDtos,
+            ...(reservationId && { reservationId }),
+          };
+
+          console.log(
+            "Creating new table session with data:",
+            JSON.stringify(tableSessionData, null, 2)
+          );
+
+          const response = await addTableSession(tableSessionData);
+          dispatch(setCurrentSession(response.result));
+
+          if (response.isSuccess) {
+            showSuccessMessage("Đặt món thành công! Phiên mới đã được tạo.");
+            dispatch(clearDishes());
+          } else {
+            showErrorMessage("Đặt món thất bại. Vui lòng thử lại!");
+          }
+        } else {
+          // If the session has not ended, add a new order to the current session
+          const orderData = {
+            tableSessionId: tableSession.tableSessionId,
+            orderTime: moment()
+              .tz("Asia/Ho_Chi_Minh")
+              .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+            prelistOrderDtos,
+          };
+
+          console.log(
+            "Adding new order to existing table session:",
+            JSON.stringify(orderData, null, 2)
+          );
+
+          const response = await addNewPrelistOrder(orderData);
+
+          if (response.isSuccess) {
+            showSuccessMessage("Đặt món thành công vào phiên hiện tại!");
+            dispatch(clearDishes());
+          } else {
+            showErrorMessage("Đặt món thất bại. Vui lòng thử lại!");
+          }
+        }
       } else {
-        showErrorMessage("Đặt món thất bại. Vui lòng thử lại!");
+        // If no current session, create a new table session
+        const tableSessionData = {
+          tableId,
+          startTime: moment()
+            .tz("Asia/Ho_Chi_Minh")
+            .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+          prelistOrderDtos,
+          ...(reservationId && { reservationId }),
+        };
+
+        console.log(
+          "Creating new table session with data:",
+          JSON.stringify(tableSessionData, null, 2)
+        );
+
+        const response = await addTableSession(tableSessionData);
+        dispatch(setCurrentSession(response.result));
+
+        if (response.isSuccess) {
+          showSuccessMessage("Đặt món thành công! Phiên mới đã được tạo.");
+          dispatch(clearDishes());
+        } else {
+          showErrorMessage("Đặt món thất bại. Vui lòng thử lại!");
+        }
       }
     } catch (error) {
       showErrorMessage("Đặt món thất bại. Vui lòng thử lại!");
-      console.error("Failed to add table session:", error);
+      console.error("Failed to process order:", error);
     }
   };
 

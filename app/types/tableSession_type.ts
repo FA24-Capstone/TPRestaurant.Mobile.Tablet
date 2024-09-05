@@ -43,10 +43,16 @@ export interface TableSessionData {
 
 //========================ADD dishes in Tablesession =========================
 
-export interface AddPrelistTableSessionResponse {
+export interface AddPrelistTableSessionRequest {
   tableSessionId: string;
   orderTime: string;
   prelistOrderDtos: PrelistOrderDto[];
+}
+
+export interface AddPrelistTableSessionReponse {
+  result: [];
+  isSuccess: boolean;
+  messages: any[];
 }
 
 //========================GET Tablesession Order Fisrt=========================

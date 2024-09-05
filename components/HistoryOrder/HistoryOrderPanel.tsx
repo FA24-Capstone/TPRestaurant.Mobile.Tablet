@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,8 @@ import {
 import SearchBar from "../SearchBar";
 import { Button, Modal, Portal, Provider } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import moment from "moment-timezone";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -30,6 +32,7 @@ const itemWidth = (width - (numColumns + 1) * spacing) / numColumns;
 
 const HistoryOrderPanel: React.FC = () => {
   const [orders, setOrders] = useState<UncheckedPrelistOrderDetail[]>([]);
+
   const tableSession = useSelector(
     (state: RootState) => state.tableSession.currentSession
   );
@@ -39,36 +42,97 @@ const HistoryOrderPanel: React.FC = () => {
   const tableSessionId = tableSession?.tableSessionId;
   console.log("orders nè", JSON.stringify(orders));
 
-  useEffect(() => {
-    if (tableSessionId) {
-      const fetchData = async () => {
-        try {
-          const response = await fetchTableSessionById(tableSessionId);
-          // const response = await fetchTableSessionById(
-          //   "65fa4c48-9ff6-49f4-a383-f792adffed51"
-          // );
-          console.log(
-            "Table session response:",
-            JSON.stringify(response.result, null, 2)
+  useFocusEffect(
+    useCallback(() => {
+      if (tableSessionId) {
+        const fetchData = async () => {
+          try {
+            const response = await fetchTableSessionById(tableSessionId);
+            console.log(
+              "Table session response:",
+              JSON.stringify(response.result, null, 2)
+            );
+
+            const allOrders = [
+              ...response.result.uncheckedPrelistOrderDetails,
+              ...response.result.readPrelistOrderDetails,
+              ...response.result.readyToServePrelistOrderDetails,
+            ];
+            setOrders(allOrders);
+          } catch (error) {
+            console.error("Error fetching table session:", error);
+          }
+        };
+        fetchData();
+      }
+    }, [tableSessionId])
+  );
+
+  const groupOrders = (orders: UncheckedPrelistOrderDetail[]) => {
+    const groupedDishes: Record<string, any> = {};
+    const groupedCombos: Record<string, any> = {};
+
+    orders.forEach((order) => {
+      const { prelistOrder, comboOrderDetails } = order;
+
+      if (prelistOrder.dishSizeDetail) {
+        // Get dishId safely
+        const dishId = prelistOrder.dishSizeDetailId ?? ""; // Default to an empty string if undefined
+        if (dishId) {
+          // Ensure dishId is not empty
+          if (!groupedDishes[dishId]) {
+            groupedDishes[dishId] = {
+              ...prelistOrder,
+              quantity: 0,
+              timeArray: [],
+            };
+          }
+          groupedDishes[dishId].quantity += prelistOrder.quantity;
+          groupedDishes[dishId].timeArray.push(
+            moment.utc(prelistOrder.orderTime).format("HH:mm, DD/MM/YYYY")
           );
-
-          const allOrders = [
-            ...response.result.uncheckedPrelistOrderDetails,
-            ...response.result.readPrelistOrderDetails,
-            ...response.result.readyToServePrelistOrderDetails,
-          ];
-          setOrders(allOrders);
-        } catch (error) {
-          console.error("Error fetching table session:", error);
         }
-      };
-      fetchData();
-    }
-  }, [tableSessionId]);
+      } else if (prelistOrder.combo) {
+        // Construct comboKey safely
+        const comboId = prelistOrder.comboId ?? ""; // Default to an empty string if undefined
+        const comboKey =
+          comboOrderDetails.length > 0
+            ? `${comboId}_${comboOrderDetails
+                .map((detail) => detail.dishComboId)
+                .sort()
+                .join("_")}`
+            : comboId;
 
-  // Separate dishes and combos
-  const dishes = orders.filter((item) => item.prelistOrder.dishSizeDetail);
-  const combos = orders.filter((item) => item.prelistOrder.combo);
+        if (comboKey) {
+          // Ensure comboKey is not empty
+          if (!groupedCombos[comboKey]) {
+            groupedCombos[comboKey] = {
+              ...prelistOrder,
+              quantity: 0,
+              timeArray: [],
+              comboDetails: comboOrderDetails,
+            };
+          }
+          groupedCombos[comboKey].quantity += prelistOrder.quantity;
+          groupedCombos[comboKey].timeArray.push(
+            moment.utc(prelistOrder.orderTime).format("HH:mm, DD/MM/YYYY")
+          );
+        }
+      }
+    });
+
+    return {
+      dishes: Object.values(groupedDishes),
+      combos: Object.values(groupedCombos),
+    };
+  };
+
+  // Tách món ăn và combo sau khi nhóm
+  const { dishes, combos } = groupOrders(orders);
+
+  // // Separate dishes and combos
+  // const dishes = orders.filter((item) => item.prelistOrder.dishSizeDetail);
+  // const combos = orders.filter((item) => item.prelistOrder.combo);
 
   // Function to show modal with content
   const showModal = (content: any) => {
@@ -79,29 +143,29 @@ const HistoryOrderPanel: React.FC = () => {
   const hideModal = () => setVisible(false);
 
   const renderDishItem = ({ item }: { item: any }) => (
-    <View className={`w-${itemWidth}`}>
+    <View style={{ width: itemWidth }}>
       <DishCardHistory
-        dish={item.prelistOrder}
+        dish={item}
         itemWidth={itemWidth}
-        showModal={showModal} // Pass showModal function
+        showModal={showModal}
       />
     </View>
   );
 
   const renderComboItem = ({ item }: { item: any }) => (
-    <View className={`w-${itemWidth}`}>
+    <View style={{ width: itemWidth }}>
       <ComboCardHistory
-        combo={item.prelistOrder}
-        comboDetails={item.comboOrderDetails}
+        combo={item}
+        comboDetails={item.comboDetails}
         itemWidth={itemWidth}
-        showModal={showModal} // Pass showModal function
+        showModal={showModal}
       />
     </View>
   );
 
   return (
     <Provider>
-      <View className="flex-1 py-4 px-10 bg-[#f9f9f9]">
+      <View className="flex-1 py-4 px-4 bg-[#f9f9f9]">
         <View className="flex-row items-center justify-between mx-2 mb-4 mt-2">
           <Text className="text-[25px] font-bold uppercase pb-2 border-b-2 text-[#970C1A] border-[#970C1A]">
             Lịch sử đặt món của bạn
@@ -119,9 +183,9 @@ const HistoryOrderPanel: React.FC = () => {
                 <FlatList
                   data={dishes}
                   renderItem={renderDishItem}
-                  keyExtractor={(item) => item.prelistOrder.prelistOrderId}
+                  keyExtractor={(item) => item.prelistOrderId}
                   numColumns={numColumns}
-                  scrollEnabled={false} // Disable FlatList's own scroll
+                  scrollEnabled={false}
                   columnWrapperStyle={{ marginHorizontal: spacing }}
                   contentContainerStyle={{ paddingHorizontal: spacing }}
                 />
@@ -137,9 +201,9 @@ const HistoryOrderPanel: React.FC = () => {
                 <FlatList
                   data={combos}
                   renderItem={renderComboItem}
-                  keyExtractor={(item) => item.prelistOrder.prelistOrderId}
+                  keyExtractor={(item) => item?.prelistOrder?.prelistOrderId}
                   numColumns={numColumns}
-                  scrollEnabled={false} // Disable FlatList's own scroll
+                  scrollEnabled={false}
                   columnWrapperStyle={{ marginHorizontal: spacing }}
                   contentContainerStyle={{
                     paddingHorizontal: spacing,

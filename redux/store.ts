@@ -4,6 +4,7 @@ import dishesReducer from "./slices/dishesSlice";
 import authReducer from "./slices/authSlice";
 import reservationReducer from "./slices/reservationSlice";
 import tableSessionReducer from "./slices/tableSessionSlice";
+import ordersReducer from "./slices/ordersSlice";
 
 const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
     auth: authReducer,
     reservation: reservationReducer,
     tableSession: tableSessionReducer, // Add this line
+    orders: ordersReducer, // Add this line
   },
 });
 
