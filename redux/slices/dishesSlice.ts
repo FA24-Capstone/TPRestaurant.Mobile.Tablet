@@ -5,19 +5,6 @@ import { ComboOrder } from "@/app/types/order_type";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { isLoading } from "expo-font";
 
-// interface Dish {
-//   id: string;
-//   name: string;
-//   price: number;
-//   image: string | number; // Update to accept both local and URL images
-//   quantity: number;
-//   rating: number;
-//   ratingCount: number;
-//   type: string;
-//   size?: string;
-//   sizePrice?: number; // Add sizePrice field to store the price of the selected size NO
-// }
-
 interface SelectedDish extends Dish {
   selectedSizeDetail: DishSizeDetail; // Directly include the selected size detail
   quantity: number; // Ensure quantity is always present

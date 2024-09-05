@@ -128,11 +128,11 @@ function RootLayout() {
     <SafeAreaProvider>
       {isLoggedIn ? (
         <NativeStack.Navigator>
-          <NativeStack.Screen
+          {/* <NativeStack.Screen
             name="index"
             component={require("./index").default}
             options={{ headerShown: false }}
-          />
+          /> */}
           <NativeStack.Screen
             name="(tabs)"
             component={MyDrawer}
@@ -152,7 +152,7 @@ function RootLayout() {
       ) : (
         <LoginScreen />
       )}
-      <FlashMessage style={{ zIndex: 999 }} />
+      <FlashMessage position="left" style={{ zIndex: 999 }} />
     </SafeAreaProvider>
   );
 }

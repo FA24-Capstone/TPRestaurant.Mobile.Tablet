@@ -52,7 +52,6 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
       </TouchableOpacity>
 
       <View className="flex-row items-center flex-1">
-        {/* <Text className="font-bold text-2xl text-gray-800 mr-6">{title}</Text> */}
         <View className="flex-row justify-center items-center mr-2">
           <Text className="font-bold uppercase text-[18px] text-gray-600 mr-2">
             Xin chào,{" "}
@@ -67,12 +66,6 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
             style={{ marginRight: 10 }}
           />
         </View>
-
-        {/* <TextInput
-          placeholder="Search"
-          className="border-2 border-gray-300 rounded-md px-4 h-10 flex-1 mr-4"
-          style={{ minWidth: 100 }} // Minimum width for search input
-        /> */}
       </View>
 
       <View className="flex-row justify-end items-center mr-10">
@@ -89,12 +82,6 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
             {now}
           </Text>
         </View>
-        {/* <View>
-          <Text className="text-lg font-semibold text-[#C01D2E]">
-            {" "}
-            ID bàn: {tableName}
-          </Text>
-        </View> */}
 
         <View
           style={{

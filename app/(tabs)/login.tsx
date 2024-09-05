@@ -49,10 +49,6 @@ const LoginScreen: React.FC = () => {
     <ScrollView contentContainerStyle={{ flex: 1 }} className="bg-[#FFFFFF]">
       <View className="flex mx-auto my-auto bg-white w-full h-full">
         <View className="mx-auto my-auto w-full">
-          {/* <Image
-            source={require("../../../assets/jewelryLogo.png")}
-            className="w-[160px] h-[120px] items-center mx-auto mb-2"
-          /> */}
           <Text className="text-center text-[#970C1A] text-4xl  font-bold mb-6">
             NHÀ HÀNG THIÊN PHÚ
           </Text>
