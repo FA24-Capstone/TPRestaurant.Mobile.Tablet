@@ -89,7 +89,7 @@ const HistoryOrderPanel: React.FC = () => {
           }
           groupedDishes[dishId].quantity += prelistOrder.quantity;
           groupedDishes[dishId].timeArray.push(
-            moment.utc(prelistOrder.orderTime).format("HH:mm, DD/MM/YYYY")
+            moment.utc(prelistOrder.orderTime).format("HH:mm:ss, DD/MM/YYYY")
           );
         }
       } else if (prelistOrder.combo) {
@@ -115,7 +115,7 @@ const HistoryOrderPanel: React.FC = () => {
           }
           groupedCombos[comboKey].quantity += prelistOrder.quantity;
           groupedCombos[comboKey].timeArray.push(
-            moment.utc(prelistOrder.orderTime).format("HH:mm, DD/MM/YYYY")
+            moment.utc(prelistOrder.orderTime).format("HH:mm:ss, DD/MM/YYYY")
           );
         }
       }

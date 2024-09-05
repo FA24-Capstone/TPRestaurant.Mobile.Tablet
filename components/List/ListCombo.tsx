@@ -52,8 +52,6 @@ const ListCombo: React.FC<ListComboProps> = ({
             DishItemTypeTranslations[combo.category.name] === selectedCategory
         );
 
-  // console.log("filteredCombos", filteredCombos);
-
   return (
     <View>
       {filteredCombos.length > 0 && (

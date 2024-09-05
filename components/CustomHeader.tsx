@@ -69,12 +69,12 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
       </View>
 
       <View className="flex-row justify-end items-center mr-10">
-        <TouchableOpacity className="flex-row justify-center items-center mr-9 py-2 px-4  rounded-md shadow-lg">
+        {/* <TouchableOpacity className="flex-row justify-center items-center mr-9 py-2 px-4  rounded-md shadow-lg">
           <FontAwesome name="phone" size={20} color="green" />
           <Text className="text-green-900 ml-3 font-semibold text-lg  ">
             Gọi Nhân Viên
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <View className="flex-row justify-center items-center mr-8">
           <FontAwesome name="calendar" size={20} color="gray" />
