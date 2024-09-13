@@ -1,32 +1,80 @@
-export interface DishOrder {
-  type: "dish";
-  id: string;
-  name: string;
-  price: number;
-  image: string | number;
-  quantity: number;
-  rating: number;
-  ratingCount: number;
-  size?: string;
-  sizePrice?: number;
+export interface OrderRequest {
+  customerId?: string;
+  orderType: number;
+  note: string;
+  orderDetailsDtos: OrderDetailsDto[];
+  reservationOrder?: ReservationOrder;
+  deliveryOrder?: DeliveryOrder;
+  mealWithoutReservation?: MealWithoutReservation;
 }
 
-export interface ComboOrder {
-  type?: "combo";
+export interface OrderDetailsDto {
+  dishSizeDetailId?: string;
+  combo?: Combo;
+  quantity: number;
+  note?: string;
+}
+
+export interface Combo {
   comboId: string;
-  comboName: string;
-  comboImage: string | number;
-  quantity: number;
-  comboPrice: number;
-  selectedDishes: { id: string; name: string; price: number }[];
+  dishComboIds: string[];
 }
 
-// Type guard for DishOrder
-export function isDishOrder(item: any): item is DishOrder {
-  return item.type === "dish";
+export interface ReservationOrder {
+  numberOfPeople: number;
+  mealTime: string;
+  endTime: string;
+  isPrivate: boolean;
+  deposit: number;
+  paymentMethod: number;
 }
 
-// Type guard for ComboOrder
-export function isComboOrder(item: any): item is ComboOrder {
-  return item.type === "combo";
+export interface DeliveryOrder {
+  numberOfPeople: number;
+  orderTime: string;
+  deliveryTime: string;
+  loyalPointToUse: number;
+  couponIds: string[];
+  paymentMethod: number;
+}
+
+export interface MealWithoutReservation {
+  numberOfPeople: number;
+  tableIds: string[];
+}
+
+// ============ order reponse ============
+export interface OrderReponse {
+  result: Result;
+  isSuccess: boolean;
+  messages: any[];
+}
+
+export interface Result {
+  order: Order;
+  paymentLink: any;
+}
+
+export interface Order {
+  orderId: string;
+  orderDate: string;
+  deliveryTime: any;
+  reservationDate: any;
+  mealTime: string;
+  endTime: any;
+  totalAmount: number;
+  statusId: number;
+  status: any;
+  customerId: any;
+  customerInfo: any;
+  paymentMethodId: number;
+  paymentMethod: any;
+  loyalPointsHistoryId: any;
+  loyalPointsHistory: any;
+  note: string;
+  orderTypeId: number;
+  orderType: any;
+  numOfPeople: number;
+  deposit: any;
+  isPrivate: any;
 }

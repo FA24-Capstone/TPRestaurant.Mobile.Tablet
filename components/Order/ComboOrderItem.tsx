@@ -30,6 +30,7 @@ export interface ComboOrder {
   comboImage: string | number;
   comboPrice: number;
   selectedDishes: ComboDish[];
+  note?: string;
 }
 
 interface ComboOrderItemProps {

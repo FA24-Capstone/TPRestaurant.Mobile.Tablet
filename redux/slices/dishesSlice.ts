@@ -1,7 +1,7 @@
 //src/ redux / slices / dishesSlice.ts
 import { fetchDishes } from "@/api/dishesApi";
 import { Dish, DishSizeDetail } from "@/app/types/dishes_type";
-import { ComboOrder } from "@/app/types/order_type";
+import { ComboOrder } from "@/components/Order/ComboOrderItem";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { isLoading } from "expo-font";
 
