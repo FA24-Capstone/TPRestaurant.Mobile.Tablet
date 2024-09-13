@@ -60,12 +60,8 @@ const ComboCard: React.FC<ComboCardProps> = ({
         setComboDetails(data.result.combo);
         setDishCombos(data.result.dishCombo);
         const maxNum = Math.max(
-          ...data.result.dishCombo.map(
-            (item) => item.comboOptionSet.optionSetNumber
-          )
+          ...data.result.dishCombo.map((item) => item.optionSetNumber)
         );
-        console.log("maxNum", maxNum);
-
         setMaxOptionSetNumber(maxNum);
       } catch (error) {
         console.error("Error fetching combo details:", error);
@@ -92,8 +88,8 @@ const ComboCard: React.FC<ComboCardProps> = ({
     setSelectedDishes((prev) => {
       const currentSelection = prev[setId] || [];
       const maxChoices =
-        dishCombos.find((set) => set.comboOptionSet.optionSetNumber === setId)
-          ?.comboOptionSet.numOfChoice || 0;
+        dishCombos.find((set) => set.optionSetNumber === setId)?.numOfChoice ||
+        0;
 
       if (currentSelection.includes(dishId)) {
         return {
@@ -112,8 +108,8 @@ const ComboCard: React.FC<ComboCardProps> = ({
       Object.keys(selectedDishes).length === maxOptionSetNumber &&
       Object.values(selectedDishes).every((choices, index) => {
         const requiredChoices = dishCombos.filter(
-          (combo) => combo.comboOptionSet.optionSetNumber === index + 1
-        )[0]?.comboOptionSet.numOfChoice;
+          (combo) => combo.optionSetNumber === index + 1
+        )[0]?.numOfChoice;
         return choices.length === requiredChoices;
       })
     );
@@ -172,15 +168,14 @@ const ComboCard: React.FC<ComboCardProps> = ({
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>
           Bộ chọn {index + 1} (Chọn{" "}
           {
-            dishCombos.find(
-              (combo) => combo.comboOptionSet.optionSetNumber === index + 1
-            )?.comboOptionSet.numOfChoice
+            dishCombos.find((combo) => combo.optionSetNumber === index + 1)
+              ?.numOfChoice
           }{" "}
           món):
         </Text>
         <FlatList
           data={dishCombos.filter(
-            (combo) => combo.comboOptionSet.optionSetNumber === index + 1
+            (combo) => combo.optionSetNumber === index + 1
           )}
           horizontal
           renderItem={({ item }) => {
