@@ -1,7 +1,7 @@
 import axios from "axios";
 import {
   Combo,
-  ComboApiResponse,
+  ComboIdApiResponse,
   CombosApiResponse,
   DishCombo,
 } from "@/app/types/combo_type";
@@ -35,7 +35,7 @@ export const fetchCombos = async (
       discount: item.discount,
       categoryId: item.categoryId,
       category: {
-        id: item.category.id,
+        id: item.categoryId,
         name: item.category.name,
         vietnameseName: item.category.vietnameseName,
       },
@@ -52,17 +52,19 @@ export const fetchCombos = async (
 
 export const fetchComboById = async (
   comboId: string
-): Promise<ComboApiResponse> => {
+): Promise<ComboIdApiResponse> => {
   try {
-    const response = await axios.get<ComboApiResponse>(
+    console.log("comboIdNe", comboId);
+
+    const response = await axios.get<ComboIdApiResponse>(
       `${API_URL}/combo/get-combo-by-id/${comboId}`,
       { headers: { "Content-Type": "application/json" } }
     );
     // Log detailed response for debugging
-    // console.log(
-    //   "API response for combo details:",
-    //   JSON.stringify(response.data.result, null, 2)
-    // );
+    console.log(
+      "API response for combo details:",
+      JSON.stringify(response.data.result, null, 2)
+    );
     // Return the response directly if it matches the expected shape
     return response.data;
   } catch (error) {

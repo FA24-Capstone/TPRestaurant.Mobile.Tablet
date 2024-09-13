@@ -1,3 +1,13 @@
+export interface ComboApiData {
+  combo: Combo;
+  dishCombo: DishCombo[];
+  imgs: string[];
+}
+export interface ComboIdApiResponse {
+  result: ComboApiData;
+  isSuccess: boolean;
+  messages: any[];
+}
 export interface Combo {
   comboId: string;
   name: string;
@@ -6,21 +16,31 @@ export interface Combo {
   price: number;
   discount: number;
   categoryId: number;
-  category: ComboCategory;
+  category: Category;
   startDate: string;
   endDate: string;
   totalOptionSets?: number; // Assuming this is an integer
 }
 
-export interface ComboCategory {
+export interface Category {
   id: number;
   name: string;
-  vietnameseName: string | null;
+  vietnameseName: any;
 }
 
 export interface DishCombo {
   dishCombo: DishComboDetail[];
-  comboOptionSet: ComboOptionSet;
+  comboOptionSetId: string;
+  optionSetNumber: number;
+  numOfChoice: number;
+  dishItemTypeId: number;
+  dishItemType: DishItemType;
+}
+
+export interface DishItemType {
+  id: number;
+  name: string;
+  vietnameseName: any;
 }
 
 export interface DishComboDetail {
@@ -28,6 +48,8 @@ export interface DishComboDetail {
   quantity: number;
   dishSizeDetailId: string;
   dishSizeDetail: DishSizeDetail;
+  comboOptionSetId: string;
+  comboOptionSet: any;
 }
 
 export interface ComboOptionSet {
@@ -59,7 +81,13 @@ export interface DishSizeDetail {
   dishId: string;
   dish: Dish;
   dishSizeId: number;
-  dishSize: any; // Specify further if possible
+  dishSize: DishSize;
+}
+
+export interface DishSize {
+  id: number;
+  name: string;
+  vietnameseName: any;
 }
 
 export interface DishDetail {
@@ -73,17 +101,28 @@ export interface DishDetail {
   isAvailable: boolean;
 }
 
+// ============================== API get all combo ==============================
+
 export interface CombosApiResponse {
-  result: {
-    items: Combo[];
-  };
+  result: CombosData;
+  isSuccess: boolean;
+  messages: any[];
 }
 
-export interface ComboApiResponseData {
-  combo: Combo;
-  dishCombo: DishCombo[];
-  imgs: string[];
+export interface CombosData {
+  items: ItemCombo[];
+  totalPages: number;
 }
-export interface ComboApiResponse {
-  result: ComboApiResponseData;
+
+export interface ItemCombo {
+  comboId: string;
+  name: string;
+  description: string;
+  image: string;
+  price: number;
+  discount: number;
+  categoryId: number;
+  category: Category;
+  startDate: string;
+  endDate: string;
 }
