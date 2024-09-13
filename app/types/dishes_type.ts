@@ -31,6 +31,7 @@ export interface DishSizeDetail {
   dishId: string;
   dishSizeId: number;
   dishSize: DishSize;
+  note?: string;
 }
 
 export interface Dish {
