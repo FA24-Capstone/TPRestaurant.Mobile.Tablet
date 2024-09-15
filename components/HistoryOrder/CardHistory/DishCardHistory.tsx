@@ -9,12 +9,14 @@ interface DishCardHistoryProps {
   dish: any; // Dữ liệu từ API
   itemWidth: number;
   showModal: (content: any) => void; // Function để hiển thị modal
+  noteOrder: string;
 }
 
 const DishCardHistory: React.FC<DishCardHistoryProps> = ({
   dish,
   itemWidth,
   showModal,
+  noteOrder,
 }) => {
   return (
     <View className="flex-1 p-2 m-2 bg-white rounded-md relative shadow-lg">
@@ -32,7 +34,7 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
         </Text>
         <View className="flex-row justify-between my-2">
           <Text className="text-center text-base font-semibold text-[#C01D2E]">
-            {formatPriceVND(dish.dishSizeDetail.price)} VND
+            {formatPriceVND(dish.dishSizeDetail.price)}
           </Text>
           <View className="flex-row items-center">
             <Text className="text-[#EDAA16] font-semibold mr-4 text-base">
@@ -48,6 +50,14 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
             </Text>
           </View>
         </View>
+        {/* <View className="mt-2 flex-row">
+          <Text className="text-gray-700 font-semibold">Ghi chú:</Text>
+          <View className="ml-4">
+            <Text className="text-gray-500">
+              {noteOrder || "Không có ghi chú"}
+            </Text>
+          </View>
+        </View> */}
       </View>
 
       <TouchableOpacity
