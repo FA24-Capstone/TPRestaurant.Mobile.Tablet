@@ -6,9 +6,9 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Button } from "react-native-paper";
 
 interface DishCardHistoryProps {
-  dish: any; // Adjust with the actual type of the dish
-  itemWidth: number; // Add itemWidth prop
-  showModal: (content: any) => void; // Function to show modal
+  dish: any; // Dữ liệu từ API
+  itemWidth: number;
+  showModal: (content: any) => void; // Function để hiển thị modal
 }
 
 const DishCardHistory: React.FC<DishCardHistoryProps> = ({
@@ -16,13 +16,10 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
   itemWidth,
   showModal,
 }) => {
-  console.log("====================================");
-  console.log("itemWidth", itemWidth);
-  console.log("====================================");
   return (
     <View className="flex-1 p-2 m-2 bg-white rounded-md relative shadow-lg">
       <Image
-        source={{ uri: dish.dishSizeDetail.dish.image }}
+        source={{ uri: dish.dishSizeDetail.dish.image }} // Sử dụng đúng dữ liệu từ API
         className="w-full h-40 rounded-md"
         resizeMode="cover"
       />
@@ -34,8 +31,8 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
           {dish.dishSizeDetail.dish.description}
         </Text>
         <View className="flex-row justify-between my-2">
-          <Text className=" text-center text-base font-semibold text-[#C01D2E]">
-            {formatPriceVND(dish.dishSizeDetail.price)}
+          <Text className="text-center text-base font-semibold text-[#C01D2E]">
+            {formatPriceVND(dish.dishSizeDetail.price)} VND
           </Text>
           <View className="flex-row items-center">
             <Text className="text-[#EDAA16] font-semibold mr-4 text-base">
@@ -46,11 +43,9 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
         <View className="mt-2 flex-row">
           <Text className="text-gray-700 font-semibold">Thời gian đặt:</Text>
           <View className="ml-4">
-            {dish.timeArray.map((time, index) => (
-              <Text key={index} className="text-gray-500">
-                • {time}
-              </Text>
-            ))}
+            <Text className="text-gray-500">
+              • {moment.utc(dish.orderTime).format("HH:mm, DD/MM/YYYY")}
+            </Text>
           </View>
         </View>
       </View>
@@ -58,55 +53,7 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
       <TouchableOpacity
         className="absolute top-3 right-3 rounded-full p-1"
         style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}
-        onPress={() =>
-          showModal(
-            <View className="flex-row bg-white w-full rounded-lg">
-              <Image
-                source={{ uri: dish.dishSizeDetail.dish.image }}
-                className="w-full h-40 rounded-md"
-                style={{ height: 400, width: 600, resizeMode: "cover" }}
-                resizeMode="cover"
-              />
-              <View className="ml-4 p-2">
-                <Text className="font-bold text-[22px] ">
-                  {dish.dishSizeDetail.dish.name}
-                </Text>
-                <Text className="text-gray-500 mb-2 text-base">
-                  {dish.dishSizeDetail.dish.description}
-                </Text>
-                <Text className="font-bold text-lg text-[#C01D2E] mb-4">
-                  {formatPriceVND(dish.dishSizeDetail.price)}
-                </Text>
-                <View className="flex-row items-center">
-                  <Text className="text-gray-700 font-semibold  text-base">
-                    Số lượng:{" "}
-                  </Text>
-                  <Text className="text-[#EDAA16] font-semibold mr-4 text-lg">
-                    {dish.quantity} món
-                  </Text>
-                </View>
-
-                <View className="flex-row  mb-4 items-center">
-                  <Text className="text-gray-700 font-semibold  text-base">
-                    Thời gian đặt:{" "}
-                  </Text>
-                  <Text className="text-[#EDAA16] font-semibold mr-4 text-lg">
-                    {dish.timeArray.join("; ")}
-                  </Text>
-                </View>
-                <View className="flex-row justify-end mt-6 items-center">
-                  <Button
-                    mode="contained"
-                    className=" w-fit bg-[#C01D2E] rounded-md mr-4"
-                    labelStyle={{ fontWeight: "600", fontSize: 16 }}
-                  >
-                    Đặt lại
-                  </Button>
-                </View>
-              </View>
-            </View>
-          )
-        }
+        onPress={() => showModal(dish)}
       >
         <MaterialCommunityIcons
           name="arrow-top-right-thin-circle-outline"

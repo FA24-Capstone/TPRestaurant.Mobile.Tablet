@@ -24,6 +24,9 @@ import { Button, Modal, Portal, Provider } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import moment from "moment-timezone";
+import { Combo, OrderDetail, OrderDetails } from "@/app/types/order_type";
+import { getHistoryOrderId } from "@/api/ordersApi";
+import { DishSizeDetail } from "@/app/types/combo_type";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -31,42 +34,69 @@ const spacing = 8; // Margin on each side
 const itemWidth = (width - (numColumns + 1) * spacing) / numColumns;
 
 const HistoryOrderPanel: React.FC = () => {
-  const [orders, setOrders] = useState<UncheckedPrelistOrderDetail[]>([]);
-
-  const tableSession = useSelector(
-    (state: RootState) => state.tableSession.currentSession
-  );
+  const [dishes, setDishes] = useState<OrderDetail[]>([]);
+  const [combos, setCombos] = useState<OrderDetail[]>([]);
+  const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
   const [visible, setVisible] = useState(false);
   const [modalContent, setModalContent] = useState<any>(null); // State for modal content
 
-  const tableSessionId = tableSession?.tableSessionId;
-  console.log("orders nè", JSON.stringify(orders));
+  const currentOrder = useSelector(
+    (state: RootState) => state.orders.currentOrder
+  );
 
+  console.log("orders nè", currentOrder);
+  // Log ra => {"orderId":"6e5b9440-9478-4559-b572-da37d6ca6e1b","orderDate":"0001-01-01T00:00:00","deliveryTime":null,"reservationDate":null,"mealTime":"2024-09-14T13:14:13.6363496","endTime":null,"totalAmount":700000,"statusId":3,"status":null,"customerId":null,"customerInfo":null,"paymentMethodId":2,"paymentMethod":null,"loyalPointsHistoryId":null,"loyalPointsHistory":null,"note":"","orderTypeId":3,"orderType":null,"numOfPeople":0,"deposit":null,"isPrivate":null}
+  const orderId = currentOrder?.orderId;
+
+  console.log("modalContent nè", modalContent);
+
+  // Function to fetch order details
+  const fetchOrderDetails = useCallback(async () => {
+    if (!orderId) return;
+
+    try {
+      const response = await getHistoryOrderId(orderId);
+      console.log("API response:", JSON.stringify(response, null, 2));
+
+      // Extract all orderDetails at once
+      const orderDetails: OrderDetail[] = response.result.orderDetails.map(
+        (detail: any) => detail.orderDetail
+      );
+
+      const mappedOrderDetails: OrderDetails[] = orderDetails.map((detail) => ({
+        orderDetail: detail,
+        comboOrderDetails: [], // Add appropriate comboOrderDetails if available
+      }));
+
+      // Set the order details in state
+      setOrderDetails(mappedOrderDetails);
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    }
+  }, [orderId]);
+
+  // Re-fetch order details when page is focused
   useFocusEffect(
     useCallback(() => {
-      if (tableSessionId) {
-        const fetchData = async () => {
-          try {
-            const response = await fetchTableSessionById(tableSessionId);
-            console.log(
-              "Table session response:",
-              JSON.stringify(response.result, null, 2)
-            );
-
-            const allOrders = [
-              ...response.result.uncheckedPrelistOrderDetails,
-              ...response.result.readPrelistOrderDetails,
-              ...response.result.readyToServePrelistOrderDetails,
-            ];
-            setOrders(allOrders);
-          } catch (error) {
-            console.error("Error fetching table session:", error);
-          }
-        };
-        fetchData();
-      }
-    }, [tableSessionId])
+      fetchOrderDetails();
+    }, [fetchOrderDetails])
   );
+  // Update dishes and combos based on orderDetails state change
+  useEffect(() => {
+    if (orderDetails.length > 0) {
+      const fetchedCombos = orderDetails
+        .filter((detail) => detail.orderDetail.combo)
+        .map((detail) => detail.orderDetail as OrderDetail);
+
+      const fetchedDishes = orderDetails
+        .filter((detail) => detail.orderDetail.dishSizeDetail)
+        .map((detail) => detail.orderDetail as OrderDetail);
+
+      // Set dishes and combos
+      setCombos(fetchedCombos);
+      setDishes(fetchedDishes);
+    }
+  }, [orderDetails]);
 
   const groupOrders = (orders: UncheckedPrelistOrderDetail[]) => {
     const groupedDishes: Record<string, any> = {};
@@ -127,13 +157,6 @@ const HistoryOrderPanel: React.FC = () => {
     };
   };
 
-  // Tách món ăn và combo sau khi nhóm
-  const { dishes, combos } = groupOrders(orders);
-
-  // // Separate dishes and combos
-  // const dishes = orders.filter((item) => item.prelistOrder.dishSizeDetail);
-  // const combos = orders.filter((item) => item.prelistOrder.combo);
-
   // Function to show modal with content
   const showModal = (content: any) => {
     setModalContent(content);
@@ -163,6 +186,23 @@ const HistoryOrderPanel: React.FC = () => {
     </View>
   );
 
+  // Thêm các item rỗng vào cuối nếu cần thiết để luôn có đủ 4 item trên mỗi hàng
+  const fillEmptySpaces = (data: any[]) => {
+    const numberOfFullRows = Math.floor(data.length / numColumns);
+    const numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
+
+    if (numberOfElementsLastRow !== 0) {
+      const emptySpaces = numColumns - numberOfElementsLastRow;
+      for (let i = 0; i < emptySpaces; i++) {
+        data.push({ empty: true });
+      }
+    }
+
+    return data;
+  };
+  const dataDishWithEmptySpaces = fillEmptySpaces([...dishes]);
+  const dataComboWithEmptySpaces = fillEmptySpaces([...combos]);
+
   return (
     <Provider>
       <View className="flex-1 py-4 px-4 bg-[#f9f9f9]">
@@ -172,18 +212,40 @@ const HistoryOrderPanel: React.FC = () => {
           </Text>
           <SearchBar />
         </View>
-        {dishes.length > 0 || combos.length > 0 ? (
+
+        {dataDishWithEmptySpaces.length > 0 ||
+        dataDishWithEmptySpaces.length > 0 ? (
           <ScrollView contentContainerStyle={{ paddingBottom: 16 }}>
             {/* List of Dishes */}
-            {dishes.length > 0 && (
+            {dataDishWithEmptySpaces.length > 0 && (
               <View className="my-2">
                 <Text className="text-xl font-bold ml-8 text-[#970C1A] uppercase">
                   Món lẻ:
                 </Text>
                 <FlatList
-                  data={dishes}
-                  renderItem={renderDishItem}
-                  keyExtractor={(item) => item.prelistOrderId}
+                  data={dataDishWithEmptySpaces}
+                  renderItem={({ item }) => {
+                    // Nếu item là rỗng, không render gì
+                    if (item.empty) {
+                      return (
+                        <View
+                          style={{ width: itemWidth, marginBottom: spacing }}
+                        />
+                      );
+                    }
+
+                    // Nếu item có dữ liệu, render bình thường
+                    return (
+                      <DishCardHistory
+                        dish={item}
+                        itemWidth={itemWidth}
+                        showModal={showModal}
+                      />
+                    );
+                  }}
+                  keyExtractor={(item) =>
+                    item.dishSizeDetailId || item.orderDetailId
+                  }
                   numColumns={numColumns}
                   scrollEnabled={false}
                   columnWrapperStyle={{ marginHorizontal: spacing }}
@@ -193,15 +255,34 @@ const HistoryOrderPanel: React.FC = () => {
             )}
 
             {/* List of Combos */}
-            {combos.length > 0 && (
+            {dataComboWithEmptySpaces.length > 0 && (
               <View className="my-2">
                 <Text className="text-xl font-bold ml-8 text-[#970C1A] uppercase">
                   Món Combo:
                 </Text>
                 <FlatList
-                  data={combos}
-                  renderItem={renderComboItem}
-                  keyExtractor={(item) => item?.prelistOrder?.prelistOrderId}
+                  data={dataComboWithEmptySpaces}
+                  renderItem={({ item }) => {
+                    // Nếu item là rỗng, không render gì
+                    if (item.empty) {
+                      return (
+                        <View
+                          style={{ width: itemWidth, marginBottom: spacing }}
+                        />
+                      );
+                    }
+
+                    // Nếu item có dữ liệu, render bình thường
+                    return (
+                      <ComboCardHistory
+                        combo={item}
+                        itemWidth={itemWidth}
+                        showModal={showModal}
+                        comboDetails={item?.comboDetails}
+                      />
+                    );
+                  }}
+                  keyExtractor={(item) => item.comboId || item.orderDetailId}
                   numColumns={numColumns}
                   scrollEnabled={false}
                   columnWrapperStyle={{ marginHorizontal: spacing }}
@@ -240,7 +321,19 @@ const HistoryOrderPanel: React.FC = () => {
               position: "relative",
             }}
           >
-            {modalContent}
+            {modalContent && (
+              <View>
+                <Text className="text-lg font-bold">
+                  {modalContent.name || modalContent.dish?.name}
+                </Text>
+                <Text>
+                  {modalContent.description || modalContent.dish?.description}
+                </Text>
+                <Text className="text-red-500 mt-2">
+                  Giá: {modalContent.price} VND
+                </Text>
+              </View>
+            )}
             <TouchableOpacity
               className="absolute top-3 right-3 rounded-full p-1"
               style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}
