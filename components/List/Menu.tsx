@@ -25,7 +25,7 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   const [pageSize, setPageSize] = useState<number>(9);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
-  // console.log("dishesList", dishes);
+  console.log("dishesList", dishes);
 
   const categories = [
     "Tất cả",
@@ -65,10 +65,18 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
           fetchDishes(1, pageSize),
           fetchCombos(1, pageSize),
         ]);
+        console.log("hihihihehe", fetchedDishes);
 
-        setDishes(fetchedDishes);
-        setCombos(fetchedCombos);
+        setDishes((prevDishes) => [...prevDishes, ...fetchedDishes]);
+        setCombos((prevCombos) => [...prevCombos, ...fetchedCombos]);
+
+        if (fetchedDishes.length < pageSize) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
       } catch (err) {
+        console.error("Error loading menu items ne:", err); // Log the actual error
         setError("Failed to load menu items");
       } finally {
         setLoading(false);
@@ -120,20 +128,20 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
         </View>
       </View>
       <ScrollView className="flex-1 bg-[#F9F9F9]">
-        {shouldShowDishes(selectedCategory) && (
-          <>
-            <ListDishes
-              isPanelOpen={isPanelOpen}
-              selectedCategory={selectedCategory}
-              DishItemTypeTranslations={DishItemTypeTranslations}
-            />
-            <ListCombo
-              isPanelOpen={isPanelOpen}
-              selectedCategory={selectedCategory}
-              DishItemTypeTranslations={DishItemTypeTranslations}
-            />
-          </>
-        )}
+        {/* {shouldShowDishes(selectedCategory) && ( */}
+        <>
+          <ListDishes
+            isPanelOpen={isPanelOpen}
+            selectedCategory={selectedCategory}
+            DishItemTypeTranslations={DishItemTypeTranslations}
+          />
+          <ListCombo
+            isPanelOpen={isPanelOpen}
+            selectedCategory={selectedCategory}
+            DishItemTypeTranslations={DishItemTypeTranslations}
+          />
+        </>
+        {/* )} */}
       </ScrollView>
     </View>
   );

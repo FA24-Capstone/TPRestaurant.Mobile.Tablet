@@ -20,7 +20,7 @@ export const fetchDishes = async (
         },
       }
     );
-
+    console.log("dishes response data:", response.data);
     // Ánh xạ dữ liệu trả về từ API
     const dishes: Dish[] = response.data.result.items.map((item) => {
       const dishData = item.dish; // Lấy dữ liệu dish từ object chính
@@ -35,6 +35,8 @@ export const fetchDishes = async (
         image: dishData.image,
         dishItemTypeId: dishData.dishItemTypeId,
         isAvailable: dishData.isAvailable,
+        // averageRating: dishData.averageRating,
+        // numberOfRating: dishData.numberOfRating,
         dishItemType: {
           id: dishData.dishItemType.id,
           name: dishData.dishItemType.name,
@@ -53,12 +55,13 @@ export const fetchDishes = async (
             vietnameseName: detail.dishSize.vietnameseName,
           },
         })),
-        rating: 4.5, // Placeholder value
-        ratingCount: 150, // Placeholder value
+        rating: dishData.averageRating, // Placeholder value
+        ratingCount: dishData.numberOfRating, // Placeholder value
         price: dishSizeDetail[0].price, // Placeholder value
         quantity: 1, // Optional
       };
     });
+    console.log("dishesNe1", JSON.stringify(dishes)); // In ra response từ API
 
     return dishes;
   } catch (error) {

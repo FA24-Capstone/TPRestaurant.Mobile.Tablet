@@ -22,6 +22,7 @@ const ListCombo: React.FC<ListComboProps> = ({
   const [errorCombos, setErrorCombos] = useState<string | null>(null);
   const [comboPageSize, setComboPageSize] = useState<number>(9);
   const [hasMoreCombos, setHasMoreCombos] = useState<boolean>(true);
+  console.log("combosList", combos);
 
   useEffect(() => {
     const loadCombos = async () => {
@@ -69,8 +70,8 @@ const ListCombo: React.FC<ListComboProps> = ({
                   id={combo.comboId}
                   image={combo.image}
                   name={combo.name}
-                  rating={4.5} // Placeholder value
-                  ratingCount={100} // Placeholder value
+                  rating={combo.rating || 0} // Placeholder value
+                  ratingCount={combo.ratingCount || 0} // Placeholder value
                   type={
                     DishItemTypeTranslations[combo.category.name] ||
                     "Loại không xác định"

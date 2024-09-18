@@ -24,9 +24,10 @@ export const fetchCombos = async (
         },
       }
     );
+    console.log("fetchCombos response data:", response.data);
 
     // Ánh xạ dữ liệu trả về từ API
-    const combos: Combo[] = response.data.result.items.map((item) => ({
+    const combos: Combo[] = response.data.result.map((item) => ({
       comboId: item.comboId,
       name: item.name,
       description: item.description,
@@ -34,6 +35,8 @@ export const fetchCombos = async (
       price: item.price,
       discount: item.discount,
       categoryId: item.categoryId,
+      rating: item.averageRating,
+      ratingCount: item.numberOfRating,
       category: {
         id: item.categoryId,
         name: item.category.name,
@@ -42,6 +45,8 @@ export const fetchCombos = async (
       startDate: item.startDate,
       endDate: item.endDate,
     }));
+
+    console.log("fetchCombos Ne", combos);
 
     return combos;
   } catch (error) {

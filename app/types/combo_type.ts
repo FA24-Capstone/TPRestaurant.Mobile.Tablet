@@ -19,6 +19,10 @@ export interface Combo {
   category: Category;
   startDate: string;
   endDate: string;
+  averageRating?: number;
+  numberOfRating?: number;
+  rating?: number;
+  ratingCount?: number;
   totalOptionSets?: number; // Assuming this is an integer
 }
 
@@ -104,14 +108,26 @@ export interface DishDetail {
 // ============================== API get all combo ==============================
 
 export interface CombosApiResponse {
-  result: CombosData;
+  result: CombosData[];
   isSuccess: boolean;
   messages: any[];
 }
 
 export interface CombosData {
-  items: ItemCombo[];
-  totalPages: number;
+  // items: ItemCombo[];
+  comboId: string;
+  name: string;
+  description: string;
+  image: string;
+  price: number;
+  discount: number;
+  categoryId: number;
+  category: Category;
+  startDate: string;
+  endDate: string;
+  numberOfRating: number;
+  averageRating: number;
+  totalPages?: number;
 }
 
 export interface ItemCombo {
@@ -125,4 +141,6 @@ export interface ItemCombo {
   category: Category;
   startDate: string;
   endDate: string;
+  numberOfRating: number;
+  averageRating: number;
 }

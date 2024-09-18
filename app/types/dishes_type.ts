@@ -6,6 +6,8 @@ export interface DishItemResponse {
     description?: string;
     dishItemTypeId: number;
     isAvailable?: boolean;
+    averageRating: number;
+    numberOfRating: number;
     dishItemType: DishItemType;
   };
   dishSizeDetails: DishSizeDetail[];
@@ -38,13 +40,15 @@ export interface Dish {
   id: string; // This matches the type from the API
   image: string | number;
   name: string;
-  rating: number;
+  rating?: number;
   type?: string;
-  ratingCount: number;
+  ratingCount?: number;
   dishItemTypeId: number;
   price: number;
   quantity?: number;
   description?: string;
+  averageRating?: number;
+  numberOfRating?: number;
   isAvailable?: boolean;
   dishSizeDetails: DishSizeDetail[];
   dishItemType: DishItemType;
