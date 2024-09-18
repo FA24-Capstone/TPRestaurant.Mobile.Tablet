@@ -17,6 +17,7 @@ const ListDishes: React.FC<ListDishesProps> = ({
   selectedCategory,
   DishItemTypeTranslations,
 }) => {
+  console.log("ListDishes component rendered");
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +27,7 @@ const ListDishes: React.FC<ListDishesProps> = ({
   useEffect(() => {
     const loadDishes = async () => {
       try {
+        console.log("filteredDishesNe");
         const fetchedDishes = await fetchDishes(1, pageSize);
         setDishes(fetchedDishes);
 
@@ -70,8 +72,8 @@ const ListDishes: React.FC<ListDishesProps> = ({
                   id={dish.id}
                   image={dish.image}
                   name={dish.name}
-                  rating={dish.rating}
-                  ratingCount={dish.ratingCount}
+                  rating={dish.rating || 0}
+                  ratingCount={dish.ratingCount || 0}
                   type={
                     DishItemTypeTranslations[dish.dishItemType.name] ||
                     "Loại không xác định"
