@@ -44,13 +44,13 @@ export interface MealWithoutReservation {
 }
 
 // ============ order reponse ============
-export interface OrderReponse {
-  result: Result;
+export interface CreateOrderReponse {
+  result: CreateOrderData;
   isSuccess: boolean;
   messages: any[];
 }
 
-export interface Result {
+export interface CreateOrderData {
   order: Order;
   paymentLink: any;
 }
@@ -78,6 +78,7 @@ export interface Order {
   deposit: any;
   isPrivate: any;
 }
+//
 
 // ========= add dish to order id ==========
 
@@ -100,85 +101,118 @@ export interface GetHistoryOrderIdReponse {
   isSuccess: boolean;
   messages: any[];
 }
+//
 
 export interface OrderHistoryData {
-  order: OrderInfo;
-  orderDetails: OrderDetails[];
+  order: Order;
+  orderDishes: OrderDish[];
+  orderTables: OrderTable[];
 }
+//
 
-export interface OrderInfo {
+export interface OrderTable {
+  tableDetailId: string;
+  tableId: string;
+  table: Table;
   orderId: string;
-  orderDate: string;
-  deliveryTime: any;
-  reservationDate: any;
-  mealTime: string;
-  endTime: any;
-  totalAmount: number;
-  statusId: number;
-  status: StatusOrder;
-  customerId: any;
-  customerInfo: any;
-  paymentMethodId: number;
-  paymentMethod: PaymentMethod;
-  loyalPointsHistoryId: any;
-  loyalPointsHistory: any;
-  note: string;
-  orderTypeId: number;
-  orderType: OrderType;
-  numOfPeople: number;
-  deposit: any;
-  isPrivate: any;
+  order: Order;
+  startTime: string;
+  endDate: any;
 }
-
-export interface StatusOrder {
-  id: number;
-  name: string;
-  vietnameseName: string;
+//
+export interface Table {
+  tableId: string;
+  tableName: string;
+  tableSizeId: number;
+  tableSize: any;
+  isDeleted: boolean;
+  roomId: string;
+  room: any;
 }
+//
 
-export interface PaymentMethod {
-  id: number;
-  name: string;
-  vietnameseName: string;
-}
-
-export interface OrderType {
-  id: number;
-  name: string;
-}
-
-export interface OrderDetails {
-  orderDetail: OrderDetail;
-  comboOrderDetails: any[];
-}
-
-export interface OrderDetail {
-  orderDetailId: string;
-  orderId: string;
-  order: any;
+export interface OrderDish {
+  orderDetailsId: string;
   dishSizeDetailId?: string;
   dishSizeDetail?: DishSizeDetail;
-  comboId?: string;
-  combo: Combo;
-  quantity: number;
-  price: number;
-  note: string;
-  orderTime: string;
-  readyToServeTime: any;
-  orderDetailStatusId: number;
-  orderDetailStatus: any;
+  comboDish?: ComboDish;
 }
+//
+export interface ComboDish {
+  comboId: string;
+  quantity?: number;
+  combo: Combo;
+  dishCombos: DishCombo[];
+}
+//
+export interface DishCombo {
+  dishComboId: string;
+  quantity: number;
+  dishSizeDetailId: string;
+  dishSizeDetail: DishSizeDetailCombo;
+  comboOptionSetId: string;
+  comboOptionSet: ComboOptionSet;
+}
+//
+export interface ComboOptionSet {
+  comboOptionSetId: string;
+  optionSetNumber: number;
+  numOfChoice: number;
+  dishItemTypeId: number;
+  dishItemType: any;
+  comboId: string;
+  combo: any;
+}
+//
+export interface DishSizeDetailCombo {
+  dishSizeDetailId: string;
+  isAvailable: boolean;
+  price: number;
+  discount: number;
+  dishId: string;
+  dish: DishOfCombo;
+  dishSizeId: number;
+  dishSize: DishSizeInCombo;
+}
+//
+export interface DishSizeInCombo {
+  id: number;
+  name: string;
+  vietnameseName: string;
+}
+//
+export interface DishOfCombo {
+  dishId: string;
+  name: string;
+  description: string;
+  image: string;
+  dishItemTypeId: number;
+  dishItemType: any;
+  isAvailable: boolean;
+}
+//
 
 export interface DishSizeDetail {
   dishSizeDetailId: string;
+  quantity?: number;
+  startDate?: string;
+  endDate?: string;
   isAvailable: boolean;
   price: number;
   discount: number;
   dishId: string;
   dish: Dish;
   dishSizeId: number;
-  dishSize: any;
+  dishSize: DishSize;
 }
+//
+
+export interface DishSize {
+  id: number;
+  name: string;
+  vietnameseName: string;
+}
+//
 
 export interface Dish {
   dishId: string;
@@ -189,7 +223,7 @@ export interface Dish {
   dishItemType: any;
   isAvailable: boolean;
 }
-
+//
 export interface Combo {
   comboId: string;
   name: string;
@@ -202,3 +236,4 @@ export interface Combo {
   startDate: string;
   endDate: string;
 }
+//

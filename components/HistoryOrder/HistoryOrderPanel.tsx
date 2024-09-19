@@ -25,9 +25,13 @@ import { Button } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import moment from "moment-timezone";
-import { Combo, OrderDetail, OrderDetails } from "@/app/types/order_type";
+import {
+  Combo,
+  ComboDish,
+  DishSizeDetail,
+  OrderDish,
+} from "@/app/types/order_type";
 import { getHistoryOrderId } from "@/api/ordersApi";
-import { DishSizeDetail } from "@/app/types/combo_type";
 import { formatPriceVND } from "../Format/formatPrice";
 
 const { width } = Dimensions.get("window");
@@ -36,9 +40,9 @@ const spacing = 8; // Margin on each side
 const itemWidth = (width - (numColumns + 1) * spacing) / numColumns;
 
 const HistoryOrderPanel: React.FC = () => {
-  const [dishes, setDishes] = useState<OrderDetail[]>([]);
-  const [combos, setCombos] = useState<OrderDetail[]>([]);
-  const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
+  const [dishes, setDishes] = useState<OrderDish[]>([]);
+  const [combos, setCombos] = useState<OrderDish[]>([]);
+  const [orderDetails, setOrderDetails] = useState<OrderDish[]>([]);
   const [visible, setVisible] = useState(false);
   const [modalContent, setModalContent] = useState<any>(null); // State for modal content
 
@@ -46,12 +50,13 @@ const HistoryOrderPanel: React.FC = () => {
     (state: RootState) => state.orders.currentOrder
   );
 
-  console.log("orders nè", currentOrder);
+  console.log("orders nè", JSON.stringify(orderDetails, null, 2));
   // Log ra => {"orderId":"6e5b9440-9478-4559-b572-da37d6ca6e1b","orderDate":"0001-01-01T00:00:00","deliveryTime":null,"reservationDate":null,"mealTime":"2024-09-14T13:14:13.6363496","endTime":null,"totalAmount":700000,"statusId":3,"status":null,"customerId":null,"customerInfo":null,"paymentMethodId":2,"paymentMethod":null,"loyalPointsHistoryId":null,"loyalPointsHistory":null,"note":"","orderTypeId":3,"orderType":null,"numOfPeople":0,"deposit":null,"isPrivate":null}
   const orderId = currentOrder?.orderId;
   const noteOrder = currentOrder?.note;
 
-  console.log("modalContent nè", modalContent);
+  console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
+  console.log("combos nè", JSON.stringify(combos, null, 2));
 
   // Function to fetch order details
   const fetchOrderDetails = useCallback(async () => {
@@ -59,20 +64,10 @@ const HistoryOrderPanel: React.FC = () => {
 
     try {
       const response = await getHistoryOrderId(orderId);
-      console.log("API response:", JSON.stringify(response, null, 2));
-
-      // Extract all orderDetails at once
-      const orderDetails: OrderDetail[] = response.result.orderDetails.map(
-        (detail: any) => detail.orderDetail
-      );
-
-      const mappedOrderDetails: OrderDetails[] = orderDetails.map((detail) => ({
-        orderDetail: detail,
-        comboOrderDetails: [], // Add appropriate comboOrderDetails if available
-      }));
+      console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
 
       // Set the order details in state
-      setOrderDetails(mappedOrderDetails);
+      setOrderDetails(response.result.orderDishes);
     } catch (error) {
       console.error("Error fetching order details:", error);
     }
@@ -84,81 +79,50 @@ const HistoryOrderPanel: React.FC = () => {
       fetchOrderDetails();
     }, [fetchOrderDetails])
   );
-  // Update dishes and combos based on orderDetails state change
+
+  // Giả sử bạn đã có orderDetails từ API trả về
   useEffect(() => {
     if (orderDetails.length > 0) {
-      const fetchedCombos = orderDetails
-        .filter((detail) => detail.orderDetail.combo)
-        .map((detail) => detail.orderDetail as OrderDetail);
+      // Tách món ăn (Dish)
+      const extractedDishes = orderDetails
+        .filter((orderDish) => orderDish.dishSizeDetail && !orderDish.comboDish)
+        .map((orderDish) => ({
+          orderDetailsId: orderDish.orderDetailsId,
+          name: orderDish.dishSizeDetail?.dish.name,
+          quantity: 1, // Nếu không có quantity trong orderDish, mặc định là 1
+          price: orderDish.dishSizeDetail?.price,
+          image: orderDish.dishSizeDetail?.dish.image,
+          sizeName: orderDish.dishSizeDetail?.dishSize.name,
+          type: orderDish.dishSizeDetail?.dish.dishItemType, // loại món
+          startDate: "2024-06-17T04:34:53.58", // Giả sử startDate có ở đây
+          description: orderDish.dishSizeDetail?.dish.description || "",
+        }));
 
-      const fetchedDishes = orderDetails
-        .filter((detail) => detail.orderDetail.dishSizeDetail)
-        .map((detail) => detail.orderDetail as OrderDetail);
+      // Tách combo
+      const extractedCombos = orderDetails
+        .filter((orderDish) => orderDish.comboDish)
+        .map((orderDish) => ({
+          orderDetailsId: orderDish.orderDetailsId,
+          comboName: orderDish.comboDish?.combo.name,
+          quantity: 1, // Mặc định là 1 nếu không có quantity trong comboDish
+          price: orderDish.comboDish?.combo.price,
+          image: orderDish.comboDish?.combo.image,
+          type: orderDish.comboDish?.combo.category, // loại món
+          startDate: orderDish.comboDish?.combo.startDate,
+          description: orderDish.comboDish?.combo.description || "",
+          comboDishes: orderDish.comboDish?.dishCombos.map((dishCombo) => ({
+            dishId: dishCombo.dishComboId,
+            name: dishCombo.dishSizeDetail.dish.name,
+            size: dishCombo.dishSizeDetail.dishSize.name,
+            price: dishCombo.dishSizeDetail.price,
+            image: dishCombo.dishSizeDetail.dish.image,
+          })),
+        }));
 
-      // Set dishes and combos
-      setCombos(fetchedCombos);
-      setDishes(fetchedDishes);
+      setDishes(extractedDishes);
+      setCombos(extractedCombos);
     }
   }, [orderDetails]);
-
-  const groupOrders = (orders: UncheckedPrelistOrderDetail[]) => {
-    const groupedDishes: Record<string, any> = {};
-    const groupedCombos: Record<string, any> = {};
-
-    orders.forEach((order) => {
-      const { prelistOrder, comboOrderDetails } = order;
-
-      if (prelistOrder.dishSizeDetail) {
-        // Get dishId safely
-        const dishId = prelistOrder.dishSizeDetailId ?? ""; // Default to an empty string if undefined
-        if (dishId) {
-          // Ensure dishId is not empty
-          if (!groupedDishes[dishId]) {
-            groupedDishes[dishId] = {
-              ...prelistOrder,
-              quantity: 0,
-              timeArray: [],
-            };
-          }
-          groupedDishes[dishId].quantity += prelistOrder.quantity;
-          groupedDishes[dishId].timeArray.push(
-            moment.utc(prelistOrder.orderTime).format("HH:mm:ss, DD/MM/YYYY")
-          );
-        }
-      } else if (prelistOrder.combo) {
-        // Construct comboKey safely
-        const comboId = prelistOrder.comboId ?? ""; // Default to an empty string if undefined
-        const comboKey =
-          comboOrderDetails.length > 0
-            ? `${comboId}_${comboOrderDetails
-                .map((detail) => detail.dishComboId)
-                .sort()
-                .join("_")}`
-            : comboId;
-
-        if (comboKey) {
-          // Ensure comboKey is not empty
-          if (!groupedCombos[comboKey]) {
-            groupedCombos[comboKey] = {
-              ...prelistOrder,
-              quantity: 0,
-              timeArray: [],
-              comboDetails: comboOrderDetails,
-            };
-          }
-          groupedCombos[comboKey].quantity += prelistOrder.quantity;
-          groupedCombos[comboKey].timeArray.push(
-            moment.utc(prelistOrder.orderTime).format("HH:mm:ss, DD/MM/YYYY")
-          );
-        }
-      }
-    });
-
-    return {
-      dishes: Object.values(groupedDishes),
-      combos: Object.values(groupedCombos),
-    };
-  };
 
   // Function to show modal with content
   const showModal = (content: any) => {
@@ -299,9 +263,7 @@ const HistoryOrderPanel: React.FC = () => {
                 {/* Hiển thị hình ảnh */}
                 <Image
                   source={{
-                    uri:
-                      modalContent.dishSizeDetail?.dish?.image ||
-                      modalContent.combo?.image,
+                    uri: modalContent.image || modalContent.image,
                   }}
                   className="w-[500px] h-[400px] rounded-lg mb-4"
                   resizeMode="cover"
@@ -309,14 +271,12 @@ const HistoryOrderPanel: React.FC = () => {
                 <View className="ml-6">
                   {/* Hiển thị tên món ăn hoặc combo */}
                   <Text className="font-bold text-2xl mb-2 text-gray-700">
-                    {modalContent.dishSizeDetail?.dish?.name ||
-                      modalContent.combo?.name}
+                    {modalContent.name || modalContent.comboName}
                   </Text>
 
                   {/* Hiển thị mô tả món ăn hoặc combo */}
                   <Text className="mb-4 text-lg">
-                    {modalContent.dishSizeDetail?.dish?.description ||
-                      modalContent.combo?.description}
+                    {modalContent.description || modalContent.description}
                   </Text>
 
                   {/* Hiển thị giá của món ăn hoặc combo */}
@@ -342,7 +302,7 @@ const HistoryOrderPanel: React.FC = () => {
                       <Text className="text-gray-500 text-lg">
                         •{" "}
                         {moment
-                          .utc(modalContent.orderTime)
+                          .utc(modalContent.startDate)
                           .format("HH:mm, DD/MM/YYYY")}
                       </Text>
                     </View>

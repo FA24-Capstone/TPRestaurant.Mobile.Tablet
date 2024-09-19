@@ -18,7 +18,7 @@ export const fetchReservationWithTime = async (
 ): Promise<ReservationApiResponse> => {
   try {
     const response = await axios.get<ReservationApiResponse>(
-      `${API_URL}/reservation/get-table-reservation-with-time`,
+      `${API_URL}/order/get-table-reservation-with-time`,
       {
         params: { tableId, time },
         headers: {
