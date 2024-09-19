@@ -121,6 +121,8 @@ const OrderingDetail: React.FC = () => {
       ) {
         // Nếu chưa có order hoặc trạng thái là 7 hoặc 8 thì tạo order mới
         const response = await createOrderinTablet(orderRequest);
+        console.log("responseNe", JSON.stringify(response, null, 2));
+
         if (response.isSuccess) {
           showSuccessMessage("Đặt món thành công!");
           dispatch(clearDishes());

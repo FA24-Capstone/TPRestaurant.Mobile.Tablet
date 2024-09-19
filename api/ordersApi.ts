@@ -3,7 +3,7 @@ import {
   AddOrderReponse,
   AddOrderRequest,
   GetHistoryOrderIdReponse,
-  OrderReponse,
+  CreateOrderReponse,
   OrderRequest,
 } from "@/app/types/order_type";
 import { GetTableSessionResponse } from "@/app/types/tableSession_type";
@@ -13,9 +13,9 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const createOrderinTablet = async (
   orderRequest: OrderRequest
-): Promise<OrderReponse> => {
+): Promise<CreateOrderReponse> => {
   try {
-    const response = await axios.post<OrderReponse>(
+    const response = await axios.post<CreateOrderReponse>(
       `${API_URL}/order/create-order`,
       orderRequest,
       {
@@ -24,6 +24,7 @@ export const createOrderinTablet = async (
         },
       }
     );
+    console.log("createOrderDataNe", JSON.stringify(response, null, 2));
 
     return response.data;
   } catch (error) {
@@ -59,6 +60,8 @@ export const addPrelistOrder = async (
 export const getHistoryOrderId = async (
   orderId: string
 ): Promise<GetHistoryOrderIdReponse> => {
+  console.log("orderIdNe", orderId);
+
   try {
     const response = await axios.get<GetHistoryOrderIdReponse>(
       `${API_URL}/order/get-order-detail/${orderId}`,

@@ -21,20 +21,18 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
   return (
     <View className="flex-1 p-2 m-2 bg-white rounded-md relative shadow-lg">
       <Image
-        source={{ uri: dish.dishSizeDetail.dish.image }} // Sử dụng đúng dữ liệu từ API
+        source={{ uri: dish.image }} // Sử dụng đúng dữ liệu từ API
         className="w-full h-40 rounded-md"
         resizeMode="cover"
       />
       <View className="p-2">
-        <Text className="mt-2 text-lg font-bold">
-          {dish.dishSizeDetail.dish.name}
-        </Text>
+        <Text className="mt-2 text-lg font-bold">{dish.name}</Text>
         <Text className="text-gray-500">
-          {dish.dishSizeDetail.dish.description}
+          {dish.description ?? "chưa có mô tả"}
         </Text>
         <View className="flex-row justify-between my-2">
           <Text className="text-center text-base font-semibold text-[#C01D2E]">
-            {formatPriceVND(dish.dishSizeDetail.price)}
+            {formatPriceVND(dish.price)}
           </Text>
           <View className="flex-row items-center">
             <Text className="text-[#EDAA16] font-semibold mr-4 text-base">
@@ -46,7 +44,7 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
           <Text className="text-gray-700 font-semibold">Thời gian đặt:</Text>
           <View className="ml-4">
             <Text className="text-gray-500">
-              • {moment.utc(dish.orderTime).format("HH:mm, DD/MM/YYYY")}
+              • {moment.utc(dish.startDate).format("HH:mm, DD/MM/YYYY")}
             </Text>
           </View>
         </View>
