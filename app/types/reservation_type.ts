@@ -1,3 +1,5 @@
+import { OrderHistoryData } from "./order_type";
+
 // Define types for customer information
 export interface CustomerInfo {
   customerId: string;
@@ -113,13 +115,9 @@ export interface Reservation {
 
 // Define the overall response structure
 export interface ReservationApiResponse {
-  result: {
-    reservation: Reservation;
-    reservationDishes: ReservationDish[];
-    reservationTableDetails: ReservationTableDetail[];
-  };
+  result: OrderHistoryData;
   isSuccess: boolean;
-  messages: string[];
+  messages: any[];
 }
 
 export interface ReservationByPhoneApiResponse {

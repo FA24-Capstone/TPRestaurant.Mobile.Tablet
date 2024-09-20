@@ -89,13 +89,14 @@ const HistoryOrderPanel: React.FC = () => {
         .map((orderDish) => ({
           orderDetailsId: orderDish.orderDetailsId,
           name: orderDish.dishSizeDetail?.dish.name,
-          quantity: 1, // Nếu không có quantity trong orderDish, mặc định là 1
+          quantity: orderDish.quantity, // Nếu không có quantity trong orderDish, mặc định là 1
           price: orderDish.dishSizeDetail?.price,
           image: orderDish.dishSizeDetail?.dish.image,
           sizeName: orderDish.dishSizeDetail?.dishSize.name,
           type: orderDish.dishSizeDetail?.dish.dishItemType, // loại món
-          startDate: "2024-06-17T04:34:53.58", // Giả sử startDate có ở đây
+          startDate: orderDish.orderTime, // Giả sử startDate có ở đây
           description: orderDish.dishSizeDetail?.dish.description || "",
+          note: orderDish.note || "",
         }));
 
       // Tách combo
@@ -104,11 +105,11 @@ const HistoryOrderPanel: React.FC = () => {
         .map((orderDish) => ({
           orderDetailsId: orderDish.orderDetailsId,
           comboName: orderDish.comboDish?.combo.name,
-          quantity: 1, // Mặc định là 1 nếu không có quantity trong comboDish
+          quantity: orderDish.quantity, // Mặc định là 1 nếu không có quantity trong comboDish
           price: orderDish.comboDish?.combo.price,
           image: orderDish.comboDish?.combo.image,
           type: orderDish.comboDish?.combo.category, // loại món
-          startDate: orderDish.comboDish?.combo.startDate,
+          startDate: orderDish.orderTime,
           description: orderDish.comboDish?.combo.description || "",
           comboDishes: orderDish.comboDish?.dishCombos.map((dishCombo) => ({
             dishId: dishCombo.dishComboId,
@@ -117,10 +118,21 @@ const HistoryOrderPanel: React.FC = () => {
             price: dishCombo.dishSizeDetail.price,
             image: dishCombo.dishSizeDetail.dish.image,
           })),
+          note: orderDish.note || "",
         }));
 
-      setDishes(extractedDishes);
-      setCombos(extractedCombos);
+      setDishes(
+        extractedDishes.map((dish) => ({
+          ...dish,
+          orderTime: dish.startDate, // Ensure orderTime is included
+        }))
+      );
+      setCombos(
+        extractedCombos.map((combo) => ({
+          ...combo,
+          orderTime: combo.startDate, // Ensure orderTime is included
+        }))
+      );
     }
   }, [orderDetails]);
 

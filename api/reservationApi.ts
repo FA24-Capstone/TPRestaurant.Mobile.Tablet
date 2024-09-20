@@ -16,6 +16,8 @@ export const fetchReservationWithTime = async (
   tableId: string,
   time: string
 ): Promise<ReservationApiResponse> => {
+  // Log detailed response for debugging
+  console.log("data request reservation with time:", tableId, time);
   try {
     const response = await axios.get<ReservationApiResponse>(
       `${API_URL}/order/get-table-reservation-with-time`,
@@ -28,10 +30,10 @@ export const fetchReservationWithTime = async (
     );
 
     // Log detailed response for debugging
-    console.log(
-      "API response for reservation with time:",
-      JSON.stringify(response.data.result, null, 2)
-    );
+    // console.log(
+    //   "API response for reservation with time:",
+    //   JSON.stringify(response.data.result, null, 2)
+    // );
 
     return response.data;
   } catch (error) {

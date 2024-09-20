@@ -38,20 +38,22 @@ const MarqueeText = () => {
           const now = moment()
             .tz("Asia/Ho_Chi_Minh")
             .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-          // const data = await fetchReservationWithTime(
-          //   tableId,
-          //   "2024-08-29T22:26:19.2129981"
-          // );
-          const data = await fetchReservationWithTime(tableId, now);
+          const data = await fetchReservationWithTime(
+            tableId,
+            "2024-09-19T23:10:44.3"
+          );
+          // const data = await fetchReservationWithTime(tableId, now);
 
-          console.log("datafetchReservationWithTime:", data);
+          // console.log("datafetchReservationWithTime:", data);
           if (data.result !== null) {
-            const reservation = data.result.reservation;
-            const customerName = reservation.customerInfo
-              ? reservation.customerInfo.name
+            const reservation = data.result.order;
+            console.log("reservationNe", reservation);
+
+            const customerName = reservation?.account?.lastName
+              ? reservation.account.firstName
               : " ẩn danh";
 
-            const reservationTime = moment(reservation.reservationDate).format(
+            const reservationTime = moment(data.result.order.mealTime).format(
               "HH:mm A, DD/MM/YYYY"
             );
 
