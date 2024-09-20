@@ -19,7 +19,10 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
   noteOrder,
 }) => {
   return (
-    <View className="flex-1 p-2 m-2 bg-white rounded-md relative shadow-lg">
+    <TouchableOpacity
+      onPress={() => showModal(dish)}
+      className="flex-1 p-2 m-2 bg-white rounded-md relative shadow-lg"
+    >
       <Image
         source={{ uri: dish.image }} // Sử dụng đúng dữ liệu từ API
         className="w-full h-40 rounded-md"
@@ -69,7 +72,7 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
           color="#FD495C"
         />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 };
 

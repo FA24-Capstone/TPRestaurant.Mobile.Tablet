@@ -21,7 +21,10 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
   noteOrder,
 }) => {
   return (
-    <View className="flex-1 p-2 m-2 bg-white rounded-md shadow-lg relative">
+    <TouchableOpacity
+      onPress={() => showModal(combo)}
+      className="flex-1 p-2 m-2 bg-white rounded-md shadow-lg relative"
+    >
       <Image
         source={{ uri: combo.image }} // Sử dụng đúng dữ liệu từ API
         className="w-full h-40 rounded-md"
@@ -90,7 +93,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
           color="#FD495C"
         />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 };
 

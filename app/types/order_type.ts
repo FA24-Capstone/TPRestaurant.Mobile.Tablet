@@ -65,8 +65,8 @@ export interface Order {
   totalAmount: number;
   statusId: number;
   status: any;
-  customerId: any;
-  customerInfo: any;
+  accountId: string;
+  account: Account;
   paymentMethodId: number;
   paymentMethod: any;
   loyalPointsHistoryId: any;
@@ -79,7 +79,33 @@ export interface Order {
   isPrivate: any;
 }
 //
-
+export interface Account {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  dob: any;
+  gender: boolean;
+  address: any;
+  isVerified: boolean;
+  isDeleted: boolean;
+  loyaltyPoint: number;
+  avatar: any;
+  isManuallyCreated: boolean;
+  id: string;
+  userName: string;
+  normalizedUserName: string;
+  email: string;
+  normalizedEmail: string;
+  emailConfirmed: boolean;
+  passwordHash: any;
+  securityStamp: string;
+  concurrencyStamp: string;
+  phoneNumberConfirmed: boolean;
+  twoFactorEnabled: boolean;
+  lockoutEnd: any;
+  lockoutEnabled: boolean;
+  accessFailedCount: number;
+}
 // ========= add dish to order id ==========
 
 export interface AddOrderRequest {
@@ -133,9 +159,12 @@ export interface Table {
 
 export interface OrderDish {
   orderDetailsId: string;
+  quantity: number;
   dishSizeDetailId?: string;
   dishSizeDetail?: DishSizeDetail;
   comboDish?: ComboDish;
+  note: string;
+  orderTime: string;
 }
 //
 export interface ComboDish {

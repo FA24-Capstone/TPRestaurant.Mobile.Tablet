@@ -51,10 +51,13 @@ const App = () => {
   const [reservationText, setReservationText] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [phoneNumberOrder, setPhoneNumberOrder] = useState<string>("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
   );
+
+  console.log("tableIdNe:", tableId);
 
   console.log(`Width: ${width}, Height: ${height}`);
 
@@ -71,24 +74,23 @@ const App = () => {
           const now = moment()
             .tz("Asia/Ho_Chi_Minh")
             .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-          // const data = await fetchReservationWithTime(
-          //   tableId,
-          //   "2024-08-29T22:26:19.2129981"
-          // );
-          const data = await fetchReservationWithTime(tableId, now);
+          const data = await fetchReservationWithTime(
+            tableId,
+            "2024-09-19T23:10:44.3"
+          );
+          // const data = await fetchReservationWithTime(tableId, now);
 
           // console.log("datafetchReservationWithTime:", data);
 
           if (data.result !== null) {
-            const reservation = data.result.reservation;
-            const customerName = reservation.customerInfo
-              ? reservation.customerInfo.name
+            const reservation = data.result.order;
+            const customerName = reservation?.account?.lastName
+              ? reservation.account.firstName
               : " ẩn danh";
-
-            const reservationTime = moment(reservation.reservationDate).format(
+            const reservationTime = moment(data.result.order.mealTime).format(
               "HH:mm A, DD/MM/YYYY"
             );
-
+            setPhoneNumberOrder(reservation.account.phoneNumber);
             setReservationText(
               `Bàn số ${tableName} đã có quý khách ${customerName} đặt bàn vào lúc ${reservationTime}. Nếu quý khách hàng đã tới nhận bàn hãy nhập số điện thoại đã đặt bàn để tiến hành dùng bữa tại nhà hàng Thiên Phú phía dưới đây. Chúc quý khách hàng dùng bữa tại nhà hàng Thiên Phú ngon miệng!  !`
             );
@@ -127,24 +129,12 @@ const App = () => {
   };
 
   const handleConfirmPhoneNumber = async () => {
-    try {
-      const isSuccess = await fetchReservationByPhone(
-        dispatch,
-        1,
-        6,
-        phoneNumber
-      );
-      if (isSuccess) {
-        console.log("Phone Number:", phoneNumber);
-        // Proceed to the next screen or show success message
-        setModalVisible(false);
-        router.push("/home-screen");
-      } else {
-        showErrorMessage("Không tìm thấy đặt chỗ cho số điện thoại này.");
-      }
-    } catch (error) {
-      console.error("Error confirming phone number:", error);
-      showErrorMessage("Đã xảy ra lỗi khi xác nhận số điện thoại.");
+    if (phoneNumberOrder && phoneNumberOrder === phoneNumber) {
+      // Proceed to the next screen or show success message
+      setModalVisible(false);
+      router.push("/home-screen");
+    } else {
+      showErrorMessage("Không tìm thấy đặt chỗ cho số điện thoại này.");
     }
   };
 
