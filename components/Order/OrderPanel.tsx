@@ -1,15 +1,107 @@
-import React, { useState } from "react";
-import { View, Dimensions } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Dimensions,
+  Modal,
+  Text,
+  FlatList,
+  Image,
+  Button,
+  ScrollView,
+} from "react-native";
 import Menu from "@/components/List/Menu";
 import { IconButton } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import OrderingDetail from "./OrderingDetail";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { formatPriceVND } from "../Format/formatPrice";
+
+interface Dish {
+  orderDetailsId: string;
+  image: string;
+  name: string;
+  price: number;
+  quantity: number;
+  dishSize?: string;
+  dishCombo?: {
+    image: string;
+    dishComboId: string;
+    price: number;
+    name: string;
+  }[];
+}
 
 const OrderPanel: React.FC = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
+
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const fullScreenWidth = Dimensions.get("window").width;
   const drawerWidth = isPanelOpen ? fullScreenWidth * 0.35 : 0; // Chiếm 30% chiều rộng màn hình
   const listWidth = isPanelOpen ? fullScreenWidth * 0.65 : fullScreenWidth; // Chiều rộng còn lại hoặc toàn bộ
+
+  const [isModalVisible, setIsModalVisible] = useState(true);
+  const [orderedDishes, setOrderedDishes] = useState<Dish[]>([]);
+
+  console.log("orderedDishesNe", JSON.stringify(orderedDishes, null, 2));
+
+  useEffect(() => {
+    const extractedDishes: Dish[] = [];
+    if (
+      reservationData &&
+      reservationData.result &&
+      reservationData.result.orderDishes
+    ) {
+      // Extract data from orderDishes
+      reservationData.result.orderDishes.forEach((order) => {
+        if (order.comboDish) {
+          // Handle combo dish
+          const comboDetails = order.comboDish.dishCombos.map((comboItem) => ({
+            dishComboId: comboItem.dishComboId,
+            image: comboItem.dishSizeDetail.dish.image,
+            name: comboItem.dishSizeDetail.dish.name,
+            price: comboItem.dishSizeDetail.price,
+          }));
+
+          extractedDishes.push({
+            orderDetailsId: order.orderDetailsId,
+            image: order.comboDish.combo.image, // Combo image
+            name: order.comboDish.combo.name,
+            price: order.comboDish.combo.price,
+            quantity: order.quantity,
+            dishCombo: comboDetails, // Adding combo details here
+          });
+        } else if (order.dishSizeDetail) {
+          // Handle individual dish
+          extractedDishes.push({
+            orderDetailsId: order.orderDetailsId,
+            image: order.dishSizeDetail.dish.image,
+            name: order.dishSizeDetail.dish.name,
+            price: order.dishSizeDetail.price,
+            quantity: order.quantity,
+            dishSize: order.dishSizeDetail.dishSize.vietnameseName,
+          });
+        }
+      });
+
+      setOrderedDishes(extractedDishes);
+    }
+  }, [reservationData]);
+
+  const handleConfirmOrder = () => {
+    // Handle the "Oke, tôi muốn đặt món" action
+    setIsModalVisible(false);
+    // Dispatch action or navigate to the next step
+  };
+
+  const handleModifyOrder = () => {
+    // Handle the "Không, tôi muốn sửa món" action
+    setIsModalVisible(false);
+    // Navigate to order modification screen
+  };
 
   const OrderDetails = () => (
     <View className={`flex-1 bg-white p-2`} style={{ width: drawerWidth }}>
@@ -26,6 +118,17 @@ const OrderPanel: React.FC = () => {
 
   console.log("isPanelOpen", isPanelOpen);
 
+  // Split the orderedDishes into two columns for manual control over layout
+  const splitDishesIntoColumns = (data: Dish[], numColumns: number) => {
+    const columns: Dish[][] = [[], []];
+    data.forEach((item, index) => {
+      columns[index % numColumns].push(item);
+    });
+    return columns;
+  };
+
+  const columns = splitDishesIntoColumns(orderedDishes, 2); // Split into 2 columns
+
   return (
     <View className="flex-row flex-1 relative">
       <View style={{ width: listWidth }}>
@@ -41,6 +144,109 @@ const OrderPanel: React.FC = () => {
         </View>
       )}
       {isPanelOpen && <OrderDetails />}
+      {/* Modal displaying the ordered dishes */}
+      <Modal visible={isModalVisible} transparent animationType="slide">
+        <View className="flex-1 justify-center p-5 bg-black/50">
+          <View className="bg-white rounded-lg p-5 h-[600px]">
+            <Text className="font-semibold text-xl text-center text-[#C01D2E] mb-5">
+              Trong đơn đặt bàn bạn đã order các món dưới đây. Bạn có muốn đặt
+              món ngay các món dưới hay không?
+            </Text>
+
+            <ScrollView contentContainerStyle={{ flexDirection: "row" }}>
+              {columns.map((column, columnIndex) => (
+                <View key={`column-${columnIndex}`} className="flex-1 p-2">
+                  {column.map((item) => (
+                    <View key={item.orderDetailsId}>
+                      {item.dishSize && (
+                        <View className="flex-row bg-[#EAF0F0] items-center w-full my-2.5 rounded-lg shadow p-2.5">
+                          <Image
+                            source={{ uri: item.image }}
+                            className="h-20 w-20 rounded-md mr-4"
+                          />
+                          <View className="flex-1 flex-wrap flex-row justify-between items-center">
+                            <View>
+                              <Text className="text-lg font-semibold">
+                                {item.name}
+                              </Text>
+                              <Text className="text-lg uppercase font-semibold text-gray-500">
+                                {item.dishSize}
+                              </Text>
+                              <Text className="text-lg font-bold text-[#C01D2E]">
+                                {item.price.toLocaleString()} VND
+                              </Text>
+                            </View>
+                            <Text className="text-lg font-semibold mr-4">
+                              Số lượng: {item.quantity} món
+                            </Text>
+                          </View>
+                        </View>
+                      )}
+
+                      {item.dishCombo && item.dishCombo.length > 0 && (
+                        <View className="flex-row bg-[#EAF0F0] w-full my-2.5 rounded-lg shadow p-2.5">
+                          <Image
+                            source={{ uri: item.image }}
+                            className="h-20 w-20 rounded-md mr-4"
+                          />
+                          <View className="flex-row w-full justify-between">
+                            <View className="flex-wrap w-[80%]  ">
+                              <View className=" flex-row flex-wrap w-fit justify-between">
+                                <Text className="text-lg font-bold ">
+                                  {item.name}
+                                </Text>
+                                <Text className="text-lg font-semibold mr-4">
+                                  Số lượng: {item.quantity} combo
+                                </Text>
+                              </View>
+                              <Text className="text-lg font-bold text-[#C01D2E]">
+                                {formatPriceVND(item.price)}
+                              </Text>
+                              <Text className="font-semibold mb-2">
+                                Món đã chọn:
+                              </Text>
+                              <View className="flex-row flex-wrap gap-2">
+                                {item.dishCombo.map((dish) => (
+                                  <View
+                                    key={dish.dishComboId}
+                                    className="bg-white rounded-md p-2 shadow-md"
+                                  >
+                                    <Image
+                                      source={{ uri: dish.image }}
+                                      className="h-20 w-20 rounded-md mx-auto"
+                                    />
+                                    <Text className="text-center text-sm font-semibold">
+                                      {dish.name}
+                                    </Text>
+                                    <Text className="text-center text-sm font-semibold text-red-600">
+                                      {formatPriceVND(dish.price)}
+                                    </Text>
+                                  </View>
+                                ))}
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              ))}
+            </ScrollView>
+
+            <View className="flex-row justify-between mt-5">
+              <Button
+                title="Không, tôi muốn sửa món"
+                onPress={handleModifyOrder}
+              />
+              <Button
+                title="Oke, tôi muốn đặt món"
+                onPress={handleConfirmOrder}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

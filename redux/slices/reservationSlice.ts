@@ -1,9 +1,11 @@
 // src/redux/slices/reservationSlice.ts
+
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ReservationByPhoneApiResponse } from "@/app/types/reservation_type";
+import { ReservationApiResponse } from "@/app/types/reservation_type";
+import { fetchReservationWithTime } from "@/api/reservationApi";
 
 interface ReservationState {
-  data: ReservationByPhoneApiResponse | null;
+  data: ReservationApiResponse | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -18,32 +20,32 @@ const reservationSlice = createSlice({
   name: "reservation",
   initialState,
   reducers: {
-    fetchReservationStart(state) {
-      state.isLoading = true;
-      state.error = null;
-    },
-    fetchReservationSuccess(
-      state,
-      action: PayloadAction<ReservationByPhoneApiResponse>
-    ) {
-      state.isLoading = false;
-      state.data = action.payload;
-    },
-    fetchReservationFailure(state, action: PayloadAction<string>) {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
     clearReservationData(state) {
       state.data = null;
+      state.isLoading = false;
+      state.error = null;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchReservationWithTime.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchReservationWithTime.fulfilled,
+        (state, action: PayloadAction<ReservationApiResponse>) => {
+          state.isLoading = false;
+          state.data = action.payload; // Cập nhật dữ liệu bất kể state.data đã có hay chưa
+        }
+      )
+      .addCase(fetchReservationWithTime.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const {
-  fetchReservationStart,
-  fetchReservationSuccess,
-  fetchReservationFailure,
-  clearReservationData,
-} = reservationSlice.actions;
+export const { clearReservationData } = reservationSlice.actions;
 
 export default reservationSlice.reducer;

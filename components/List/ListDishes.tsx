@@ -1,7 +1,7 @@
 import { fetchDishes } from "@/api/dishesApi";
 import { Dish } from "@/app/types/dishes_type";
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import DishCard from "../Cards/DishCard";
 
 interface ListDishesProps {
@@ -20,6 +20,7 @@ const ListDishes: React.FC<ListDishesProps> = ({
   console.log("ListDishes component rendered");
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [pageSize, setPageSize] = useState<number>(9);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -28,6 +29,8 @@ const ListDishes: React.FC<ListDishesProps> = ({
     const loadDishes = async () => {
       try {
         console.log("filteredDishesNe");
+        setLoading(true);
+
         const fetchedDishes = await fetchDishes(1, pageSize);
         setDishes(fetchedDishes);
 
@@ -45,6 +48,25 @@ const ListDishes: React.FC<ListDishesProps> = ({
 
     loadDishes();
   }, [pageSize]);
+
+  const loadMoreDishes = async () => {
+    try {
+      setLoadingMore(true);
+      const fetchedDishes = await fetchDishes(
+        dishes.length / pageSize + 1,
+        pageSize
+      );
+      setDishes((prevDishes) => [...prevDishes, ...fetchedDishes]);
+
+      if (fetchedDishes.length < pageSize) {
+        setHasMore(false);
+      }
+    } catch (err) {
+      setError("Failed to load more dishes");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const filteredDishes =
     selectedCategory === "Tất cả"
@@ -87,17 +109,20 @@ const ListDishes: React.FC<ListDishesProps> = ({
           </View>
         </>
       )}
-
       {filteredDishes.length > 0 && hasMore && (
         <View className="flex-row justify-center m-4">
-          <TouchableOpacity
-            className="bg-[#970C1A] p-2 rounded-lg  w-[140px]"
-            onPress={() => setPageSize((prev) => prev + 10)}
-          >
-            <Text className="text-center text-white font-semibold">
-              Xem thêm
-            </Text>
-          </TouchableOpacity>
+          {loadingMore ? (
+            <ActivityIndicator size="large" color="#A31927" />
+          ) : (
+            <TouchableOpacity
+              className="bg-[#970C1A] p-2 rounded-lg w-[140px]"
+              onPress={loadMoreDishes}
+            >
+              <Text className="text-center text-white font-semibold">
+                Xem thêm
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </View>

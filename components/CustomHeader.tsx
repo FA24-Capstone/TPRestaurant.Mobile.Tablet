@@ -22,8 +22,10 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
     (state: RootState) => state.reservation.data
   );
 
+  console.log("reservationData", reservationData);
+
   const customerName =
-    reservationData?.result?.items[0]?.customerInfo?.name || "Guest";
+    reservationData?.result.order.account.firstName || "Guest";
 
   const now = moment().tz("Asia/Ho_Chi_Minh").format("HH:mm,  DD/MM/YYYY ");
 

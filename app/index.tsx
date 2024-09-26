@@ -9,7 +9,7 @@ import {
   Modal,
   TouchableOpacity,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import CustomButton from "@/components/CustomButton";
@@ -26,15 +26,13 @@ import { NativeWindStyleSheet } from "nativewind";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import moment from "moment-timezone";
-import {
-  fetchReservationByPhone,
-  fetchReservationWithTime,
-} from "@/api/reservationApi";
+import { fetchReservationWithTime } from "@/api/reservationApi";
 import { Button } from "react-native-paper";
 import {
   showErrorMessage,
   showSuccessMessage,
 } from "@/components/FlashMessageHelpers";
+import { AppDispatch } from "@/redux/store";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -44,18 +42,21 @@ const App = () => {
   const { deviceId, deviceCode, tableId, tableName } = useSelector(
     (state: RootState) => state.auth
   );
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
+  console.log("reservationDataNe", reservationData);
+
+  const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
-  const dispatch = useDispatch();
 
   const { width, height } = Dimensions.get("window");
-  const [reservationText, setReservationText] = useState<string>("");
+
+  // const [reservationText, setReservationText] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [phoneNumberOrder, setPhoneNumberOrder] = useState<string>("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  const reservationData = useSelector(
-    (state: RootState) => state.reservation.data
-  );
 
   console.log("tableIdNe:", tableId);
 
@@ -70,44 +71,45 @@ const App = () => {
   useEffect(() => {
     const fetchReservation = async () => {
       if (tableId) {
-        try {
-          const now = moment()
-            .tz("Asia/Ho_Chi_Minh")
-            .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-          const data = await fetchReservationWithTime(
-            tableId,
-            "2024-09-19T23:10:44.3"
-          );
-          // const data = await fetchReservationWithTime(tableId, now);
+        const now = moment()
+          .tz("Asia/Ho_Chi_Minh")
+          .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
 
-          // console.log("datafetchReservationWithTime:", data);
-
-          if (data.result !== null) {
-            const reservation = data.result.order;
-            const customerName = reservation?.account?.lastName
-              ? reservation.account.firstName
-              : " ẩn danh";
-            const reservationTime = moment(data.result.order.mealTime).format(
-              "HH:mm A, DD/MM/YYYY"
-            );
-            setPhoneNumberOrder(reservation.account.phoneNumber);
-            setReservationText(
-              `Bàn số ${tableName} đã có quý khách ${customerName} đặt bàn vào lúc ${reservationTime}. Nếu quý khách hàng đã tới nhận bàn hãy nhập số điện thoại đã đặt bàn để tiến hành dùng bữa tại nhà hàng Thiên Phú phía dưới đây. Chúc quý khách hàng dùng bữa tại nhà hàng Thiên Phú ngon miệng!  !`
-            );
-          }
-        } catch (error) {
-          console.error("Failed to fetch reservation:", error);
-        }
+        // Dispatch async thunk để fetch dữ liệu
+        // dispatch(fetchReservationWithTime({ tableId, time: now }));
+        dispatch(
+          fetchReservationWithTime({ tableId, time: "2024-09-19T23:10:44.3" })
+        );
       }
     };
 
     fetchReservation();
-  }, [tableId, tableName]);
+  }, [dispatch, tableId]);
+
+  // Tính toán reservationText dựa trên dữ liệu từ Redux store
+  const reservationText = useMemo(() => {
+    if (reservationData && reservationData.result) {
+      const reservation = reservationData.result.order;
+      const customerName = reservation?.account?.lastName
+        ? `${reservation.account.firstName} ${reservation.account.lastName}`
+        : "ẩn danh";
+
+      const reservationTime = moment(reservation.mealTime).format(
+        "HH:mm A, DD/MM/YYYY"
+      );
+
+      setPhoneNumberOrder(reservation.account.phoneNumber);
+
+      return `Bàn số ${tableName} đã có quý khách ${customerName} đặt bàn vào lúc ${reservationTime}. Nếu quý khách hàng đã tới nhận bàn, hãy nhập số điện thoại đã đặt bàn để tiến hành dùng bữa tại nhà hàng Thiên Phú. Chúc quý khách hàng dùng bữa ngon miệng!`;
+    }
+    return "";
+  }, [reservationData, tableName]);
 
   const handleStartExploring = () => {
-    if (reservationText !== "") {
+    if (reservationText !== "" || reservationText !== null) {
       setModalVisible(true);
     } else {
+      // setModalVisible(true);
       router.push("/home-screen");
     }
   };

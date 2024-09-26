@@ -190,7 +190,7 @@ const DishCard: React.FC<DishCardProps> = ({
           onRequestClose={() => setModalVisible(false)}
         >
           <View className="flex-1 justify-center items-center bg-[#22222391] bg-opacity-50">
-            <View className="bg-white rounded-lg p-4 w-[70%]">
+            <View className="bg-white rounded-lg p-4 min-w-[70%]">
               <View className="flex-row ">
                 <Image
                   source={typeof image === "string" ? { uri: image } : image}

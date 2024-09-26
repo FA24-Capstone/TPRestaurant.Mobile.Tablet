@@ -281,15 +281,9 @@ const ComboCard: React.FC<ComboCardProps> = ({
         visible={modalVisible}
         onRequestClose={closeModal}
       >
-        <View className="h-[200px] flex-1 justify-center items-center bg-[#22222391] bg-opacity-50">
-          <View
-            style={{
-              margin: 50,
-              padding: 20,
-            }}
-            className=" bg-white rounded-lg"
-          >
-            <View className="flex-row bg-white w-[80%]  rounded-lg">
+        <View className="h-[200px] flex-1 w-full justify-center items-center bg-[#22222391] bg-opacity-50">
+          <View className=" bg-white p-4 w-fit rounded-lg ">
+            <View className="flex-row bg-white min-w-[70%]  rounded-lg">
               <Image
                 source={{
                   uri: typeof image === "string" ? image : String(image),
@@ -298,7 +292,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
                 className=" rounded-lg mr-6"
                 resizeMode="cover"
               />
-              <View>
+              <View className="flex-wrap w-1/2">
                 <Text style={{ fontSize: 24, fontWeight: "bold" }}>{name}</Text>
                 <Text className="text-gray-600 text-lg font-semibold mr-4 mb-2">
                   {type} - {description}
@@ -325,7 +319,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
                     </ScrollView>
                   </View>
                 )}
-                <View className=" flex-row justify-end">
+                <View className=" flex-row flex-wrap justify-end">
                   <TouchableOpacity
                     className="mt-4 bg-gray-500 p-2 rounded-lg w-[100px] mr-6"
                     onPress={closeModal}
