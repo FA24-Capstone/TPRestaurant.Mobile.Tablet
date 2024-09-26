@@ -24,7 +24,7 @@ export const createOrderinTablet = async (
         },
       }
     );
-    console.log("createOrderDataNe", JSON.stringify(response, null, 2));
+    // console.log("createOrderDataNe", JSON.stringify(response, null, 2));
 
     return response.data;
   } catch (error) {

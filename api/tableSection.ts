@@ -62,10 +62,10 @@ export const fetchTableSessionById = async (
       { headers: { "Content-Type": "application/json" } }
     );
     // Log detailed response for debugging
-    console.log(
-      "API response for TableSessionById:",
-      JSON.stringify(response.data.result, null, 2)
-    );
+    // console.log(
+    //   "API response for TableSessionById:",
+    //   JSON.stringify(response.data.result, null, 2)
+    // );
     // Return the response directly if it matches the expected shape
     return response.data;
   } catch (error) {
