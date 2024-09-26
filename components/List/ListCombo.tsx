@@ -3,6 +3,7 @@ import { Combo } from "@/app/types/combo_type";
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import ComboCard from "../Cards/ComboCard";
+import { ActivityIndicator } from "react-native";
 
 interface ListComboProps {
   isPanelOpen: boolean;
@@ -22,11 +23,14 @@ const ListCombo: React.FC<ListComboProps> = ({
   const [errorCombos, setErrorCombos] = useState<string | null>(null);
   const [comboPageSize, setComboPageSize] = useState<number>(9);
   const [hasMoreCombos, setHasMoreCombos] = useState<boolean>(true);
+  const [loadingMoreCombos, setLoadingMoreCombos] = useState<boolean>(false);
+
   console.log("combosList", combos);
 
   useEffect(() => {
     const loadCombos = async () => {
       try {
+        setLoadingCombos(true);
         const fetchedCombos = await fetchCombos(1, comboPageSize);
         setCombos(fetchedCombos);
 
@@ -44,6 +48,25 @@ const ListCombo: React.FC<ListComboProps> = ({
 
     loadCombos();
   }, [comboPageSize]);
+
+  const loadMoreCombos = async () => {
+    try {
+      setLoadingMoreCombos(true);
+      const fetchedCombos = await fetchCombos(
+        combos.length / comboPageSize + 1,
+        comboPageSize
+      );
+      setCombos((prevCombos) => [...prevCombos, ...fetchedCombos]);
+
+      if (fetchedCombos.length < comboPageSize) {
+        setHasMoreCombos(false);
+      }
+    } catch (err) {
+      setErrorCombos("Failed to load more combos");
+    } finally {
+      setLoadingMoreCombos(false);
+    }
+  };
 
   const filteredCombos =
     selectedCategory === "Tất cả"
@@ -87,14 +110,18 @@ const ListCombo: React.FC<ListComboProps> = ({
 
       {filteredCombos.length > 0 && hasMoreCombos && (
         <View className="flex-row justify-center m-4">
-          <TouchableOpacity
-            className="bg-[#970C1A] p-2 rounded-lg  w-[140px]"
-            onPress={() => setComboPageSize((prev) => prev + 9)}
-          >
-            <Text className="text-center text-white font-semibold">
-              Xem thêm
-            </Text>
-          </TouchableOpacity>
+          {loadingMoreCombos ? (
+            <ActivityIndicator size="large" color="#A31927" />
+          ) : (
+            <TouchableOpacity
+              className="bg-[#970C1A] p-2 rounded-lg w-[140px]"
+              onPress={loadMoreCombos}
+            >
+              <Text className="text-center text-white font-semibold">
+                Xem thêm
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </View>

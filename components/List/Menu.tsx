@@ -10,6 +10,7 @@ import { Combo } from "@/app/types/combo_type";
 import { fetchCombos } from "@/api/comboApi";
 import ListCombo from "./ListCombo";
 import ListDishes from "./ListDishes";
+import LoadingOverlay from "../LoadingOverlay";
 
 interface MenuProps {
   isPanelOpen: boolean;
@@ -25,7 +26,7 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   const [pageSize, setPageSize] = useState<number>(9);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
-  console.log("dishesList", dishes);
+  // console.log("dishesList", dishes);
 
   const categories = [
     "Tất cả",
@@ -61,22 +62,25 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   useEffect(() => {
     const loadMenuItems = async () => {
       try {
+        setLoading(true);
         const [fetchedDishes, fetchedCombos] = await Promise.all([
           fetchDishes(1, pageSize),
           fetchCombos(1, pageSize),
         ]);
-        console.log("hihihihehe", fetchedDishes);
 
-        setDishes((prevDishes) => [...prevDishes, ...fetchedDishes]);
-        setCombos((prevCombos) => [...prevCombos, ...fetchedCombos]);
+        setDishes(fetchedDishes);
+        setCombos(fetchedCombos);
 
-        if (fetchedDishes.length < pageSize) {
+        if (
+          fetchedDishes.length < pageSize ||
+          fetchedCombos.length < pageSize
+        ) {
           setHasMore(false);
         } else {
           setHasMore(true);
         }
       } catch (err) {
-        console.error("Error loading menu items ne:", err); // Log the actual error
+        console.error("Error loading menu items:", err); // Log the actual error
         setError("Failed to load menu items");
       } finally {
         setLoading(false);
@@ -87,13 +91,21 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   }, [pageSize]);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    // Use LoadingOverlay for initial loading
+    return (
+      <View style={{ flex: 1 }}>
+        <LoadingOverlay visible={loading} />
+      </View>
+    );
   }
 
   if (error) {
-    return <Text>{error}</Text>;
+    return (
+      <View>
+        <Text>{error}</Text>
+      </View>
+    );
   }
-
   const shouldShowDishes = (category: string) => {
     if (category === "Tất cả") {
       return dishes.length > 0 || combos.length > 0;
@@ -108,6 +120,8 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
 
     return hasDishes || hasCombos;
   };
+
+  // Function to handle "Load More"
 
   return (
     <View className="flex-1 bg-[#F9F9F9]">

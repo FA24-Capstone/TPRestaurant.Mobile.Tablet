@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { loginDevice } from "../../api/loginApi";
@@ -23,14 +24,18 @@ const LoginScreen: React.FC = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
+  const [loading, setLoading] = useState(false); // State to manage the loading spinner
 
   const handleLogin = async () => {
     try {
+      setLoading(true); // Start loading when login begins
       await loginDevice(deviceCode, password, dispatch);
       setIsLoginSuccessful(true);
     } catch (error) {
       console.error("Login error:", error);
       Alert.alert("Đăng nhập thất bại", "Đã xảy ra lỗi. Vui lòng thử lại.");
+    } finally {
+      setLoading(false); // Stop loading after login attempt
     }
   };
 
@@ -100,6 +105,24 @@ const LoginScreen: React.FC = () => {
           </View>
         </View>
       </View>
+
+      {/* Full-screen loading spinner */}
+      {loading && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.3)", // Semi-transparent background
+          }}
+        >
+          <ActivityIndicator size="large" color="#A31927" />
+        </View>
+      )}
     </ScrollView>
   );
 };

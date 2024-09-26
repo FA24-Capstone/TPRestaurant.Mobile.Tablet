@@ -12,8 +12,8 @@ import {
 import ListOrder from "../List/ListOrder";
 import { Order } from "@/app/types/dishes_type";
 import { fetchTableSessionById } from "@/api/tableSection";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
 import DishCardHistory from "./CardHistory/DishCardHistory";
 import ComboCardHistory from "./CardHistory/ComboCardHistory";
 import {
@@ -40,6 +40,10 @@ const spacing = 8; // Margin on each side
 const itemWidth = (width - (numColumns + 1) * spacing) / numColumns;
 
 const HistoryOrderPanel: React.FC = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
   const [dishes, setDishes] = useState<OrderDish[]>([]);
   const [combos, setCombos] = useState<OrderDish[]>([]);
   const [orderDetails, setOrderDetails] = useState<OrderDish[]>([]);
@@ -58,12 +62,16 @@ const HistoryOrderPanel: React.FC = () => {
   console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
   console.log("combos nè", JSON.stringify(combos, null, 2));
 
+  console.log("reservationData nè", JSON.stringify(reservationData, null, 2));
+
   // Function to fetch order details
   const fetchOrderDetails = useCallback(async () => {
-    if (!orderId) return;
+    if (!orderId && !reservationData?.result.order.orderId) return;
 
     try {
-      const response = await getHistoryOrderId(orderId);
+      const response = await getHistoryOrderId(
+        orderId || reservationData?.result?.order?.orderId || ""
+      );
       console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
 
       // Set the order details in state
@@ -180,12 +188,16 @@ const HistoryOrderPanel: React.FC = () => {
                 Món lẻ:
               </Text>
               <FlatList
+                keyExtractor={(item, index) =>
+                  item.empty ? item.id : item.orderDetailsId || `dish-${index}`
+                }
                 data={dataDishWithEmptySpaces}
                 renderItem={({ item }) => {
                   // Nếu item là rỗng, không render gì
                   if (item.empty) {
                     return (
                       <View
+                        key={item.id}
                         style={{ width: itemWidth, marginBottom: spacing }}
                       />
                     );
@@ -201,9 +213,9 @@ const HistoryOrderPanel: React.FC = () => {
                     />
                   );
                 }}
-                keyExtractor={(item) =>
-                  item.dishSizeDetailId || item.orderDetailId
-                }
+                // keyExtractor={(item) =>
+                //   item.dishSizeDetailId || item.orderDetailId
+                // }
                 numColumns={numColumns}
                 scrollEnabled={false}
                 columnWrapperStyle={{ marginHorizontal: spacing }}
@@ -225,6 +237,7 @@ const HistoryOrderPanel: React.FC = () => {
                   if (item.empty) {
                     return (
                       <View
+                        key={item.id}
                         style={{ width: itemWidth, marginBottom: spacing }}
                       />
                     );
@@ -241,7 +254,9 @@ const HistoryOrderPanel: React.FC = () => {
                     />
                   );
                 }}
-                keyExtractor={(item) => item.comboId || item.orderDetailId}
+                keyExtractor={(item, index) =>
+                  item.empty ? item.id : item.orderDetailsId || `combo-${index}`
+                }
                 numColumns={numColumns}
                 scrollEnabled={false}
                 columnWrapperStyle={{ marginHorizontal: spacing }}
@@ -268,8 +283,8 @@ const HistoryOrderPanel: React.FC = () => {
 
       {/* Modal to display details */}
       <Modal transparent={true} visible={visible} onDismiss={hideModal}>
-        <View className="flex-1 justify-center items-center bg-[#22222391] bg-opacity-50">
-          <View className="bg-white rounded-lg p-4 w-[70%]">
+        <View className="flex-1 justify-center  items-center bg-[#22222391] bg-opacity-50">
+          <View className="bg-white w-min-[70%] rounded-lg p-4 ">
             {modalContent && (
               <View className="flex-row ">
                 {/* Hiển thị hình ảnh */}
@@ -319,6 +334,31 @@ const HistoryOrderPanel: React.FC = () => {
                       </Text>
                     </View>
                   </View>
+
+                  {modalContent.comboDishes && (
+                    <View className="w-full">
+                      <Text className="font-semibold mb-2">Món đã chọn:</Text>
+                      <View className="flex-row flex-wrap  gap-2">
+                        {modalContent.comboDishes.map((dish) => (
+                          <View
+                            key={dish.dishComboId}
+                            className="bg-white rounded-md p-2 shadow-md"
+                          >
+                            <Image
+                              source={{ uri: dish.image }}
+                              className="h-20 w-20 rounded-md mx-auto"
+                            />
+                            <Text className="text-center text-sm font-semibold">
+                              {dish.name}
+                            </Text>
+                            <Text className="text-center text-sm font-semibold text-red-600">
+                              {formatPriceVND(dish.price)}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
 
                   {/* Nút hành động */}
                   <View className="flex-row justify-end mt-6 items-center">

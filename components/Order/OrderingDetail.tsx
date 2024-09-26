@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { AppDispatch, RootState } from "../../redux/store";
 import OrderItemList from "./OrderItemList";
 import { clearDishes } from "@/redux/slices/dishesSlice";
 import OrderFooter from "./OrderingFooter";
@@ -16,7 +16,10 @@ import { Combo } from "@/app/types/combo_type";
 import { addOrder } from "@/redux/slices/ordersSlice";
 
 const OrderingDetail: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
   const { deviceId, deviceCode, tableId, tableName } = useSelector(
     (state: RootState) => state.auth
   );
@@ -31,9 +34,6 @@ const OrderingDetail: React.FC = () => {
   const startSession = tableSession?.startTime;
   console.log("tableId nha", tableId);
 
-  const reservationData = useSelector(
-    (state: RootState) => state.reservation.data
-  );
   console.log("reservationDataWhere", reservationData);
 
   const [note, setNote] = useState("");
@@ -56,7 +56,7 @@ const OrderingDetail: React.FC = () => {
     })),
   ];
 
-  const numberOfPeople = reservationData?.result?.items[0]?.numberOfPeople || 0;
+  const numberOfPeople = reservationData?.result?.order.numOfPeople || 0;
 
   const handleClearAll = () => {
     dispatch(clearDishes()); // Dispatch the action to clear all dishes
@@ -68,8 +68,8 @@ const OrderingDetail: React.FC = () => {
       return;
     }
 
-    const customerId = reservationData?.result?.items[0]?.customerId;
-    const orderType = customerId ? 1 : 3; // 1 cho Reservation, 3 cho MealWithoutReservation
+    const customerId = reservationData?.result?.order.accountId;
+    const orderType = reservationData?.result?.order.reservationDate ? 1 : 3; // 1 cho Reservation, 3 cho MealWithoutReservation
 
     const orderDetailsDtos: OrderDetailsDto[] = [
       ...selectedDishes.map((dish) => ({
@@ -88,15 +88,14 @@ const OrderingDetail: React.FC = () => {
     ];
 
     const orderRequest: OrderRequest = {
-      customerId: customerId || null, // Tạm thời để là null nếu không có
+      customerId: customerId || undefined, // Tạm thời để là undefined nếu không có
       orderType,
       note, // Ghi chú tổng của order
       orderDetailsDtos,
       ...(customerId
         ? {
             reservationOrder: {
-              numberOfPeople:
-                reservationData?.result?.items[0]?.numberOfPeople || 0,
+              numberOfPeople: reservationData?.result?.order.numOfPeople || 0,
               mealTime: moment().format("YYYY-MM-DDTHH:mm:ss"), // Thời gian ăn
               endTime: moment().add(2, "hours").format("YYYY-MM-DDTHH:mm:ss"), // Ví dụ kết thúc sau 2 giờ
               isPrivate: false, // Có thể tuỳ chỉnh
@@ -115,9 +114,10 @@ const OrderingDetail: React.FC = () => {
     try {
       // Kiểm tra currentOrder và trạng thái của nó
       if (
-        !currentOrder ||
-        currentOrder.statusId === 7 ||
-        currentOrder.statusId === 8
+        (!currentOrder &&
+          (!reservationData || !reservationData.result.order.orderId)) || // Nếu chưa có order
+        (currentOrder &&
+          (currentOrder.statusId === 7 || currentOrder.statusId === 8))
       ) {
         // Nếu chưa có order hoặc trạng thái là 7 hoặc 8 thì tạo order mới
         const response = await createOrderinTablet(orderRequest);
@@ -132,22 +132,32 @@ const OrderingDetail: React.FC = () => {
         }
       } else {
         // Nếu đã có order và trạng thái khác 7 và 8 thì thêm món vào order
-        const addOrderResponse = await addPrelistOrder(
-          { orderId: currentOrder.orderId, orderDetailsDtos },
-          currentOrder.orderId
-        );
+        if (currentOrder || reservationData?.result?.order.orderId) {
+          const addOrderResponse = await addPrelistOrder(
+            {
+              orderId:
+                currentOrder?.orderId ||
+                reservationData?.result?.order.orderId ||
+                "",
+              orderDetailsDtos,
+            },
+            currentOrder?.orderId ||
+              reservationData?.result?.order.orderId ||
+              ""
+          );
 
-        console.log(
-          "addOrderResponseNe",
-          JSON.stringify(addOrderResponse, null, 2)
-        );
+          console.log(
+            "addOrderResponseNe",
+            JSON.stringify(addOrderResponse, null, 2)
+          );
 
-        if (addOrderResponse.isSuccess) {
-          showSuccessMessage("Thêm món thành công!");
-          dispatch(clearDishes());
-          // Có thể cập nhật lại order sau khi thêm món thành công
-        } else {
-          showErrorMessage("Thêm món thất bại. Vui lòng thử lại!");
+          if (addOrderResponse.isSuccess) {
+            showSuccessMessage("Thêm món thành công!");
+            dispatch(clearDishes());
+            // Có thể cập nhật lại order sau khi thêm món thành công
+          } else {
+            showErrorMessage("Thêm món thất bại. Vui lòng thử lại!");
+          }
         }
       }
     } catch (error) {
