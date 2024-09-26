@@ -12,27 +12,30 @@ interface ItemListOrder {
 }
 
 const OrderItemList: React.FC<ItemListOrder> = ({ dishes, combos }) => {
+  // Merge dishes and combos into a single array, distinguishing by type
+  const combinedItems = [
+    ...dishes.map((dish) => ({ ...dish, type: "dish" })), // Add type 'dish' to each dish item
+    ...combos.map((combo) => ({ ...combo, type: "combo" })), // Add type 'combo' to each combo item
+  ];
+  console.log("combinedItems", JSON.stringify(combinedItems));
+
   return (
-    <>
-      {combos.length > 0 && (
-        <FlatList
-          data={combos}
-          renderItem={({ item }) => <ComboOrderItem item={item} />}
-          keyExtractor={(item) => `${item.comboId}_${item.selectedDishes}`} // Sử dụng sự kết hợp của id và size làm key
-          showsVerticalScrollIndicator={true}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
-      )}
-      {dishes.length > 0 && (
-        <FlatList
-          data={dishes}
-          renderItem={({ item }) => <OrderItem item={item} />}
-          keyExtractor={(item) => `${item.id}_${item.size}`} // Sử dụng sự kết hợp của id và size làm key
-          showsVerticalScrollIndicator={true}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
-      )}
-    </>
+    <FlatList
+      data={combinedItems}
+      renderItem={({ item }) => {
+        if (item.type === "combo") {
+          return <ComboOrderItem item={item} />; // Render ComboOrderItem for combos
+        } else if (item.type === "dish") {
+          return <OrderItem item={item} />; // Render OrderItem for dishes
+        }
+        return null;
+      }}
+      keyExtractor={(item) =>
+        item.type === "combo" ? `${item.comboId}` : `${item.id}`
+      }
+      showsVerticalScrollIndicator={true}
+      contentContainerStyle={{ paddingBottom: 20 }}
+    />
   );
 };
 

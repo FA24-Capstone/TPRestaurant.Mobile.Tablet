@@ -61,7 +61,7 @@ export const fetchDishes = async (
         quantity: 1, // Optional
       };
     });
-    console.log("dishesNe1", JSON.stringify(dishes)); // In ra response từ API
+    // console.log("dishesNe1", JSON.stringify(dishes)); // In ra response từ API
 
     return dishes;
   } catch (error) {

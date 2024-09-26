@@ -20,6 +20,8 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
   showModal,
   noteOrder,
 }) => {
+  console.log("comboNha", combo);
+
   return (
     <TouchableOpacity
       onPress={() => showModal(combo)}
@@ -31,7 +33,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
         resizeMode="cover"
       />
       <View className="p-2">
-        <Text className="mt-2 text-lg font-bold">{combo.name}</Text>
+        <Text className="mt-2 text-lg font-bold">{combo.comboName}</Text>
         <Text className="text-gray-500">{combo.description ?? "no"}</Text>
         <View className="flex-row justify-between my-2">
           <Text className="text-center text-base font-semibold text-[#C01D2E]">

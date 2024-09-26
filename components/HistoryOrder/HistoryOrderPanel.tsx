@@ -60,9 +60,9 @@ const HistoryOrderPanel: React.FC = () => {
   const noteOrder = currentOrder?.note;
 
   console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
-  console.log("combos nè", JSON.stringify(combos, null, 2));
+  console.log("dishes nè", JSON.stringify(dishes, null, 2));
 
-  console.log("reservationData nè", JSON.stringify(reservationData, null, 2));
+  // console.log("reservationData nè", JSON.stringify(reservationData, null, 2));
 
   // Function to fetch order details
   const fetchOrderDetails = useCallback(async () => {
@@ -72,7 +72,7 @@ const HistoryOrderPanel: React.FC = () => {
       const response = await getHistoryOrderId(
         orderId || reservationData?.result?.order?.orderId || ""
       );
-      console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
+      // console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
 
       // Set the order details in state
       setOrderDetails(response.result.orderDishes);
@@ -129,14 +129,24 @@ const HistoryOrderPanel: React.FC = () => {
           note: orderDish.note || "",
         }));
 
+      // Sort dishes and combos by orderTime (earliest first)
+      const sortedDishes = extractedDishes.sort(
+        (a, b) =>
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      );
+      const sortedCombos = extractedCombos.sort(
+        (a, b) =>
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      );
+
       setDishes(
-        extractedDishes.map((dish) => ({
+        sortedDishes.map((dish) => ({
           ...dish,
           orderTime: dish.startDate, // Ensure orderTime is included
         }))
       );
       setCombos(
-        extractedCombos.map((combo) => ({
+        sortedCombos.map((combo) => ({
           ...combo,
           orderTime: combo.startDate, // Ensure orderTime is included
         }))
@@ -337,7 +347,9 @@ const HistoryOrderPanel: React.FC = () => {
 
                   {modalContent.comboDishes && (
                     <View className="w-full">
-                      <Text className="font-semibold mb-2">Món đã chọn:</Text>
+                      <Text className="font-semibold text-lg text-gray-700 my-2">
+                        Món đã chọn:
+                      </Text>
                       <View className="flex-row flex-wrap  gap-2">
                         {modalContent.comboDishes.map((dish) => (
                           <View
@@ -370,11 +382,12 @@ const HistoryOrderPanel: React.FC = () => {
                         Huỷ
                       </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity className="mt-4 bg-[#C01D2E] p-2 rounded-lg w-[200px] mr-6">
+                    {/* <TouchableOpacity className="mt-4 bg-[#C01D2E] p-2 rounded-lg w-[200px] mr-6"
+                    onPress={() => handleReorder(modalContent)} >
                       <Text className="text-white text-center font-semibold text-lg uppercase">
                         Đặt lại
                       </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                   </View>
                 </View>
               </View>
