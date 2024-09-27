@@ -34,6 +34,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
       />
       <View className="p-2">
         <Text className="mt-2 text-lg font-bold">{combo.comboName}</Text>
+
         <Text className="text-gray-500">{combo.description ?? "no"}</Text>
         <View className="flex-row justify-between my-2">
           <Text className="text-center text-base font-semibold text-[#C01D2E]">
@@ -95,6 +96,11 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
           color="#FD495C"
         />
       </TouchableOpacity>
+      <View className="absolute top-3 left-3 bg-[#EDAA16] rounded-md px-2 py-1">
+        <Text className=" text-sm text-right font-bold text-white uppercase">
+          {combo.status}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };

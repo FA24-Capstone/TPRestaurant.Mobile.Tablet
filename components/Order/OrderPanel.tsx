@@ -8,6 +8,7 @@ import {
   Image,
   Button,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import Menu from "@/components/List/Menu";
 import { IconButton } from "react-native-paper";
@@ -16,6 +17,8 @@ import OrderingDetail from "./OrderingDetail";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { formatPriceVND } from "../Format/formatPrice";
+import { useNavigation } from "expo-router";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 interface Dish {
   orderDetailsId: string;
@@ -32,7 +35,13 @@ interface Dish {
   }[];
 }
 
+type RootStackParamList = {
+  "history-order": undefined; // Add this line
+};
+
 const OrderPanel: React.FC = () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   const dispatch: AppDispatch = useDispatch();
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
@@ -92,26 +101,48 @@ const OrderPanel: React.FC = () => {
   }, [reservationData]);
 
   const handleConfirmOrder = () => {
-    // Handle the "Oke, tôi muốn đặt món" action
+    // Close the modal first
     setIsModalVisible(false);
-    // Dispatch action or navigate to the next step
+    // Navigate to the "history-order" screen
+    navigation.navigate("history-order");
   };
 
   const handleModifyOrder = () => {
-    // Handle the "Không, tôi muốn sửa món" action
+    // Simply close the modal
     setIsModalVisible(false);
-    // Navigate to order modification screen
   };
 
   const OrderDetails = () => (
-    <View className={`flex-1 bg-white p-2`} style={{ width: drawerWidth }}>
-      <IconButton
-        icon={() => (
-          <MaterialCommunityIcons name="arrow-right" size={25} color="gray" />
-        )}
-        onPress={() => setIsPanelOpen(false)}
-        size={20}
-      />
+    <View
+      className={`flex-1 relative bg-white p-2 `}
+      style={{ width: drawerWidth }}
+    >
+      <View>
+        <IconButton
+          icon={() => (
+            <MaterialCommunityIcons name="arrow-right" size={25} color="gray" />
+          )}
+          onPress={() => setIsPanelOpen(false)}
+          size={20}
+          style={{
+            position: "absolute",
+            top: 8,
+            left: -40,
+            transform: [{ translateX: -15 }, { translateY: -15 }], // Shifts the button outside
+            backgroundColor: "#fff",
+            borderRadius: 25,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            zIndex: 999,
+            elevation: 5,
+          }}
+        />
+      </View>
       <OrderingDetail />
     </View>
   );
@@ -148,9 +179,9 @@ const OrderPanel: React.FC = () => {
       <Modal visible={isModalVisible} transparent animationType="slide">
         <View className="flex-1 justify-center p-5 bg-black/50">
           <View className="bg-white rounded-lg p-5 h-[600px]">
-            <Text className="font-semibold text-xl text-center text-[#C01D2E] mb-5">
-              Trong đơn đặt bàn bạn đã order các món dưới đây. Bạn có muốn đặt
-              món ngay các món dưới hay không?
+            <Text className="font-semibold text-xl text-center text-[#C01D2E] mb-1">
+              Trong đơn đặt bàn bạn đã order các món dưới đây. Bạn hãy theo dõi
+              món ăn đã chọn hoặc đặt thêm món nhé!
             </Text>
 
             <ScrollView contentContainerStyle={{ flexDirection: "row" }}>
@@ -234,15 +265,23 @@ const OrderPanel: React.FC = () => {
               ))}
             </ScrollView>
 
-            <View className="flex-row justify-between mt-5">
-              <Button
-                title="Không, tôi muốn sửa món"
-                onPress={handleModifyOrder}
-              />
-              <Button
-                title="Oke, tôi muốn đặt món"
+            <View className="flex-row justify-evenly mt-5">
+              <TouchableOpacity
+                className="mt-4  bg-[#EDAA16] py-2 px-4 rounded-lg  mr-6"
                 onPress={handleConfirmOrder}
-              />
+              >
+                <Text className="text-white text-center font-semibold text-lg uppercase">
+                  Theo dõi món ăn{" "}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="mt-4  py-2 px-4  bg-[#C01D2E] rounded-lg mr-6"
+                onPress={handleModifyOrder}
+              >
+                <Text className="text-white  text-center font-semibold text-lg uppercase">
+                  Đặt thêm món
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

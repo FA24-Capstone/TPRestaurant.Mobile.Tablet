@@ -10,12 +10,14 @@ interface ListDishesProps {
   DishItemTypeTranslations: {
     [key: string]: string;
   };
+  searchQuery: string; // **Added Prop**
 }
 
 const ListDishes: React.FC<ListDishesProps> = ({
   isPanelOpen,
   selectedCategory,
   DishItemTypeTranslations,
+  searchQuery,
 }) => {
   console.log("ListDishes component rendered");
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -68,14 +70,17 @@ const ListDishes: React.FC<ListDishesProps> = ({
     }
   };
 
-  const filteredDishes =
-    selectedCategory === "Tất cả"
-      ? dishes
-      : dishes.filter(
-          (dish) =>
-            DishItemTypeTranslations[dish.dishItemType.name] ===
-            selectedCategory
-        );
+  // **Apply Filtering Based on Search Query**
+  const filteredDishes = dishes.filter((dish) => {
+    const matchesCategory =
+      selectedCategory === "Tất cả" ||
+      DishItemTypeTranslations[dish.dishItemType.name] === selectedCategory;
+    const matchesSearch =
+      searchQuery === "" ||
+      dish.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <View>
