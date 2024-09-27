@@ -9,6 +9,7 @@ import {
   Button,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import Menu from "@/components/List/Menu";
 import { IconButton } from "react-native-paper";
@@ -47,6 +48,7 @@ const OrderPanel: React.FC = () => {
     (state: RootState) => state.reservation.data
   );
 
+  const [isLoading, setIsLoading] = useState(true);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const fullScreenWidth = Dimensions.get("window").width;
   const drawerWidth = isPanelOpen ? fullScreenWidth * 0.35 : 0; // Chiếm 30% chiều rộng màn hình
@@ -55,7 +57,7 @@ const OrderPanel: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(true);
   const [orderedDishes, setOrderedDishes] = useState<Dish[]>([]);
 
-  console.log("orderedDishesNe", JSON.stringify(orderedDishes, null, 2));
+  // console.log("orderedDishesNe", JSON.stringify(orderedDishes, null, 2));
 
   useEffect(() => {
     const extractedDishes: Dish[] = [];
@@ -99,6 +101,17 @@ const OrderPanel: React.FC = () => {
       setOrderedDishes(extractedDishes);
     }
   }, [reservationData]);
+
+  useEffect(() => {
+    if (isModalVisible) {
+      // Simulate data loading or preparation
+      setIsLoading(true);
+      // If you have actual data fetching, replace the timeout with your fetch logic
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000); // Adjust based on actual data fetching
+    }
+  }, [isModalVisible]);
 
   const handleConfirmOrder = () => {
     // Close the modal first
@@ -147,7 +160,7 @@ const OrderPanel: React.FC = () => {
     </View>
   );
 
-  console.log("isPanelOpen", isPanelOpen);
+  // console.log("isPanelOpen", isPanelOpen);
 
   // Split the orderedDishes into two columns for manual control over layout
   const splitDishesIntoColumns = (data: Dish[], numColumns: number) => {
@@ -183,87 +196,90 @@ const OrderPanel: React.FC = () => {
               Trong đơn đặt bàn bạn đã order các món dưới đây. Bạn hãy theo dõi
               món ăn đã chọn hoặc đặt thêm món nhé!
             </Text>
-
-            <ScrollView contentContainerStyle={{ flexDirection: "row" }}>
-              {columns.map((column, columnIndex) => (
-                <View key={`column-${columnIndex}`} className="flex-1 p-2">
-                  {column.map((item) => (
-                    <View key={item.orderDetailsId}>
-                      {item.dishSize && (
-                        <View className="flex-row bg-[#EAF0F0] items-center w-full my-2.5 rounded-lg shadow p-2.5">
-                          <Image
-                            source={{ uri: item.image }}
-                            className="h-20 w-20 rounded-md mr-4"
-                          />
-                          <View className="flex-1 flex-wrap flex-row justify-between items-center">
-                            <View>
-                              <Text className="text-lg font-semibold">
-                                {item.name}
-                              </Text>
-                              <Text className="text-lg uppercase font-semibold text-gray-500">
-                                {item.dishSize}
-                              </Text>
-                              <Text className="text-lg font-bold text-[#C01D2E]">
-                                {item.price.toLocaleString()} VND
-                              </Text>
-                            </View>
-                            <Text className="text-lg font-semibold mr-4">
-                              Số lượng: {item.quantity} món
-                            </Text>
-                          </View>
-                        </View>
-                      )}
-
-                      {item.dishCombo && item.dishCombo.length > 0 && (
-                        <View className="flex-row bg-[#EAF0F0] w-full my-2.5 rounded-lg shadow p-2.5">
-                          <Image
-                            source={{ uri: item.image }}
-                            className="h-20 w-20 rounded-md mr-4"
-                          />
-                          <View className="flex-row w-full justify-between">
-                            <View className="flex-wrap w-[80%]  ">
-                              <View className=" flex-row flex-wrap w-fit justify-between">
-                                <Text className="text-lg font-bold ">
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#C01D2E" />
+            ) : (
+              <ScrollView contentContainerStyle={{ flexDirection: "row" }}>
+                {columns.map((column, columnIndex) => (
+                  <View key={`column-${columnIndex}`} className="flex-1 p-2">
+                    {column.map((item) => (
+                      <View key={item.orderDetailsId}>
+                        {item.dishSize && (
+                          <View className="flex-row bg-[#EAF0F0] items-center w-full my-2.5 rounded-lg shadow p-2.5">
+                            <Image
+                              source={{ uri: item.image }}
+                              className="h-20 w-20 rounded-md mr-4"
+                            />
+                            <View className="flex-1 flex-wrap flex-row justify-between items-center">
+                              <View>
+                                <Text className="text-lg font-semibold">
                                   {item.name}
                                 </Text>
-                                <Text className="text-lg font-semibold mr-4">
-                                  Số lượng: {item.quantity} combo
+                                <Text className="text-lg uppercase font-semibold text-gray-500">
+                                  {item.dishSize}
+                                </Text>
+                                <Text className="text-lg font-bold text-[#C01D2E]">
+                                  {item.price.toLocaleString()} VND
                                 </Text>
                               </View>
-                              <Text className="text-lg font-bold text-[#C01D2E]">
-                                {formatPriceVND(item.price)}
+                              <Text className="text-lg font-semibold mr-4">
+                                Số lượng: {item.quantity} món
                               </Text>
-                              <Text className="font-semibold mb-2">
-                                Món đã chọn:
-                              </Text>
-                              <View className="flex-row flex-wrap gap-2">
-                                {item.dishCombo.map((dish) => (
-                                  <View
-                                    key={dish.dishComboId}
-                                    className="bg-white rounded-md p-2 shadow-md"
-                                  >
-                                    <Image
-                                      source={{ uri: dish.image }}
-                                      className="h-20 w-20 rounded-md mx-auto"
-                                    />
-                                    <Text className="text-center text-sm font-semibold">
-                                      {dish.name}
-                                    </Text>
-                                    <Text className="text-center text-sm font-semibold text-red-600">
-                                      {formatPriceVND(dish.price)}
-                                    </Text>
-                                  </View>
-                                ))}
+                            </View>
+                          </View>
+                        )}
+
+                        {item.dishCombo && item.dishCombo.length > 0 && (
+                          <View className="flex-row bg-[#EAF0F0] w-full my-2.5 rounded-lg shadow p-2.5">
+                            <Image
+                              source={{ uri: item.image }}
+                              className="h-20 w-20 rounded-md mr-4"
+                            />
+                            <View className="flex-row w-full justify-between">
+                              <View className="flex-wrap w-[80%]  ">
+                                <View className=" flex-row flex-wrap w-fit justify-between">
+                                  <Text className="text-lg font-bold ">
+                                    {item.name}
+                                  </Text>
+                                  <Text className="text-lg font-semibold mr-4">
+                                    Số lượng: {item.quantity} combo
+                                  </Text>
+                                </View>
+                                <Text className="text-lg font-bold text-[#C01D2E]">
+                                  {formatPriceVND(item.price)}
+                                </Text>
+                                <Text className="font-semibold h-6 mb-2">
+                                  Món đã chọn:
+                                </Text>
+                                <View className="flex-row flex-wrap gap-2">
+                                  {item.dishCombo.map((dish) => (
+                                    <View
+                                      key={dish.dishComboId}
+                                      className="bg-white rounded-md p-2 shadow-md"
+                                    >
+                                      <Image
+                                        source={{ uri: dish.image }}
+                                        className="h-20 w-20 rounded-md mx-auto"
+                                      />
+                                      <Text className="text-center text-sm font-semibold">
+                                        {dish.name}
+                                      </Text>
+                                      <Text className="text-center text-sm font-semibold text-red-600">
+                                        {formatPriceVND(dish.price)}
+                                      </Text>
+                                    </View>
+                                  ))}
+                                </View>
                               </View>
                             </View>
                           </View>
-                        </View>
-                      )}
-                    </View>
-                  ))}
-                </View>
-              ))}
-            </ScrollView>
+                        )}
+                      </View>
+                    ))}
+                  </View>
+                ))}
+              </ScrollView>
+            )}
 
             <View className="flex-row justify-evenly mt-5">
               <TouchableOpacity

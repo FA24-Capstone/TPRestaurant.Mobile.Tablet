@@ -20,7 +20,7 @@ export const fetchDishes = async (
         },
       }
     );
-    console.log("dishes response data:", response.data);
+    // console.log("dishes response data:", response.data);
     // Ánh xạ dữ liệu trả về từ API
     const dishes: Dish[] = response.data.result.items.map((item) => {
       const dishData = item.dish; // Lấy dữ liệu dish từ object chính

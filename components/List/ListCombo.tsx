@@ -27,7 +27,7 @@ const ListCombo: React.FC<ListComboProps> = ({
   const [hasMoreCombos, setHasMoreCombos] = useState<boolean>(true);
   const [loadingMoreCombos, setLoadingMoreCombos] = useState<boolean>(false);
 
-  console.log("combosList", combos);
+  // console.log("combosList", combos);
 
   useEffect(() => {
     const loadCombos = async () => {

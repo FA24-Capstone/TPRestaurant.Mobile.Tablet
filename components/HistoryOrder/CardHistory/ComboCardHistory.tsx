@@ -20,7 +20,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
   showModal,
   noteOrder,
 }) => {
-  console.log("comboNha", combo);
+  // console.log("comboNha", combo);
 
   return (
     <TouchableOpacity
@@ -36,7 +36,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
         <Text className="mt-2 text-lg font-bold">{combo.comboName}</Text>
 
         <Text className="text-gray-500">{combo.description ?? "no"}</Text>
-        <View className="flex-row justify-between my-2">
+        <View className="flex-row justify-between flex-wrap my-2">
           <Text className="text-center text-base font-semibold text-[#C01D2E]">
             {formatPriceVND(combo.price)}
           </Text>
@@ -46,7 +46,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
             </Text>
           </View>
         </View>
-        <View className="mt-2 flex-row">
+        <View className="mt-2 flex-row flex-wrap">
           <Text className="text-gray-700 font-semibold">Thời gian đặt:</Text>
           <View className="ml-4">
             <Text className="text-gray-500">
@@ -68,7 +68,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
             <Text className="font-bold mb-2 text-gray-600">
               Lựa chọn món trong combo:
             </Text>
-            <View className="flex-row">
+            <View className="flex-row flex-wrap">
               {combo.comboDishes.map((detail: any) => (
                 <View key={detail.dishId} className="mt-1 mr-2">
                   <Image

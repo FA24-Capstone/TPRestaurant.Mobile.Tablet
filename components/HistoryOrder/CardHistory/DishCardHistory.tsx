@@ -33,7 +33,7 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
         <Text className="text-gray-500">
           {dish.description ?? "chưa có mô tả"}
         </Text>
-        <View className="flex-row justify-between my-2">
+        <View className="flex-row justify-between my-2 flex-wrap">
           <Text className="text-center text-base font-semibold text-[#C01D2E]">
             {formatPriceVND(dish.price)}
           </Text>
@@ -43,7 +43,7 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
             </Text>
           </View>
         </View>
-        <View className="mt-2 flex-row">
+        <View className="mt-2 flex-row flex-wrap">
           <Text className="text-gray-700 font-semibold">Thời gian đặt:</Text>
           <View className="ml-4">
             <Text className="text-gray-500">

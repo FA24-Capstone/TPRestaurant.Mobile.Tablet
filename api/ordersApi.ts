@@ -38,7 +38,7 @@ export const addPrelistOrder = async (
   orderId: string
 ): Promise<AddOrderReponse> => {
   try {
-    console.log("orderDataNe", orderData);
+    // console.log("orderDataNe", orderData);
 
     const response = await axios.post<AddOrderReponse>(
       `${API_URL}/order/add-dish-to-order/${orderId}`,
@@ -60,7 +60,7 @@ export const addPrelistOrder = async (
 export const getHistoryOrderId = async (
   orderId: string
 ): Promise<GetHistoryOrderIdReponse> => {
-  console.log("orderIdNe", orderId);
+  // console.log("orderIdNe", orderId);
 
   try {
     const response = await axios.get<GetHistoryOrderIdReponse>(

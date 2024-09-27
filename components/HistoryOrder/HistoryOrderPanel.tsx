@@ -63,13 +63,13 @@ const HistoryOrderPanel: React.FC = () => {
     (state: RootState) => state.orders.currentOrder
   );
 
-  console.log("orders nè", JSON.stringify(orderDetails, null, 2));
+  // console.log("orders nè", JSON.stringify(orderDetails, null, 2));
   // Log ra => {"orderId":"6e5b9440-9478-4559-b572-da37d6ca6e1b","orderDate":"0001-01-01T00:00:00","deliveryTime":null,"reservationDate":null,"mealTime":"2024-09-14T13:14:13.6363496","endTime":null,"totalAmount":700000,"statusId":3,"status":null,"customerId":null,"customerInfo":null,"paymentMethodId":2,"paymentMethod":null,"loyalPointsHistoryId":null,"loyalPointsHistory":null,"note":"","orderTypeId":3,"orderType":null,"numOfPeople":0,"deposit":null,"isPrivate":null}
   const orderId = currentOrder?.orderId;
   const noteOrder = currentOrder?.note;
 
-  console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
-  console.log("dishes nè", JSON.stringify(dishes, null, 2));
+  // console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
+  // console.log("dishes nè", JSON.stringify(dishes, null, 2));
 
   // console.log("reservationData nè", JSON.stringify(reservationData, null, 2));
 
@@ -249,9 +249,12 @@ const HistoryOrderPanel: React.FC = () => {
                 Món lẻ:
               </Text>
               <FlatList
-                keyExtractor={(item, index) =>
-                  item.empty ? item.id : item.orderDetailsId || `dish-${index}`
-                }
+                keyExtractor={(item, index) => {
+                  if (item.empty) {
+                    return `empty-${index}`; // Assign unique keys for empty items
+                  }
+                  return item.orderDetailsId || `dish-${index}`; // Use `orderDetailsId` or fallback to index
+                }}
                 data={dataDishWithEmptySpaces}
                 renderItem={({ item }) => {
                   // Nếu item là rỗng, không render gì
@@ -315,9 +318,12 @@ const HistoryOrderPanel: React.FC = () => {
                     />
                   );
                 }}
-                keyExtractor={(item, index) =>
-                  item.empty ? item.id : item.orderDetailsId || `combo-${index}`
-                }
+                keyExtractor={(item, index) => {
+                  if (item.empty) {
+                    return `empty-${index}`; // Assign unique keys for empty items
+                  }
+                  return item.orderDetailsId || `combo-${index}`; // Use `orderDetailsId` or fallback to index
+                }}
                 numColumns={numColumns}
                 scrollEnabled={false}
                 columnWrapperStyle={{ marginHorizontal: spacing }}
@@ -382,7 +388,7 @@ const HistoryOrderPanel: React.FC = () => {
                     </Text>
                   </View>
 
-                  <View className="mt-2 flex-row">
+                  <View className="mt-2 flex-row flex-ư">
                     <Text className="text-gray-700 font-semibold text-lg">
                       Thời gian đặt:
                     </Text>
@@ -398,13 +404,13 @@ const HistoryOrderPanel: React.FC = () => {
 
                   {modalContent.comboDishes && (
                     <View className="w-full">
-                      <Text className="font-semibold text-lg text-gray-700 my-2">
+                      <Text className="font-semibold text-lg text-gray-700 h-fit my-2">
                         Món đã chọn:
                       </Text>
                       <View className="flex-row flex-wrap  gap-2">
                         {modalContent.comboDishes.map((dish) => (
                           <View
-                            key={dish.dishComboId}
+                            key={dish.dishComboId + dish.dishSizeDetailId}
                             className="bg-white rounded-md p-2 shadow-md"
                           >
                             <Image

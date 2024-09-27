@@ -12,8 +12,8 @@ export const loginDevice = async (
   dispatch: AppDispatch
 ): Promise<void> => {
   try {
-    console.log("requestLOGIN", deviceCode, password);
-    console.log("APIlink", `${API_URL}/device/login-device`);
+    // console.log("requestLOGIN", deviceCode, password);
+    // console.log("APIlink", `${API_URL}/device/login-device`);
     const response = await axios.post<LoginResponse>(
       `${API_URL}/device/login-device`,
       {
@@ -21,7 +21,7 @@ export const loginDevice = async (
         password,
       }
     );
-    console.log("responseLOGIN", response);
+    // console.log("responseLOGIN", response);
 
     const { token, deviceResponse } = response.data.result;
 

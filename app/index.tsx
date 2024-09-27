@@ -45,7 +45,7 @@ const App = () => {
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
   );
-  console.log("reservationDataNe", reservationData);
+  // console.log("reservationDataNe", reservationData);
 
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
@@ -78,7 +78,10 @@ const App = () => {
         // Dispatch async thunk để fetch dữ liệu
         // dispatch(fetchReservationWithTime({ tableId, time: now }));
         dispatch(
-          fetchReservationWithTime({ tableId, time: "2024-09-19T23:10:44.3" })
+          fetchReservationWithTime({
+            tableId,
+            time: "2024-09-28 23:10:44.3000000",
+          })
         );
       }
     };

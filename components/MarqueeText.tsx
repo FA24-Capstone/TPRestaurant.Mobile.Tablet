@@ -37,7 +37,7 @@ const MarqueeText = () => {
     startAnimation();
   }, [animatedValue, width]);
 
-  ("2024-09-19T23:10:44.3");
+  ("2024-09-28 23:10:44.3000000");
 
   useEffect(() => {
     const fetchReservation = async () => {
@@ -49,7 +49,10 @@ const MarqueeText = () => {
         // Dispatch async thunk để fetch dữ liệu
         // dispatch(fetchReservationWithTime({ tableId, time: now }));
         dispatch(
-          fetchReservationWithTime({ tableId, time: "2024-09-19T23:10:44.3" })
+          fetchReservationWithTime({
+            tableId,
+            time: "2024-09-28 23:10:44.3000000",
+          })
         );
       }
     };
@@ -63,7 +66,7 @@ const MarqueeText = () => {
   const reservationText = useMemo(() => {
     if (reservationData && reservationData.result) {
       const reservation = reservationData.result.order;
-      console.log("reservationNe", reservation);
+      // console.log("reservationNe", reservation);
 
       const customerName = reservation?.account?.lastName
         ? `${reservation.account.firstName} ${reservation.account.lastName}`
@@ -73,14 +76,14 @@ const MarqueeText = () => {
         "HH:mm A, DD/MM/YYYY"
       );
 
-      console.log("reservationTimeNe:", reservationTime);
+      // console.log("reservationTimeNe:", reservationTime);
 
       return `Bàn số ${tableName} đã có quý khách ${customerName} đặt bàn vào lúc ${reservationTime}. Chúc quý khách dùng bữa tại nhà hàng Thiên Phú ngon miệng!`;
     }
     return "";
   }, [reservationData, tableName]);
 
-  console.log("reservationTextNe:", reservationText);
+  // console.log("reservationTextNe:", reservationText);
 
   // Xử lý trạng thái Loading và Error (tùy chọn)
   if (isLoading) {
