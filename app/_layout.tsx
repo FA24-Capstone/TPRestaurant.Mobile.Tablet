@@ -33,9 +33,9 @@ function MyDrawer() {
               ? "Menu"
               : route.name === "history-order"
               ? "Lịch sử đặt món"
-              : route.name === "feedback"
-              ? "Đánh giá"
-              : route.name === "setting"
+              : // : route.name === "feedback"
+              // ? "Đánh giá"
+              route.name === "setting"
               ? "Cài đặt"
               : "Lịch sử đặt món"; // Fallback title if route doesn't match
           return <CustomHeader title={title} />;
@@ -84,7 +84,7 @@ function MyDrawer() {
           ),
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="feedback"
         component={require("./(tabs)/feedback").default}
         options={{
@@ -93,7 +93,7 @@ function MyDrawer() {
             <Entypo name="star" size={24} color={color} />
           ),
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="setting"
         component={require("./(tabs)/setting").default}
