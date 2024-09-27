@@ -19,7 +19,7 @@ const ListDishes: React.FC<ListDishesProps> = ({
   DishItemTypeTranslations,
   searchQuery,
 }) => {
-  console.log("ListDishes component rendered");
+  // console.log("ListDishes component rendered");
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -30,7 +30,7 @@ const ListDishes: React.FC<ListDishesProps> = ({
   useEffect(() => {
     const loadDishes = async () => {
       try {
-        console.log("filteredDishesNe");
+        // console.log("filteredDishesNe");
         setLoading(true);
 
         const fetchedDishes = await fetchDishes(1, pageSize);

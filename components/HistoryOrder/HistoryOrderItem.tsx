@@ -8,7 +8,7 @@ const OrderHistoryItem: React.FC<OrderHistoryItemProps> = ({
   order,
   index,
 }) => {
-  console.log("order", order);
+  // console.log("order", order);
 
   return (
     <View className=" bg-white my-2 p-4 rounded-lg shadow flex-row w-full">
@@ -45,7 +45,7 @@ const OrderHistoryItem: React.FC<OrderHistoryItemProps> = ({
         <View className="flex-row justify-evenly mt-2">
           <TouchableOpacity
             className=" bg-gray-600 px-7 py-3 rounded-md items-center flex-row"
-            onPress={() => console.log("Detail")}
+            // onPress={() => console.log("Detail")}
           >
             <Text className="text-white uppercase text-base font-semibold">
               Xem chi tiết
@@ -53,7 +53,7 @@ const OrderHistoryItem: React.FC<OrderHistoryItemProps> = ({
           </TouchableOpacity>
           <TouchableOpacity
             className="bg-[#C01D2E] px-7 py-2 rounded-md items-center flex-row"
-            onPress={() => console.log("Order Again")}
+            // onPress={() => console.log("Order Again")}
           >
             <Text className="text-white uppercase text-base font-semibold">
               Đặt món lại

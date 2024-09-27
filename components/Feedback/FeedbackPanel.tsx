@@ -26,7 +26,7 @@ const FeedbackPanel: React.FC = () => {
       review: note,
       rating,
     };
-    console.log("Feedback submitted:", feedbackData);
+    // console.log("Feedback submitted:", feedbackData);
   };
 
   const ratings: Rating[] = [

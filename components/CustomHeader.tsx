@@ -22,7 +22,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
     (state: RootState) => state.reservation.data
   );
 
-  console.log("reservationData", reservationData);
+  // console.log("reservationData", reservationData);
 
   const customerName =
     reservationData?.result.order.account.firstName || "Guest";
