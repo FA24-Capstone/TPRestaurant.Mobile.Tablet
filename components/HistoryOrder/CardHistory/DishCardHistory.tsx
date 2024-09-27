@@ -72,6 +72,11 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
           color="#FD495C"
         />
       </TouchableOpacity>
+      <View className="absolute top-3 left-3 bg-[#EDAA16] rounded-md px-2 py-1">
+        <Text className=" text-sm text-right font-bold text-white uppercase">
+          {dish.status}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };

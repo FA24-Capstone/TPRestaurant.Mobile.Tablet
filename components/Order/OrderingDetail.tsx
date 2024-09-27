@@ -6,7 +6,7 @@ import { AppDispatch, RootState } from "../../redux/store";
 import OrderItemList from "./OrderItemList";
 import { clearDishes } from "@/redux/slices/dishesSlice";
 import OrderFooter from "./OrderingFooter";
-import moment from "moment-timezone";
+import moment, { now } from "moment-timezone";
 import { addNewPrelistOrder, addTableSession } from "@/api/tableSection";
 import { showErrorMessage, showSuccessMessage } from "../FlashMessageHelpers";
 import { setCurrentSession } from "@/redux/slices/tableSessionSlice";
@@ -14,8 +14,15 @@ import { OrderDetailsDto, OrderRequest } from "@/app/types/order_type";
 import { addPrelistOrder, createOrderinTablet } from "@/api/ordersApi";
 import { Combo } from "@/app/types/combo_type";
 import { addOrder } from "@/redux/slices/ordersSlice";
+import { useNavigation } from "expo-router";
+import { StackNavigationProp } from "@react-navigation/stack";
+
+type RootStackParamList = {
+  "history-order": undefined; // Add this line
+};
 
 const OrderingDetail: React.FC = () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const dispatch: AppDispatch = useDispatch();
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
@@ -31,7 +38,7 @@ const OrderingDetail: React.FC = () => {
     (state: RootState) => state.orders.currentOrder
   ); // Lấy currentOrder từ state
 
-  const startSession = tableSession?.startTime;
+  const startSession = now();
   console.log("tableId nha", tableId);
 
   console.log("reservationDataWhere", reservationData);
@@ -166,6 +173,11 @@ const OrderingDetail: React.FC = () => {
     }
   };
 
+  const handleHistoryOrder = () => {
+    // Navigate to the "history-order" screen
+    navigation.navigate("history-order");
+  };
+
   return (
     <View className="flex-1 px-2 bg-white">
       <View className="border-b border-gray-400 pb-4">
@@ -175,28 +187,40 @@ const OrderingDetail: React.FC = () => {
           </Text>
           <Text className="font-bold text-lg text-gray-600">#12564878</Text>
         </View> */}
-        <View className="flex-row justify-between items-center">
-          <View className="flex-row items-center">
-            <MaterialCommunityIcons name="account" size={24} color="gray" />
-            {/* <Text className="text-gray-600 mr-3 ml-2 font-semibold"></Text> */}
-            <Text className="text-[#EDAA16] text-xl ml-2 font-semibold">
-              {numberOfPeople} người
-            </Text>
-          </View>
-          {startSession && (
-            <View className="flex-row items-center">
-              <MaterialCommunityIcons name="clock" size={24} color="gray" />
-              {/* <Text className="text-gray-600 mr-3 ml-2 font-semibold">
-                Bắt đầu từ:
-              </Text> */}
-              <Text className="text-[#EDAA16] text-lg ml-2 font-bold">
-                {moment.utc(startSession).format("HH:mm, DD/MM/YYYY")}
-                {/* {startSession} */}
+
+        <View className="flex-row justify-between ">
+          <View>
+            <View className="flex-row mt-1 items-center">
+              {/* <Text className="text-gray-600 mr-3 ml-2 font-semibold"></Text> */}
+              <MaterialCommunityIcons name="account" size={20} color="gray" />
+              <Text className="text-[#EDAA16] text-lg ml-3 font-semibold">
+                {numberOfPeople} người
               </Text>
             </View>
-          )}
+            {startSession && (
+              <View className="flex-row items-center">
+                <MaterialCommunityIcons name="clock" size={20} color="gray" />
+
+                <Text className="text-[#EDAA16] text-lg ml-3 font-bold">
+                  {moment.utc(startSession).format("HH:mm, DD/MM/YYYY")}
+                  {/* {startSession} */}
+                </Text>
+              </View>
+            )}
+          </View>
+          <View className="justify-between p-2">
+            <Text className="font-semibold text-gray-600 text-base">
+              Bạn đã đặt {reservationData?.result.orderDishes.length} món
+            </Text>
+            <TouchableOpacity onPress={handleHistoryOrder}>
+              <Text className="text-right font-bold text-base italic text-[#C01D2E]">
+                Xem
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
+
       {selectedDishes.length === 0 && selectedCombos.length === 0 ? (
         <View className="flex-1 justify-center items-center">
           <Image

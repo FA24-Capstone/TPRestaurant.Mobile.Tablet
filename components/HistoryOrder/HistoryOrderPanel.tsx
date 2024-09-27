@@ -33,13 +33,21 @@ import {
 } from "@/app/types/order_type";
 import { getHistoryOrderId } from "@/api/ordersApi";
 import { formatPriceVND } from "../Format/formatPrice";
+import { useNavigation } from "expo-router";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
 const spacing = 8; // Margin on each side
 const itemWidth = (width - (numColumns + 1) * spacing) / numColumns;
 
+type RootStackParamList = {
+  "list-dish": undefined; // Add this line
+};
+
 const HistoryOrderPanel: React.FC = () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   const dispatch: AppDispatch = useDispatch();
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
@@ -49,6 +57,7 @@ const HistoryOrderPanel: React.FC = () => {
   const [orderDetails, setOrderDetails] = useState<OrderDish[]>([]);
   const [visible, setVisible] = useState(false);
   const [modalContent, setModalContent] = useState<any>(null); // State for modal content
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const currentOrder = useSelector(
     (state: RootState) => state.orders.currentOrder
@@ -99,6 +108,7 @@ const HistoryOrderPanel: React.FC = () => {
           name: orderDish.dishSizeDetail?.dish.name,
           quantity: orderDish.quantity, // Nếu không có quantity trong orderDish, mặc định là 1
           price: orderDish.dishSizeDetail?.price,
+          status: "Đã phục vụ",
           image: orderDish.dishSizeDetail?.dish.image,
           sizeName: orderDish.dishSizeDetail?.dishSize.name,
           type: orderDish.dishSizeDetail?.dish.dishItemType, // loại món
@@ -118,6 +128,7 @@ const HistoryOrderPanel: React.FC = () => {
           image: orderDish.comboDish?.combo.image,
           type: orderDish.comboDish?.combo.category, // loại món
           startDate: orderDish.orderTime,
+          status: "Đã phục vụ",
           description: orderDish.comboDish?.combo.description || "",
           comboDishes: orderDish.comboDish?.dishCombos.map((dishCombo) => ({
             dishId: dishCombo.dishComboId,
@@ -162,22 +173,49 @@ const HistoryOrderPanel: React.FC = () => {
 
   const hideModal = () => setVisible(false);
 
-  // Thêm các item rỗng vào cuối nếu cần thiết để luôn có đủ 4 item trên mỗi hàng
+  // Function to filter dishes based on the search query
+  const filterDishesByQuery = (data: any[], query: string) => {
+    if (!query) return data;
+    return data.filter((item) =>
+      item.name.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  // Function to filter combos based on the search query
+  const filterCombosByQuery = (data: any[], query: string) => {
+    if (!query) return data;
+    return data.filter((item) =>
+      item.comboName.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const filteredDishes = filterDishesByQuery(dishes, searchQuery);
+  const filteredCombos = filterCombosByQuery(combos, searchQuery);
+
+  // Function to add empty spaces to maintain layout
   const fillEmptySpaces = (data: any[]) => {
     const numberOfFullRows = Math.floor(data.length / numColumns);
     const numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
-
     if (numberOfElementsLastRow !== 0) {
       const emptySpaces = numColumns - numberOfElementsLastRow;
       for (let i = 0; i < emptySpaces; i++) {
         data.push({ empty: true });
       }
     }
-
     return data;
   };
-  const dataDishWithEmptySpaces = fillEmptySpaces([...dishes]);
-  const dataComboWithEmptySpaces = fillEmptySpaces([...combos]);
+
+  const dataDishWithEmptySpaces = fillEmptySpaces([...filteredDishes]);
+  const dataComboWithEmptySpaces = fillEmptySpaces([...filteredCombos]);
+  console.log(
+    "dataComboWithEmptySpacesNe",
+    JSON.stringify(dataComboWithEmptySpaces, null, 2)
+  );
+
+  const handleOrder = () => {
+    // Navigate to the "history-order" screen
+    navigation.navigate("list-dish");
+  };
 
   return (
     <View className="flex-1 py-4 px-4 bg-[#f9f9f9]">
@@ -185,7 +223,20 @@ const HistoryOrderPanel: React.FC = () => {
         <Text className="text-[25px] font-bold uppercase pb-2 border-b-2 text-[#970C1A] border-[#970C1A]">
           Lịch sử đặt món của bạn
         </Text>
-        <SearchBar />
+        <View className="flex-row w-1/2 justify-evenly items-center">
+          <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+          <TouchableOpacity
+            className="  py-2 px-4  bg-[#C01D2E] rounded-lg mr-6"
+            onPress={handleOrder}
+          >
+            <Text className="text-white  text-center font-semibold text-lg uppercase">
+              Đặt thêm món
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {dataDishWithEmptySpaces.length > 0 ||

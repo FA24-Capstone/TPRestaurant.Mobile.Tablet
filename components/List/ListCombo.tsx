@@ -11,12 +11,14 @@ interface ListComboProps {
   DishItemTypeTranslations: {
     [key: string]: string;
   };
+  searchQuery: string; // **Added Prop**
 }
 
 const ListCombo: React.FC<ListComboProps> = ({
   isPanelOpen,
   DishItemTypeTranslations,
   selectedCategory,
+  searchQuery,
 }) => {
   const [combos, setCombos] = useState<Combo[]>([]);
   const [loadingCombos, setLoadingCombos] = useState<boolean>(true);
@@ -68,13 +70,17 @@ const ListCombo: React.FC<ListComboProps> = ({
     }
   };
 
-  const filteredCombos =
-    selectedCategory === "Tất cả"
-      ? combos
-      : combos.filter(
-          (combo) =>
-            DishItemTypeTranslations[combo.category.name] === selectedCategory
-        );
+  // **Apply Filtering Based on Search Query**
+  const filteredCombos = combos.filter((combo) => {
+    const matchesCategory =
+      selectedCategory === "Tất cả" ||
+      DishItemTypeTranslations[combo.category.name] === selectedCategory;
+    const matchesSearch =
+      searchQuery === "" ||
+      combo.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <View>

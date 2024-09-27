@@ -26,6 +26,9 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   const [pageSize, setPageSize] = useState<number>(9);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
+  // **New State for Search Query**
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   // console.log("dishesList", dishes);
 
   const categories = [
@@ -131,7 +134,11 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
           <Text className="text-[25px] font-bold uppercase pb-2 border-b-2 text-[#970C1A] border-[#970C1A]">
             Thực đơn hôm nay
           </Text>
-          <SearchBar />
+          {/* **Pass searchQuery and setSearchQuery to SearchBar** */}
+          <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
         </View>
         <View className="flex-row justify-center mb-2">
           <CategoryTabs
@@ -148,11 +155,13 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
             isPanelOpen={isPanelOpen}
             selectedCategory={selectedCategory}
             DishItemTypeTranslations={DishItemTypeTranslations}
+            searchQuery={searchQuery}
           />
           <ListCombo
             isPanelOpen={isPanelOpen}
             selectedCategory={selectedCategory}
             DishItemTypeTranslations={DishItemTypeTranslations}
+            searchQuery={searchQuery}
           />
         </>
         {/* )} */}
