@@ -153,10 +153,13 @@ const DishCard: React.FC<DishCardProps> = ({
   };
 
   return (
-    <View className="pt-24 m-2 overflow-hidden relative">
+    <TouchableOpacity
+      onPress={handleAddDish}
+      className="pt-24 m-2 overflow-hidden w-full relative"
+    >
       <Image
         source={typeof image === "string" ? { uri: image } : image} // Handle both local and URL images
-        className="absolute top-2 z-10 left-[20%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
+        className="absolute top-2 z-10 left-[18%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
         resizeMode="cover"
       />
       <View className="pt-14 rounded-[16px] z-0 shadow-xl bg-[#FFF1E1]">
@@ -173,7 +176,7 @@ const DishCard: React.FC<DishCardProps> = ({
           {formatPriceVND(price)}
         </Text>
         <TouchableOpacity
-          className="border-[#E45834] border-2 p-2 rounded-[20px]  w-[60%] mx-auto mb-4 mt-2"
+          className="border-[#E45834] border-2 p-2 rounded-[20px]  w-[80%] mx-auto mb-4 mt-2"
           onPress={handleAddDish}
         >
           <Text className="text-[#E45834] text-center font-bold text-lg">
@@ -198,7 +201,7 @@ const DishCard: React.FC<DishCardProps> = ({
                   resizeMode="cover"
                 />
                 <View className=" ml-6">
-                  <Text className="font-bold text-2xl mb-2 text-gray-700">
+                  <Text className="font-bold text-2xl mb-2 text-gray-700 w-full">
                     {name}
                   </Text>
                   <View className="flex-row items-center">
@@ -252,7 +255,7 @@ const DishCard: React.FC<DishCardProps> = ({
           </View>
         </Modal>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

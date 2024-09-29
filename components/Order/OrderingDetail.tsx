@@ -51,6 +51,8 @@ const OrderingDetail: React.FC = () => {
   const selectedCombos = useSelector(
     (state: RootState) => state.dishes.selectedCombos
   );
+  const [isLoading, setIsLoading] = useState(true);
+
   const dishes = useSelector((state: RootState) => state.dishes.selectedDishes);
   const combos = useSelector((state: RootState) => state.dishes.selectedCombos);
 
@@ -188,12 +190,12 @@ const OrderingDetail: React.FC = () => {
           <Text className="font-bold text-lg text-gray-600">#12564878</Text>
         </View> */}
 
-        <View className="flex-row justify-between ">
-          <View>
+        <View className="flex-row justify-between w-full">
+          <View className="w-[50%]">
             <View className="flex-row mt-1 items-center">
               {/* <Text className="text-gray-600 mr-3 ml-2 font-semibold"></Text> */}
               <MaterialCommunityIcons name="account" size={20} color="gray" />
-              <Text className="text-[#EDAA16] text-lg ml-3 font-semibold">
+              <Text className="text-[#EDAA16] text-sm ml-3 font-semibold">
                 {numberOfPeople} người
               </Text>
             </View>
@@ -201,7 +203,7 @@ const OrderingDetail: React.FC = () => {
               <View className="flex-row items-center">
                 <MaterialCommunityIcons name="clock" size={20} color="gray" />
 
-                <Text className="text-[#EDAA16] text-lg ml-3 font-bold">
+                <Text className="text-[#EDAA16] text-sm ml-3 font-bold">
                   {moment.utc(startSession).format("HH:mm, DD/MM/YYYY")}
                   {/* {startSession} */}
                 </Text>
@@ -209,11 +211,11 @@ const OrderingDetail: React.FC = () => {
             )}
           </View>
           <View className="justify-between p-2">
-            <Text className="font-semibold text-gray-600 text-base">
+            <Text className="font-semibold text-gray-600 text-sm">
               Bạn đã đặt {reservationData?.result.orderDishes.length} món
             </Text>
             <TouchableOpacity onPress={handleHistoryOrder}>
-              <Text className="text-right font-bold text-base italic text-[#C01D2E]">
+              <Text className="text-right font-semibold text-base italic text-[#C01D2E]">
                 Xem
               </Text>
             </TouchableOpacity>

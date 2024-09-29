@@ -52,7 +52,7 @@ const OrderPanel: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const fullScreenWidth = Dimensions.get("window").width;
   const drawerWidth = isPanelOpen ? fullScreenWidth * 0.35 : 0; // Chiếm 30% chiều rộng màn hình
-  const listWidth = isPanelOpen ? fullScreenWidth * 0.65 : fullScreenWidth; // Chiều rộng còn lại hoặc toàn bộ
+  const listWidth = isPanelOpen ? fullScreenWidth * 0.63 : fullScreenWidth; // Chiều rộng còn lại hoặc toàn bộ
 
   const [isModalVisible, setIsModalVisible] = useState(true);
   const [orderedDishes, setOrderedDishes] = useState<Dish[]>([]);
@@ -61,6 +61,8 @@ const OrderPanel: React.FC = () => {
 
   useEffect(() => {
     const extractedDishes: Dish[] = [];
+    console.log("reservationDataNhe", reservationData);
+
     if (
       reservationData &&
       reservationData.result &&
@@ -103,7 +105,9 @@ const OrderPanel: React.FC = () => {
   }, [reservationData]);
 
   useEffect(() => {
-    if (isModalVisible) {
+    console.log("isModalVisible Nha", isModalVisible);
+
+    if (isModalVisible && orderedDishes.length > 0) {
       // Simulate data loading or preparation
       setIsLoading(true);
       // If you have actual data fetching, replace the timeout with your fetch logic
@@ -189,7 +193,7 @@ const OrderPanel: React.FC = () => {
       )}
       {isPanelOpen && <OrderDetails />}
       {/* Modal displaying the ordered dishes */}
-      <Modal visible={isModalVisible} transparent animationType="slide">
+      {/* <Modal visible={true} transparent animationType="slide">
         <View className="flex-1 justify-center p-5 bg-black/50">
           <View className="bg-white rounded-lg p-5 h-[600px]">
             <Text className="font-semibold text-xl text-center text-[#C01D2E] mb-1">
@@ -300,8 +304,8 @@ const OrderPanel: React.FC = () => {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
-      </Modal>
+        </View>0
+      </Modal> */}
     </View>
   );
 };

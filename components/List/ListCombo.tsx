@@ -35,8 +35,13 @@ const ListCombo: React.FC<ListComboProps> = ({
         setLoadingCombos(true);
         const fetchedCombos = await fetchCombos(1, comboPageSize);
         setCombos(fetchedCombos);
+        console.log(
+          "fetchedCombos.length",
+          fetchedCombos.length,
+          comboPageSize
+        );
 
-        if (fetchedCombos.length < comboPageSize) {
+        if (fetchedCombos.length <= comboPageSize) {
           setHasMoreCombos(false);
         } else {
           setHasMoreCombos(true);
@@ -90,23 +95,23 @@ const ListCombo: React.FC<ListComboProps> = ({
             COMBO:
           </Text>
           <View className="flex-row flex-wrap justify-start">
-            {filteredCombos.map((combo) => (
+            {filteredCombos?.map((combo) => (
               <View
                 className={isPanelOpen ? "w-[30%] p-1 " : "w-[20%] p-1"}
-                key={combo.comboId}
+                key={combo?.comboId}
               >
                 <ComboCard
-                  id={combo.comboId}
-                  image={combo.image}
-                  name={combo.name}
+                  id={combo?.comboId}
+                  image={combo?.image}
+                  name={combo?.name}
                   rating={combo.rating || 0} // Placeholder value
                   ratingCount={combo.ratingCount || 0} // Placeholder value
                   type={
-                    DishItemTypeTranslations[combo.category.name] ||
+                    DishItemTypeTranslations[combo?.category?.name] ||
                     "Loại không xác định"
                   }
-                  price={combo.price}
-                  description={combo.description}
+                  price={combo?.price}
+                  description={combo?.description}
                 />
               </View>
             ))}

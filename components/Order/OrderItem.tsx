@@ -120,7 +120,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
               </Text>
             </View>
             <View className="items-center">
-              <Text className="text-lg">Số lượng:</Text>
+              <Text className="text-base">Số lượng:</Text>
               <View className="flex-row items-center my-2 px-2 py-1 bg-white rounded-full">
                 <TouchableOpacity
                   onPress={handleRemoveQuantity}

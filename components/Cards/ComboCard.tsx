@@ -60,7 +60,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
         setComboDetails(data.result.combo);
         setDishCombos(data.result.dishCombo);
         const maxNum = Math.max(
-          ...data.result.dishCombo.map((item) => item.optionSetNumber)
+          ...data.result.dishCombo.map((item) => item?.optionSetNumber)
         );
         setMaxOptionSetNumber(maxNum);
       } catch (error) {
@@ -127,10 +127,10 @@ const ComboCard: React.FC<ComboCardProps> = ({
     const selectedDishesDetails = Object.entries(selectedDishes).flatMap(
       ([setId, dishIds]) => {
         return dishIds
-          .map((dishId) => {
-            const dishDetail = dishCombos.find(
-              (dish) => dish.dishCombo[0].dishComboId === dishId
-            )?.dishCombo[0].dishSizeDetail;
+          ?.map((dishId) => {
+            const dishDetail = dishCombos?.find(
+              (dish) => dish?.dishCombo[0]?.dishComboId === dishId
+            )?.dishCombo[0]?.dishSizeDetail;
 
             // Sử dụng dishId trực tiếp từ selectedDishes
             return dishDetail
@@ -244,10 +244,13 @@ const ComboCard: React.FC<ComboCardProps> = ({
   };
 
   return (
-    <View className="pt-24 m-2 overflow-hidden relative">
+    <TouchableOpacity
+      onPress={handleAddDish}
+      className="pt-24 m-2 overflow-hidden w-full relative"
+    >
       <Image
         source={typeof image === "string" ? { uri: image } : image} // Handle both local and URL images
-        className="absolute top-2 z-10 left-[20%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
+        className="absolute  top-2 z-10 left-[18%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
         resizeMode="cover"
       />
       <View className="pt-14 rounded-[16px] z-0 shadow-xl bg-[#FFF1E1]">
@@ -266,7 +269,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
           {formatPriceVND(price)}
         </Text>
         <TouchableOpacity
-          className="border-[#E45834] border-2 p-2 rounded-[20px]  w-[60%] mx-auto mb-4 mt-2"
+          className="border-[#E45834] border-2 p-2 rounded-[20px]  w-[80%] mx-auto mb-4 mt-2"
           onPress={handleAddDish}
         >
           <Text className="text-[#E45834] text-center font-bold text-lg">
@@ -293,12 +296,14 @@ const ComboCard: React.FC<ComboCardProps> = ({
                 resizeMode="cover"
               />
               <View className="flex-wrap w-1/2">
-                <Text style={{ fontSize: 24, fontWeight: "bold" }}>{name}</Text>
-                <Text className="text-gray-600 text-lg font-semibold mr-4 mb-2">
+                <Text className="font-bold text-2xl h-[50px] mb-2 text-gray-700 w-full">
+                  {name}
+                </Text>
+                <Text className="text-gray-600 text-lg font-semibold mr-4 mb-2 w-full">
                   {type} - {description}
                 </Text>
 
-                <Text className="font-bold  text-xl text-[#C01D2E] mb-4">
+                <Text className="font-bold  text-xl text-[#C01D2E] h-[40px] mb-4">
                   {formatPriceVND(price)}
                 </Text>
                 {dishCombos.length > 0 && (
@@ -344,7 +349,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
           </View>
         </View>
       </Modal>
-    </View>
+    </TouchableOpacity>
   );
 };
 
