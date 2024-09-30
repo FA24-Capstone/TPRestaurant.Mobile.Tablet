@@ -62,7 +62,7 @@ export const fetchComboById = async (
     // console.log("comboIdNe", comboId);
 
     const response = await axios.get<ComboIdApiResponse>(
-      `${API_URL}/combo/get-combo-by-id/${comboId}`,
+      `${API_URL}/combo/get-combo-by-id-ver-2/${comboId}`,
       { headers: { "Content-Type": "application/json" } }
     );
     // Log detailed response for debugging

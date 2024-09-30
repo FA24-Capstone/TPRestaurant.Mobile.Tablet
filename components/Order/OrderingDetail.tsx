@@ -45,6 +45,7 @@ const OrderingDetail: React.FC = () => {
   // console.log("reservationDataWhere", reservationData);
 
   const [note, setNote] = useState("");
+  const [noteChild, setNoteChild] = useState<{ [key: string]: string }>({});
 
   const selectedDishes = useSelector(
     (state: RootState) => state.dishes.selectedDishes
@@ -59,14 +60,13 @@ const OrderingDetail: React.FC = () => {
 
   console.log("isLoadingNha", isLoading);
 
-  const combinedOrders = [
-    ...dishes,
-    ...combos.map((combo) => ({
-      ...combo,
-      id: combo.comboId, // Normalize id for keyExtractor
-      type: "combo", // Add type for distinguishing in renderItem
-    })),
-  ];
+  // Function to update note for a specific item (dish/combo)
+  const updateNote = (id: string, value: string) => {
+    setNoteChild((prevNotes) => ({
+      ...prevNotes,
+      [id]: value,
+    }));
+  };
 
   const numberOfPeople = reservationData?.result?.order.numOfPeople || 0;
 
@@ -90,9 +90,9 @@ const OrderingDetail: React.FC = () => {
 
     const orderDetailsDtos: OrderDetailsDto[] = [
       ...selectedDishes.map((dish) => ({
-        quantity: dish.quantity,
         dishSizeDetailId: dish.selectedSizeDetail.dishSizeDetailId,
-        note: "", // Ghi chú riêng của dish
+        quantity: dish.quantity,
+        note: noteChild[dish.id] || "", // Sử dụng ghi chú riêng cho dish        dishSizeDetailId: dish.selectedSizeDetail.dishSizeDetailId,
       })),
       ...selectedCombos.map((combo) => ({
         quantity: combo.quantity,
@@ -100,45 +100,44 @@ const OrderingDetail: React.FC = () => {
           comboId: combo.comboId,
           dishComboIds: combo.selectedDishes.map((dish) => dish.id),
         },
-        note: "", // Ghi chú riêng của combo
+        note: noteChild[combo.comboId] || "", // Sử dụng ghi chú riêng cho combo
       })),
     ];
 
     const orderRequest: OrderRequest = {
-      customerId: customerId || undefined, // Tạm thời để là undefined nếu không có
+      // customerId: customerId || "", // Tạm thời để là undefined nếu không có
       orderType,
       note, // Ghi chú tổng của order
       orderDetailsDtos,
-      ...(customerId
+      ...(!customerId
         ? {
-            reservationOrder: {
-              numberOfPeople: reservationData?.result?.order.numOfPeople || 0,
-              mealTime: moment().format("YYYY-MM-DDTHH:mm:ss"), // Thời gian ăn
-              endTime: moment().add(2, "hours").format("YYYY-MM-DDTHH:mm:ss"), // Ví dụ kết thúc sau 2 giờ
-              isPrivate: false, // Có thể tuỳ chỉnh
-              deposit: 0, // Số tiền đặt cọc, nếu có
-              paymentMethod: 1, // Phương thức thanh toán
-            },
-          }
-        : {
             mealWithoutReservation: {
               numberOfPeople: 0, // Có thể chỉnh sửa tuỳ thuộc vào logic của bạn
               tableIds: [tableId], // Sử dụng tableId từ state
             },
+          }
+        : {
+            customerId: customerId,
           }),
     };
+    console.log("orderRequestNHa", JSON.stringify(orderRequest, null, 2));
 
     try {
+      console.log("currentOrder", currentOrder);
+
       // Kiểm tra currentOrder và trạng thái của nó
       if (
+        !currentOrder ||
         (!currentOrder &&
           (!reservationData || !reservationData.result.order.orderId)) || // Nếu chưa có order
         (currentOrder &&
           (currentOrder.statusId === 7 || currentOrder.statusId === 8))
       ) {
+        console.log("orderRequestVaoCreate", orderRequest);
+
         // Nếu chưa có order hoặc trạng thái là 7 hoặc 8 thì tạo order mới
         const response = await createOrderinTablet(orderRequest);
-        // console.log("responseNe", JSON.stringify(response, null, 2));
+        console.log("responseCreateNe", JSON.stringify(response, null, 2));
 
         if (response.isSuccess) {
           showSuccessMessage("Đặt món thành công!");
@@ -150,6 +149,10 @@ const OrderingDetail: React.FC = () => {
       } else {
         // Nếu đã có order và trạng thái khác 7 và 8 thì thêm món vào order
         if (currentOrder || reservationData?.result?.order.orderId) {
+          console.log(
+            "reservationData.result.order.orderId",
+            reservationData?.result.order.orderId
+          );
           const addOrderResponse = await addPrelistOrder(
             {
               orderId:
@@ -163,10 +166,10 @@ const OrderingDetail: React.FC = () => {
               ""
           );
 
-          console.log(
-            "addOrderResponseNe",
-            JSON.stringify(addOrderResponse, null, 2)
-          );
+          // console.log(
+          //   "addOrderResponseNe",
+          //   JSON.stringify(addOrderResponse, null, 2)
+          // );
 
           if (addOrderResponse.isSuccess) {
             showSuccessMessage("Thêm món thành công!");
@@ -228,7 +231,8 @@ const OrderingDetail: React.FC = () => {
             </View>
             <View className="justify-between p-2">
               <Text className="font-semibold text-gray-600 text-sm">
-                Bạn đã đặt {reservationData?.result.orderDishes.length} món
+                Bạn đã đặt {reservationData?.result?.orderDishes?.length || 0}{" "}
+                món
               </Text>
               <TouchableOpacity onPress={handleHistoryOrder}>
                 <Text className="text-right font-semibold text-base italic text-[#C01D2E]">
@@ -257,7 +261,12 @@ const OrderingDetail: React.FC = () => {
                 Xoá sạch
               </Text>
             </TouchableOpacity>
-            <OrderItemList dishes={dishes} combos={combos} />
+            <OrderItemList
+              dishes={dishes}
+              combos={combos}
+              noteChild={noteChild} // Truyền notes
+              updateNote={updateNote} // Truyền hàm cập nhật ghi chú
+            />
             <View>
               <OrderFooter note={note} setNote={setNote} />
               <TouchableOpacity

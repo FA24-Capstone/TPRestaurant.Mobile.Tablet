@@ -8,7 +8,7 @@ import { Provider as PaperProvider } from "react-native-paper";
 const HomeScreen: React.FC = () => {
   return (
     <PaperProvider>
-      {/* <MarqueeText /> */}
+      <MarqueeText />
       <ScrollView className="bg-[#FFFFFF] flex-1">
         <View className="flex-row justify-center mx-auto w-fit">
           <Text className="uppercase font-bold text-[28px] text-center my-8 pb-4 border-b-2 text-[#970C1A] border-[#970C1A]">

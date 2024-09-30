@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, TextInput } from "react-native";
 import { useDispatch } from "react-redux";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
@@ -24,9 +24,11 @@ interface DishOrder extends Omit<Dish, "dishSizeDetails"> {
 
 interface OrderItemProps {
   item: DishOrder;
+  note: string; // Thay noteChild bằng note
+  setNote: (note: string) => void; // Thay setNoteChild bằng setNote
 }
 
-const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
+const OrderItem: React.FC<OrderItemProps> = ({ item, note, setNote }) => {
   const dispatch = useDispatch();
   const translateX = useSharedValue(0);
 
@@ -96,73 +98,84 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
     <GestureDetector gesture={gesture}>
       <View className="flex-row rounded-lg overflow-hidden items-center justify-between">
         <Animated.View
-          className="flex-row bg-[#EAF0F0] w-full my-2.5 rounded-lg shadow p-2.5"
+          className=" bg-[#EAF0F0] w-full my-2.5 rounded-lg shadow p-2.5"
           style={animatedStyle}
         >
-          <Image
-            source={
-              typeof item.image === "string" ? { uri: item.image } : item.image
-            }
-            className="h-20 w-20 rounded-md mr-4"
-          />
-          <View className="flex-row justify-between w-[70%]">
-            <View className="h-[100%]">
-              <Text className="flex-1 text-lg font-semibold h-[20px] mr-2.5">
-                {item.name.length > 15
-                  ? `${item.name.substring(0, 15)}...`
-                  : item.name}
-              </Text>
-              <Text className="text-lg uppercase font-semibold text-gray-500">
-                {translateSize(item.selectedSizeDetail.dishSize.name)}
-              </Text>
-              <Text className="text-lg font-bold text-[#C01D2E]">
-                {formatPriceVND(item.price)}
-              </Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-base">Số lượng:</Text>
-              <View className="flex-row items-center my-2 px-2 py-1 bg-white rounded-full">
-                <TouchableOpacity
-                  onPress={handleRemoveQuantity}
-                  className="p-1"
-                >
-                  <MaterialCommunityIcons
-                    name="minus-circle"
-                    size={24}
-                    color="#FFB0B0"
-                  />
-                </TouchableOpacity>
-                <Text className="text-lg mx-2">{item.quantity}</Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    dispatch(
-                      addOrUpdateDish({
-                        dish: {
-                          ...item,
-                          dishSizeDetails: [item.selectedSizeDetail], // Adding required dishSizeDetails array
-                          dishItemTypeId: 0, // Placeholder value, update accordingly
-                          dishItemType: {
-                            id: 0,
-                            name: "",
-                            vietnameseName: null,
-                          }, // Placeholder value, update accordingly
-                        },
-                        selectedSizeId:
-                          item.selectedSizeDetail.dishSizeDetailId,
-                      })
-                    )
-                  }
-                  className="p-1"
-                >
-                  <MaterialCommunityIcons
-                    name="plus-circle"
-                    size={24}
-                    color="#FFB0B0"
-                  />
-                </TouchableOpacity>
+          <View className="w-full flex-row">
+            <Image
+              source={
+                typeof item.image === "string"
+                  ? { uri: item.image }
+                  : item.image
+              }
+              className="h-20 w-20 rounded-md mr-4"
+            />
+            <View className="flex-row justify-between w-[70%]">
+              <View className="h-[100%]">
+                <Text className="flex-1 text-lg font-semibold h-[20px] mr-2.5">
+                  {item.name.length > 15
+                    ? `${item.name.substring(0, 15)}...`
+                    : item.name}
+                </Text>
+                <Text className="text-lg uppercase font-semibold text-gray-500">
+                  {translateSize(item.selectedSizeDetail.dishSize.name)}
+                </Text>
+                <Text className="text-lg font-bold text-[#C01D2E]">
+                  {formatPriceVND(item.price)}
+                </Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-base">Số lượng:</Text>
+                <View className="flex-row items-center my-2 px-2 py-1 bg-white rounded-full">
+                  <TouchableOpacity
+                    onPress={handleRemoveQuantity}
+                    className="p-1"
+                  >
+                    <MaterialCommunityIcons
+                      name="minus-circle"
+                      size={24}
+                      color="#FFB0B0"
+                    />
+                  </TouchableOpacity>
+                  <Text className="text-lg mx-2">{item.quantity}</Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      dispatch(
+                        addOrUpdateDish({
+                          dish: {
+                            ...item,
+                            dishSizeDetails: [item.selectedSizeDetail], // Adding required dishSizeDetails array
+                            dishItemTypeId: 0, // Placeholder value, update accordingly
+                            dishItemType: {
+                              id: 0,
+                              name: "",
+                              vietnameseName: null,
+                            }, // Placeholder value, update accordingly
+                          },
+                          selectedSizeId:
+                            item.selectedSizeDetail.dishSizeDetailId,
+                        })
+                      )
+                    }
+                    className="p-1"
+                  >
+                    <MaterialCommunityIcons
+                      name="plus-circle"
+                      size={24}
+                      color="#FFB0B0"
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </View>
+          <TextInput
+            placeholder="Nhập ghi chú (tối đa 40 ký tự)"
+            value={note} // Sử dụng note thay vì noteChild
+            onChangeText={setNote} // Sử dụng setNote thay vì setNoteChild
+            maxLength={40}
+            className="border bg-white border-gray-300 p-2 rounded mt-4"
+          />
         </Animated.View>
         <Animated.View className="ml-5 w-14 h-14" style={animatedStyle}>
           {renderRightActions()}

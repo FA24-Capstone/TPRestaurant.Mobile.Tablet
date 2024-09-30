@@ -61,7 +61,7 @@ const OrderPanel: React.FC = () => {
 
   useEffect(() => {
     const extractedDishes: Dish[] = [];
-    console.log("reservationDataNhe", reservationData);
+    // console.log("reservationDataNhe", reservationData);
 
     if (
       reservationData &&
@@ -105,7 +105,7 @@ const OrderPanel: React.FC = () => {
   }, [reservationData]);
 
   useEffect(() => {
-    console.log("isModalVisible Nha", isModalVisible);
+    // console.log("isModalVisible Nha", isModalVisible);
 
     if (isModalVisible && orderedDishes.length > 0) {
       // Simulate data loading or preparation

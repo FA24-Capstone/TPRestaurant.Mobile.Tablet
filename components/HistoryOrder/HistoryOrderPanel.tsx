@@ -77,7 +77,10 @@ const HistoryOrderPanel: React.FC = () => {
 
   // Function to fetch order details
   const fetchOrderDetails = useCallback(async () => {
-    if (!orderId && !reservationData?.result.order.orderId) return;
+    if (!orderId && !reservationData?.result?.order?.orderId) {
+      setLoading(false); // Đặt lại loading về false
+      return;
+    }
 
     try {
       setLoading(true);
@@ -420,7 +423,7 @@ const HistoryOrderPanel: React.FC = () => {
                         <View className="flex-row flex-wrap  gap-2">
                           {modalContent.comboDishes.map((dish) => (
                             <View
-                              key={dish.dishComboId + dish.dishSizeDetailId}
+                              key={dish.dishId}
                               className="bg-white rounded-md p-2 shadow-md"
                             >
                               <Image

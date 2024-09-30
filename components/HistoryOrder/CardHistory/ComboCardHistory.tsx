@@ -54,14 +54,14 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
             </Text>
           </View>
         </View>
-        {/* <View className="mt-2 flex-row">
+        <View className="mt-2 flex-row">
           <Text className="text-gray-700 font-semibold">Ghi chú:</Text>
           <View className="ml-4">
             <Text className="text-gray-500">
-              {noteOrder || "Không có ghi chú"}
+              {combo.note || "Không có ghi chú"}
             </Text>
           </View>
-        </View> */}
+        </View>
 
         {combo.comboDishes.length > 0 && (
           <View className="p-2">

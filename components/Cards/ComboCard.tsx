@@ -51,7 +51,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
   const [maxOptionSetNumber, setMaxOptionSetNumber] = useState(0);
 
   // console.log("maxOptionSetNumber", maxOptionSetNumber);
-  // console.log("selectedDishesNe", selectedDishes);
+  // console.log("selectedDishesNe", JSON.stringify(selectedDishes, null, 2));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,14 +128,17 @@ const ComboCard: React.FC<ComboCardProps> = ({
       ([setId, dishIds]) => {
         return dishIds
           ?.map((dishId) => {
-            const dishDetail = dishCombos?.find(
-              (dish) => dish?.dishCombo[0]?.dishComboId === dishId
-            )?.dishCombo[0]?.dishSizeDetail;
+            // Find the correct dish in the entire dishCombo array
+            const dishDetail = dishCombos
+              .find((combo) => combo.optionSetNumber === parseInt(setId)) // Find the right option set
+              ?.dishCombo.find(
+                (dish) => dish.dishComboId === dishId
+              )?.dishSizeDetail;
 
-            // Sử dụng dishId trực tiếp từ selectedDishes
+            // Return the dish detail if found
             return dishDetail
               ? {
-                  id: dishId, // Sử dụng id từ selectedDishes thay vì dishDetail.dishId
+                  id: dishId, // Use dishId from selectedDishes
                   name: dishDetail.dish.name,
                   price: dishDetail.price,
                 }
@@ -144,6 +147,8 @@ const ComboCard: React.FC<ComboCardProps> = ({
           .filter((detail) => detail !== null); // Ensure no null values are included
       }
     );
+
+    // console.log("selectedDishesDetailsnhoa", selectedDishesDetails);
 
     // Prepare the order object based on the combo details and the selected dishes
     const dishComboOrder = {
@@ -163,84 +168,89 @@ const ComboCard: React.FC<ComboCardProps> = ({
   const closeModal = () => setModalVisible(false);
 
   const renderOptionSets = () => {
-    return Array.from({ length: maxOptionSetNumber }, (_, index) => (
-      <View key={index + 1} className="py-2">
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-          Bộ chọn {index + 1} (Chọn{" "}
-          {
-            dishCombos.find((combo) => combo.optionSetNumber === index + 1)
-              ?.numOfChoice
-          }{" "}
-          món):
-        </Text>
-        <FlatList
-          data={dishCombos.filter(
-            (combo) => combo.optionSetNumber === index + 1
-          )}
-          horizontal
-          renderItem={({ item }) => {
-            const isSelected = selectedDishes[index + 1]?.includes(
-              item.dishCombo[0].dishComboId
-            );
+    return Array.from({ length: maxOptionSetNumber }, (_, index) => {
+      const flattenedDishes = dishCombos
+        .filter((combo) => combo.optionSetNumber === index + 1)
+        .flatMap((item) => item.dishCombo);
 
-            return (
-              <TouchableOpacity
-                key={item.dishCombo[0].dishComboId}
-                style={{
-                  margin: 10,
-                  alignItems: "center",
-                  position: "relative",
-                }}
-                onPress={() =>
-                  handleDishSelection(index + 1, item.dishCombo[0].dishComboId)
-                }
-              >
-                <Image
-                  source={{ uri: item.dishCombo[0].dishSizeDetail.dish.image }}
-                  style={{ height: 100, width: 100, borderRadius: 10 }}
-                />
-                {isSelected && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: "rgba(255, 255, 255, 0.4)",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: 10,
-                    }}
-                  >
+      return (
+        <View key={index + 1} className="py-2">
+          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+            Bộ chọn {index + 1} (Chọn{" "}
+            {
+              dishCombos.find((combo) => combo.optionSetNumber === index + 1)
+                ?.numOfChoice
+            }{" "}
+            món):
+          </Text>
+
+          {/* Render the flattened list horizontally */}
+          <FlatList
+            data={flattenedDishes}
+            horizontal
+            renderItem={({ item: dish }) => {
+              const isSelected = selectedDishes[index + 1]?.includes(
+                dish.dishComboId
+              );
+
+              return (
+                <TouchableOpacity
+                  key={dish.dishComboId}
+                  style={{
+                    margin: 10,
+                    alignItems: "center",
+                    position: "relative",
+                  }}
+                  onPress={() =>
+                    handleDishSelection(index + 1, dish.dishComboId)
+                  }
+                >
+                  <Image
+                    source={{ uri: dish.dishSizeDetail.dish.image }}
+                    style={{ height: 100, width: 100, borderRadius: 10 }}
+                  />
+                  {isSelected && (
                     <View
                       style={{
                         position: "absolute",
-                        top: 5, // Khoảng cách so với cạnh trên
-                        // right: 5, // Khoảng cách so với cạnh phải
-                        backgroundColor: "#ffffff",
-                        padding: 5,
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(255, 255, 255, 0.4)",
+                        justifyContent: "center",
+                        alignItems: "center",
                         borderRadius: 10,
                       }}
                     >
-                      <Icon name="check" size={20} color="#C01D2E" />
+                      <View
+                        style={{
+                          position: "absolute",
+                          top: 5,
+                          backgroundColor: "#ffffff",
+                          padding: 5,
+                          borderRadius: 10,
+                        }}
+                      >
+                        <Icon name="check" size={20} color="#C01D2E" />
+                      </View>
                     </View>
-                  </View>
-                )}
-                <Text className="font-semibold text-gray-600 text-base my-1 ">
-                  {item.dishCombo[0].dishSizeDetail.dish.name}
-                </Text>
-                <Text className="font-bold text-base text-center text-[#C01D2E]">
-                  {formatPriceVND(item.dishCombo[0].dishSizeDetail.price)}
-                </Text>
-              </TouchableOpacity>
-            );
-          }}
-          keyExtractor={(item) => item.dishCombo[0].dishComboId}
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
-    ));
+                  )}
+                  <Text className="font-semibold text-gray-600 text-base my-1 ">
+                    {dish.dishSizeDetail.dish.name}
+                  </Text>
+                  <Text className="font-bold text-base text-center text-[#C01D2E]">
+                    {formatPriceVND(dish.dishSizeDetail.price)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            }}
+            keyExtractor={(item) => item.dishComboId}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+      );
+    });
   };
 
   return (

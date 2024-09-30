@@ -46,6 +46,8 @@ const dishesSlice = createSlice({
 
   reducers: {
     addOrUpdateCombo: (state, action: PayloadAction<ComboOrder>) => {
+      // console.log("stateSelec", state.selectedCombos);
+
       const index = state.selectedCombos.findIndex(
         (combo) => combo.comboId === action.payload.comboId
       );

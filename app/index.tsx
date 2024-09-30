@@ -33,6 +33,7 @@ import {
   showSuccessMessage,
 } from "@/components/FlashMessageHelpers";
 import { AppDispatch } from "@/redux/store";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -57,6 +58,7 @@ const App = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [phoneNumberOrder, setPhoneNumberOrder] = useState<string>("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   console.log("tableIdNe:", tableId);
 
@@ -80,7 +82,8 @@ const App = () => {
         dispatch(
           fetchReservationWithTime({
             tableId,
-            time: "2024-09-28 23:10:44.3000000",
+            // time: "2024-09-28 23:10:44.3000000",
+            time: now,
           })
         );
       }
@@ -109,13 +112,20 @@ const App = () => {
   }, [reservationData, tableName]);
 
   const handleStartExploring = () => {
-    if (reservationText !== "" || reservationText !== null) {
-      setModalVisible(true);
-    } else {
-      // setModalVisible(true);
-      router.push("/home-screen");
-    }
+    setIsLoading(true);
   };
+
+  useEffect(() => {
+    if (isLoading) {
+      if (reservationText) {
+        setIsLoading(false);
+        setModalVisible(true);
+      } else {
+        setIsLoading(false);
+        router.push("/home-screen");
+      }
+    }
+  }, [isLoading, reservationText, router]);
 
   const isLandscape = width > height;
 
@@ -146,131 +156,138 @@ const App = () => {
   const isDisabled = !phoneNumber || phoneError !== null;
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <ImageBackground
-        source={beachImage}
-        resizeMode="cover"
-        style={{ flex: 1, width: "100%", height: "100%" }}
-      >
-        <AppGradient colors={["rgba(0,0,0,0.4)", "rgba(0,0,0,0.8)"]}>
-          <SafeAreaView className="flex flex-1 px-1 justify-between">
-            <Animated.View
-              entering={FadeInDown.delay(300)
-                .mass(0.5)
-                .stiffness(80)
-                .springify(20)}
-            >
-              <Text className="text-center text-white font-bold text-4xl">
-                Nhà Hàng Thiên Phú Xin Kinh Chào Quý Khách!
-              </Text>
-              <Text className="text-center text-white font-regular text-2xl mt-3">
-                Đến đây để thưởng thức những điều tuyệt vời nhất
-              </Text>
-            </Animated.View>
+    <>
+      {isLoading && (
+        <View>
+          <LoadingOverlay visible={isLoading} />
+        </View>
+      )}
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ImageBackground
+          source={beachImage}
+          resizeMode="cover"
+          style={{ flex: 1, width: "100%", height: "100%" }}
+        >
+          <AppGradient colors={["rgba(0,0,0,0.4)", "rgba(0,0,0,0.8)"]}>
+            <SafeAreaView className="flex flex-1 px-1 justify-between">
+              <Animated.View
+                entering={FadeInDown.delay(300)
+                  .mass(0.5)
+                  .stiffness(80)
+                  .springify(20)}
+              >
+                <Text className="text-center text-white font-bold text-4xl">
+                  Nhà Hàng Thiên Phú Xin Kinh Chào Quý Khách!
+                </Text>
+                <Text className="text-center text-white font-regular text-2xl mt-3">
+                  Đến đây để thưởng thức những điều tuyệt vời nhất
+                </Text>
+              </Animated.View>
 
-            <Animated.View
-              entering={FadeInDown.delay(300)
-                .mass(0.5)
-                .stiffness(80)
-                .springify(20)}
-            >
-              <CustomButton
-                onPress={handleStartExploring}
-                title="BẮT ĐẦU KHÁM PHÁ"
-              />
-            </Animated.View>
+              <Animated.View
+                entering={FadeInDown.delay(300)
+                  .mass(0.5)
+                  .stiffness(80)
+                  .springify(20)}
+              >
+                <CustomButton
+                  onPress={handleStartExploring}
+                  title="BẮT ĐẦU KHÁM PHÁ"
+                />
+              </Animated.View>
 
-            <StatusBar style="light" />
-          </SafeAreaView>
+              <StatusBar style="light" />
+            </SafeAreaView>
 
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-          >
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                zIndex: 100,
-              }}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
             >
               <View
                 style={{
-                  width: width * 0.8,
-                  backgroundColor: "white",
-                  borderRadius: 20,
-                  padding: 20,
+                  flex: 1,
+                  justifyContent: "center",
                   alignItems: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  zIndex: 100,
                 }}
               >
-                <Text className="text-center mb-6 mt-2 font-bold text-2xl text-yellow-700">
-                  THÔNG BÁO BÀN ĐÃ ĐƯỢC ĐẶT
-                </Text>
-                <Text
+                <View
                   style={{
-                    fontSize: 20,
-                    fontWeight: 500,
-                    marginBottom: 40,
-                    textAlign: "center",
+                    width: width * 0.8,
+                    backgroundColor: "white",
+                    borderRadius: 20,
+                    padding: 20,
+                    alignItems: "center",
                   }}
                 >
-                  {reservationText}
-                </Text>
-                <View className="flex-row  items-center mx-auto">
-                  <Text className=" text-2xl mr-4 mb-2 text-[#C01D2E]">
-                    +84
+                  <Text className="text-center mb-6 mt-2 font-bold text-2xl text-yellow-700">
+                    THÔNG BÁO BÀN ĐÃ ĐƯỢC ĐẶT
                   </Text>
-                  <View>
-                    <TextInput
-                      placeholder="Nhập số điện thoại"
-                      value={phoneNumber}
-                      onChangeText={(text) => {
-                        setPhoneNumber(text);
-                      }}
-                      keyboardType="phone-pad"
-                      maxLength={10}
-                      style={{
-                        width: 250,
-                        height: 45,
-                        borderColor: phoneError ? "red" : "gray",
-                        borderWidth: 1,
-                        marginBottom: 5,
-                        paddingHorizontal: 10,
-                        borderRadius: 10,
-                        fontSize: 24,
-                        color: "#C01D2E",
-                      }}
-                    />
-                  </View>
-                </View>
-                {phoneError && (
                   <Text
-                    style={{ color: "red", marginBottom: 20 }}
-                    className="no-wrap"
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 500,
+                      marginBottom: 40,
+                      textAlign: "center",
+                    }}
                   >
-                    {phoneError}
+                    {reservationText}
                   </Text>
-                )}
-                <TouchableOpacity
-                  className={`my-2 w-[200px] p-2 rounded-lg ${
-                    isDisabled ? "bg-[#8B4513]" : "bg-[#C01D2E]"
-                  }`}
-                  onPress={handleConfirmPhoneNumber}
-                  disabled={isDisabled}
-                >
-                  <Text className="text-white text-center font-semibold text-lg uppercase">
-                    Xác nhận
-                  </Text>
-                </TouchableOpacity>
+                  <View className="flex-row  items-center mx-auto">
+                    <Text className=" text-2xl mr-4 mb-2 text-[#C01D2E]">
+                      +84
+                    </Text>
+                    <View>
+                      <TextInput
+                        placeholder="Nhập số điện thoại"
+                        value={phoneNumber}
+                        onChangeText={(text) => {
+                          setPhoneNumber(text);
+                        }}
+                        keyboardType="phone-pad"
+                        maxLength={10}
+                        style={{
+                          width: 250,
+                          height: 45,
+                          borderColor: phoneError ? "red" : "gray",
+                          borderWidth: 1,
+                          marginBottom: 5,
+                          paddingHorizontal: 10,
+                          borderRadius: 10,
+                          fontSize: 24,
+                          color: "#C01D2E",
+                        }}
+                      />
+                    </View>
+                  </View>
+                  {phoneError && (
+                    <Text
+                      style={{ color: "red", marginBottom: 20 }}
+                      className="no-wrap"
+                    >
+                      {phoneError}
+                    </Text>
+                  )}
+                  <TouchableOpacity
+                    className={`my-2 w-[200px] p-2 rounded-lg ${
+                      isDisabled ? "bg-[#8B4513]" : "bg-[#C01D2E]"
+                    }`}
+                    onPress={handleConfirmPhoneNumber}
+                    disabled={isDisabled}
+                  >
+                    <Text className="text-white text-center font-semibold text-lg uppercase">
+                      Xác nhận
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </Modal>
-        </AppGradient>
-      </ImageBackground>
-    </View>
+            </Modal>
+          </AppGradient>
+        </ImageBackground>
+      </View>
+    </>
   );
 };
 

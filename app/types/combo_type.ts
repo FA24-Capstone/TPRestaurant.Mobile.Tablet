@@ -2,6 +2,8 @@ export interface ComboApiData {
   combo: Combo;
   dishCombo: DishCombo[];
   imgs: string[];
+  comboRatings: any[];
+  dishTags: DishTag[];
 }
 export interface ComboIdApiResponse {
   result: ComboApiData;
@@ -23,7 +25,23 @@ export interface Combo {
   numberOfRating?: number;
   rating?: number;
   ratingCount?: number;
+  quantityLeft?: any;
+  dailyCountdown?: number;
   totalOptionSets?: number; // Assuming this is an integer
+}
+
+export interface DishTag {
+  dishTagId: string;
+  dishId: any;
+  dish: any;
+  comboId: string;
+  combo: any;
+  tagId: string;
+  tag: Tag;
+}
+export interface Tag {
+  tagId: string;
+  name: string;
 }
 
 export interface Category {
@@ -86,6 +104,8 @@ export interface DishSizeDetail {
   dish: Dish;
   dishSizeId: number;
   dishSize: DishSize;
+  quantityLeft: any;
+  dailyCountdown: number;
 }
 
 export interface DishSize {
