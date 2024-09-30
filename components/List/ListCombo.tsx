@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import ComboCard from "../Cards/ComboCard";
 import { ActivityIndicator } from "react-native";
+import LoadingOverlay from "../LoadingOverlay";
 
 interface ListComboProps {
   isPanelOpen: boolean;
@@ -88,54 +89,60 @@ const ListCombo: React.FC<ListComboProps> = ({
   });
 
   return (
-    <View>
-      {filteredCombos.length > 0 && (
-        <>
-          <Text className="text-xl font-bold ml-8 text-[#970C1A] uppercase">
-            COMBO:
-          </Text>
-          <View className="flex-row flex-wrap justify-start">
-            {filteredCombos?.map((combo) => (
-              <View
-                className={isPanelOpen ? "w-[30%] p-1 " : "w-[20%] p-1"}
-                key={combo?.comboId}
-              >
-                <ComboCard
-                  id={combo?.comboId}
-                  image={combo?.image}
-                  name={combo?.name}
-                  rating={combo.rating || 0} // Placeholder value
-                  ratingCount={combo.ratingCount || 0} // Placeholder value
-                  type={
-                    DishItemTypeTranslations[combo?.category?.name] ||
-                    "Loại không xác định"
-                  }
-                  price={combo?.price}
-                  description={combo?.description}
-                />
-              </View>
-            ))}
-          </View>
-        </>
-      )}
-
-      {filteredCombos.length > 0 && hasMoreCombos && (
-        <View className="flex-row justify-center m-4">
-          {loadingMoreCombos ? (
-            <ActivityIndicator size="large" color="#A31927" />
-          ) : (
-            <TouchableOpacity
-              className="bg-[#970C1A] p-2 rounded-lg w-[140px]"
-              onPress={loadMoreCombos}
-            >
-              <Text className="text-center text-white font-semibold">
-                Xem thêm
+    <>
+      {loadingCombos ? (
+        <LoadingOverlay visible={loadingCombos} />
+      ) : (
+        <View>
+          {filteredCombos.length > 0 && (
+            <>
+              <Text className="text-xl font-bold ml-8 text-[#970C1A] uppercase">
+                COMBO:
               </Text>
-            </TouchableOpacity>
+              <View className="flex-row flex-wrap justify-start">
+                {filteredCombos?.map((combo) => (
+                  <View
+                    className={isPanelOpen ? "w-[30%] p-1 " : "w-[20%] p-1"}
+                    key={combo?.comboId}
+                  >
+                    <ComboCard
+                      id={combo?.comboId}
+                      image={combo?.image}
+                      name={combo?.name}
+                      rating={combo.rating || 0} // Placeholder value
+                      ratingCount={combo.ratingCount || 0} // Placeholder value
+                      type={
+                        DishItemTypeTranslations[combo?.category?.name] ||
+                        "Loại không xác định"
+                      }
+                      price={combo?.price}
+                      description={combo?.description}
+                    />
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
+
+          {filteredCombos.length > 0 && hasMoreCombos && (
+            <View className="flex-row justify-center m-4">
+              {loadingMoreCombos ? (
+                <ActivityIndicator size="large" color="#A31927" />
+              ) : (
+                <TouchableOpacity
+                  className="bg-[#970C1A] p-2 rounded-lg w-[140px]"
+                  onPress={loadMoreCombos}
+                >
+                  <Text className="text-center text-white font-semibold">
+                    Xem thêm
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
         </View>
       )}
-    </View>
+    </>
   );
 };
 

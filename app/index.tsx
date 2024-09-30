@@ -21,7 +21,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-import beachImage from "@/assets/meditation-images/bg-restaurant.jpeg";
+const beachImage = require("@/assets/meditation-images/bg-restaurant.jpeg");
 import { NativeWindStyleSheet } from "nativewind";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
