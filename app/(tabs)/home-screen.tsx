@@ -22,7 +22,7 @@ const HomeScreen: React.FC = () => {
           </View>
           <View className="w-[45%] shadow-xl rounded-xl">
             <Image
-              source={require("@/assets/banner/Tutorial.png")}
+              source={require("@/assets/banner/Tutorial.jpeg")}
               className="w-full h-[330px] rounded-xl shadow-xl"
               resizeMode="cover"
             />

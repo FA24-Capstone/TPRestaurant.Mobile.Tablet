@@ -33,19 +33,19 @@ const FeedbackPanel: React.FC = () => {
     {
       id: 1,
       label: "Rất tệ",
-      image: require("../../assets/Icons/very_bad.png"),
+      image: require("../../assets/Icons/very_bad.jpeg"),
     },
-    { id: 2, label: "Tệ", image: require("../../assets/Icons/poor.png") },
+    { id: 2, label: "Tệ", image: require("../../assets/Icons/poor.jpeg") },
     {
       id: 3,
       label: "Cũng được",
-      image: require("../../assets/Icons/medium.png"),
+      image: require("../../assets/Icons/medium.jpeg"),
     },
-    { id: 4, label: "Tốt", image: require("../../assets/Icons/good.png") },
+    { id: 4, label: "Tốt", image: require("../../assets/Icons/good.jpeg") },
     {
       id: 5,
       label: "Rất tốt",
-      image: require("../../assets/Icons/excellent.png"),
+      image: require("../../assets/Icons/excellent.jpeg"),
     },
   ];
 

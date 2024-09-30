@@ -4,32 +4,40 @@
     "slug": "my-app",
     "version": "1.0.0",
     "orientation": "landscape",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon.jpeg",
     "scheme": "simplemeditation",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/simpleMeditationLogo.png",
+      "image": "./assets/simpleMeditationLogo.jpeg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "jsEngine": "hermes",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hongquan0312.myapp"
     },
     "android": {
+      "enablePngCrunchInReleaseBuilds": false,
       "jsEngine": "hermes",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/adaptive-icon.jpeg",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.hongquan0312.myapp"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.jpeg"
     },
     "expo": {
       "jsEngine": "jsc"
     },
-    "plugins": ["expo-router", "expo-font"]
+    "plugins": ["expo-router", "expo-font"],
+    "extra": {
+      "eas": {
+        "projectId": "205b5c77-6e4f-42b3-a719-433ed00567e6"
+      }
+    }
   }
 }

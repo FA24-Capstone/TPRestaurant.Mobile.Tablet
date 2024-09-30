@@ -224,7 +224,7 @@ const OrderingDetail: React.FC = () => {
       {selectedDishes.length === 0 && selectedCombos.length === 0 ? (
         <View className="flex-1 justify-center items-center">
           <Image
-            source={require("../../assets/Icons/NoProduct.png")}
+            source={require("../../assets/Icons/NoProduct.jpeg")}
             className="w-40 h-40"
             resizeMode="contain"
           />

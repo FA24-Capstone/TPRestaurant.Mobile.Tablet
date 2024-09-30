@@ -86,7 +86,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
       className="bg-[#C01D2E] justify-center items-center rounded-md px-6 h-full"
     >
       <Image
-        source={require("../../assets/Icons/Trash.png")}
+        source={require("../../assets/Icons/Trash.jpeg")}
         className="w-6 h-6"
       />
     </TouchableOpacity>
