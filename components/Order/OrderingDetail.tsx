@@ -16,6 +16,7 @@ import { Combo } from "@/app/types/combo_type";
 import { addOrder } from "@/redux/slices/ordersSlice";
 import { useNavigation } from "expo-router";
 import { StackNavigationProp } from "@react-navigation/stack";
+import LoadingOverlay from "../LoadingOverlay";
 
 type RootStackParamList = {
   "history-order": undefined; // Add this line
@@ -51,10 +52,12 @@ const OrderingDetail: React.FC = () => {
   const selectedCombos = useSelector(
     (state: RootState) => state.dishes.selectedCombos
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const dishes = useSelector((state: RootState) => state.dishes.selectedDishes);
   const combos = useSelector((state: RootState) => state.dishes.selectedCombos);
+
+  console.log("isLoadingNha", isLoading);
 
   const combinedOrders = [
     ...dishes,
@@ -72,8 +75,13 @@ const OrderingDetail: React.FC = () => {
   };
 
   const handleOrderNow = async () => {
+    if (isLoading) return; // Ngăn chặn gọi lại nếu đang loading
+
+    setIsLoading(true); // Bắt đầu loading
+
     if (!tableId) {
       showErrorMessage("Mã bàn không được tìm thấy.");
+      setIsLoading(false);
       return;
     }
 
@@ -172,6 +180,8 @@ const OrderingDetail: React.FC = () => {
     } catch (error) {
       showErrorMessage("Xử lý thất bại. Vui lòng thử lại!");
       console.error("Failed to process order:", error);
+    } finally {
+      setIsLoading(false); // Kết thúc loading
     }
   };
 
@@ -181,81 +191,89 @@ const OrderingDetail: React.FC = () => {
   };
 
   return (
-    <View className="flex-1 px-2 bg-white">
-      <View className="border-b border-gray-400 pb-4">
-        {/* <View className="flex-row justify-between items-center">
+    <>
+      {isLoading && (
+        <View>
+          <LoadingOverlay visible={isLoading} />
+        </View>
+      )}
+      <View className="flex-1 px-2 bg-white">
+        <View className="border-b border-gray-400 pb-4">
+          {/* <View className="flex-row justify-between items-center">
           <Text className="text-lg font-bold mb-1 text-gray-600">
             MÃ ĐƠN ĐẶT MÓN :
           </Text>
           <Text className="font-bold text-lg text-gray-600">#12564878</Text>
         </View> */}
 
-        <View className="flex-row justify-between w-full">
-          <View className="w-[50%]">
-            <View className="flex-row mt-1 items-center">
-              {/* <Text className="text-gray-600 mr-3 ml-2 font-semibold"></Text> */}
-              <MaterialCommunityIcons name="account" size={20} color="gray" />
-              <Text className="text-[#EDAA16] text-sm ml-3 font-semibold">
-                {numberOfPeople} người
-              </Text>
-            </View>
-            {startSession && (
-              <View className="flex-row items-center">
-                <MaterialCommunityIcons name="clock" size={20} color="gray" />
-
-                <Text className="text-[#EDAA16] text-sm ml-3 font-bold">
-                  {moment.utc(startSession).format("HH:mm, DD/MM/YYYY")}
-                  {/* {startSession} */}
+          <View className="flex-row justify-between w-full">
+            <View className="w-[50%]">
+              <View className="flex-row mt-1 items-center">
+                {/* <Text className="text-gray-600 mr-3 ml-2 font-semibold"></Text> */}
+                <MaterialCommunityIcons name="account" size={20} color="gray" />
+                <Text className="text-[#EDAA16] text-sm ml-3 font-semibold">
+                  {numberOfPeople} người
                 </Text>
               </View>
-            )}
-          </View>
-          <View className="justify-between p-2">
-            <Text className="font-semibold text-gray-600 text-sm">
-              Bạn đã đặt {reservationData?.result.orderDishes.length} món
-            </Text>
-            <TouchableOpacity onPress={handleHistoryOrder}>
-              <Text className="text-right font-semibold text-base italic text-[#C01D2E]">
-                Xem
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+              {startSession && (
+                <View className="flex-row items-center">
+                  <MaterialCommunityIcons name="clock" size={20} color="gray" />
 
-      {selectedDishes.length === 0 && selectedCombos.length === 0 ? (
-        <View className="flex-1 justify-center items-center">
-          <Image
-            source={require("../../assets/Icons/NoProduct.jpeg")}
-            className="w-40 h-40"
-            resizeMode="contain"
-          />
-          <Text className="text-gray-400 font-medium text-xl text-center my-6 w-3/5 uppercase">
-            HIỆN TẠI CHƯA CÓ MÓN NÀO ĐƯỢC CHỌN
-          </Text>
-        </View>
-      ) : (
-        <View className="flex-1">
-          <TouchableOpacity onPress={handleClearAll}>
-            <Text className="italic text-right text-[#E45834] my-1 font-semibold">
-              Xoá sạch
-            </Text>
-          </TouchableOpacity>
-          <OrderItemList dishes={dishes} combos={combos} />
-          <View>
-            <OrderFooter note={note} setNote={setNote} />
-            <TouchableOpacity
-              onPress={handleOrderNow}
-              className="bg-[#C01D2E] p-3 rounded-md"
-            >
-              <Text className="text-white text-center text-lg font-bold uppercase">
-                Đặt món ngay
+                  <Text className="text-[#EDAA16] text-sm ml-3 font-bold">
+                    {moment.utc(startSession).format("HH:mm, DD/MM/YYYY")}
+                    {/* {startSession} */}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View className="justify-between p-2">
+              <Text className="font-semibold text-gray-600 text-sm">
+                Bạn đã đặt {reservationData?.result.orderDishes.length} món
               </Text>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handleHistoryOrder}>
+                <Text className="text-right font-semibold text-base italic text-[#C01D2E]">
+                  Xem
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      )}
-    </View>
+
+        {selectedDishes.length === 0 && selectedCombos.length === 0 ? (
+          <View className="flex-1 justify-center items-center overflow-hidden">
+            <Image
+              source={require("../../assets/Icons/NoProduct.jpeg")}
+              className="w-40 h-40"
+              resizeMode="contain"
+            />
+            <Text className="text-gray-400 font-medium text-xl text-center my-6 w-3/5 uppercase">
+              HIỆN TẠI CHƯA CÓ MÓN NÀO ĐƯỢC CHỌN
+            </Text>
+          </View>
+        ) : (
+          <View className="flex-1">
+            <TouchableOpacity onPress={handleClearAll}>
+              <Text className="italic text-right text-[#E45834] my-1 font-semibold">
+                Xoá sạch
+              </Text>
+            </TouchableOpacity>
+            <OrderItemList dishes={dishes} combos={combos} />
+            <View>
+              <OrderFooter note={note} setNote={setNote} />
+              <TouchableOpacity
+                onPress={handleOrderNow}
+                className="bg-[#C01D2E] p-3 rounded-md"
+                disabled={isLoading} // Vô hiệu hóa nút khi loading
+              >
+                <Text className="text-white text-center text-lg font-bold uppercase">
+                  Đặt món ngay
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </View>
+    </>
   );
 };
 

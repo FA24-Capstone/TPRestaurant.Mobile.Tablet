@@ -3,6 +3,7 @@ import { Dish } from "@/app/types/dishes_type";
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import DishCard from "../Cards/DishCard";
+import LoadingOverlay from "../LoadingOverlay";
 
 interface ListDishesProps {
   isPanelOpen: boolean;
@@ -83,54 +84,60 @@ const ListDishes: React.FC<ListDishesProps> = ({
   });
 
   return (
-    <View>
-      {filteredDishes.length > 0 && (
-        <>
-          <Text className="text-xl font-bold ml-8 text-[#970C1A] uppercase">
-            Món lẻ:
-          </Text>
-          <View className="flex-row flex-wrap justify-start">
-            {filteredDishes.map((dish) => (
-              <View
-                className={isPanelOpen ? "w-[30%] p-1 " : "w-[20%] p-1"}
-                key={dish.id}
-              >
-                <DishCard
-                  id={dish.id}
-                  image={dish.image}
-                  name={dish.name}
-                  rating={dish.rating || 0}
-                  ratingCount={dish.ratingCount || 0}
-                  type={
-                    DishItemTypeTranslations[dish.dishItemType.name] ||
-                    "Loại không xác định"
-                  }
-                  price={dish.price}
-                  description={dish.description}
-                  dishSizeDetails={dish.dishSizeDetails}
-                />
-              </View>
-            ))}
-          </View>
-        </>
-      )}
-      {filteredDishes.length > 0 && hasMore && (
-        <View className="flex-row justify-center m-4">
-          {loadingMore ? (
-            <ActivityIndicator size="large" color="#A31927" />
-          ) : (
-            <TouchableOpacity
-              className="bg-[#970C1A] p-2 rounded-lg w-[140px]"
-              onPress={loadMoreDishes}
-            >
-              <Text className="text-center text-white font-semibold">
-                Xem thêm
+    <>
+      {loading ? (
+        <LoadingOverlay visible={loading} />
+      ) : (
+        <View>
+          {filteredDishes.length > 0 && (
+            <>
+              <Text className="text-xl font-bold ml-8 text-[#970C1A] uppercase">
+                Món lẻ:
               </Text>
-            </TouchableOpacity>
+              <View className="flex-row flex-wrap justify-start">
+                {filteredDishes.map((dish) => (
+                  <View
+                    className={isPanelOpen ? "w-[30%] p-1 " : "w-[20%] p-1"}
+                    key={dish.id}
+                  >
+                    <DishCard
+                      id={dish.id}
+                      image={dish.image}
+                      name={dish.name}
+                      rating={dish.rating || 0}
+                      ratingCount={dish.ratingCount || 0}
+                      type={
+                        DishItemTypeTranslations[dish.dishItemType.name] ||
+                        "Loại không xác định"
+                      }
+                      price={dish.price}
+                      description={dish.description}
+                      dishSizeDetails={dish.dishSizeDetails}
+                    />
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
+          {filteredDishes.length > 0 && hasMore && (
+            <View className="flex-row justify-center m-4">
+              {loadingMore ? (
+                <ActivityIndicator size="large" color="#A31927" />
+              ) : (
+                <TouchableOpacity
+                  className="bg-[#970C1A] p-2 rounded-lg w-[140px]"
+                  onPress={loadMoreDishes}
+                >
+                  <Text className="text-center text-white font-semibold">
+                    Xem thêm
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
         </View>
       )}
-    </View>
+    </>
   );
 };
 

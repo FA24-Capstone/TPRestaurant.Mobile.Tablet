@@ -6,7 +6,7 @@ import { View, Text } from "react-native";
 const HistoryOrder: React.FC = () => {
   return (
     <View className="flex-1">
-      <MarqueeText />
+      {/* <MarqueeText /> */}
       <HistoryOrderPanel />
     </View>
   );

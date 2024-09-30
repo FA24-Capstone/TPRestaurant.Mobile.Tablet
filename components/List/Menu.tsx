@@ -128,7 +128,7 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
 
   return (
     <View className="flex-1 bg-[#F9F9F9]">
-      <MarqueeText />
+      {/* <MarqueeText /> */}
       <View className="p-4 mx-2">
         <View className="flex-row items-center justify-between mx-2 mb-4 mt-2">
           <Text className="text-[25px] font-bold uppercase pb-2 border-b-2 text-[#970C1A] border-[#970C1A]">

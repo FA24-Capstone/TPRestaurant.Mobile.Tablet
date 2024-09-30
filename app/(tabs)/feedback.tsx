@@ -6,7 +6,7 @@ import { View, Text } from "react-native";
 const Feedback = () => {
   return (
     <View className="flex-1">
-      <MarqueeText />
+      {/* <MarqueeText /> */}
       <FeedbackPanel />
     </View>
   );

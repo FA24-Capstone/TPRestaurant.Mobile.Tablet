@@ -11,7 +11,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   setSearchQuery,
 }) => {
   return (
-    <View className="flex-row items-center w-[300px] bg-gray-200 rounded-lg p-2">
+    <View className="flex-row items-center w-[40%] bg-gray-200 rounded-lg p-2">
       <TextInput
         placeholder="Tìm món ăn..."
         className="flex-1"
