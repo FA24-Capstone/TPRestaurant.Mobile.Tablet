@@ -1,7 +1,7 @@
 // import { ComboOrder } from "@/app/types/order_type";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, TextInput } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedStyle,
@@ -35,8 +35,14 @@ export interface ComboOrder {
 
 interface ComboOrderItemProps {
   item: ComboOrder;
+  note: string; // Thay noteChild bằng note
+  setNote: (note: string) => void; // Thay setNoteChild bằng setNote
 }
-const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
+const ComboOrderItem: React.FC<ComboOrderItemProps> = ({
+  item,
+  note,
+  setNote,
+}) => {
   const dispatch = useDispatch();
   const translateX = useSharedValue(0);
 
@@ -83,14 +89,16 @@ const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
     </TouchableOpacity>
   );
 
+  // console.log("item.selectedDishes", item.selectedDishes);
+
   return (
     <GestureDetector gesture={gesture}>
       <View className="flex-row rounded-lg overflow-hidden items-center justify-between">
         <Animated.View
-          className="flex-row bg-[#EAF0F0] w-full my-2.5 rounded-lg shadow p-2.5"
+          className=" bg-[#EAF0F0] w-full my-2.5 rounded-lg shadow p-2.5"
           style={animatedStyle}
         >
-          <View className="flex-row">
+          <View className="flex-row w-full">
             <Image
               source={
                 typeof item.comboImage === "string"
@@ -142,6 +150,13 @@ const ComboOrderItem: React.FC<ComboOrderItemProps> = ({ item }) => {
               </View>
             </View>
           </View>
+          <TextInput
+            placeholder="Nhập ghi chú (tối đa 40 ký tự)"
+            value={note} // Sử dụng note thay vì noteChild
+            onChangeText={setNote} // Sử dụng setNote thay vì setNoteChild
+            maxLength={40}
+            className="border bg-white border-gray-300 p-2 rounded mt-4"
+          />
         </Animated.View>
         <Animated.View className="ml-5 w-14 h-14" style={animatedStyle}>
           {renderRightActions()}

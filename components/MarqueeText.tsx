@@ -35,7 +35,8 @@ const MarqueeText = () => {
           await dispatch(
             fetchReservationWithTime({
               tableId,
-              time: "2024-09-28 23:10:44.3000000",
+              // time: "2024-09-28 23:10:44.3000000",
+              time: now,
             })
           );
           // Sau khi fetch xong, đánh dấu đã fetch
@@ -72,13 +73,13 @@ const MarqueeText = () => {
         const newPosition = prevPosition + 2;
 
         // Khi cuộn hết văn bản, đặt lại vị trí cuộn
-        if (newPosition > width + 2000) {
+        if (newPosition > width + 1500) {
           return 0; // Đặt lại về vị trí bắt đầu
         }
 
         return newPosition;
       });
-    }, 1); // tốc độ cuộn, có thể thay đổi giá trị này để tăng/giảm tốc độ
+    }, 16); // tốc độ cuộn, có thể thay đổi giá trị này để tăng/giảm tốc độ
 
     return () => {
       if (scrollInterval.current) {
