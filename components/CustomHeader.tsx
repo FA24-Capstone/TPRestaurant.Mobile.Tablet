@@ -87,7 +87,6 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
 
         <View
           style={{
-            width: 80,
             height: 40,
             borderRadius: 20,
             backgroundColor: "#EDAA16", // Placeholder for avatar
@@ -95,7 +94,10 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
             alignItems: "center",
           }}
         >
-          <Text style={{ fontSize: 18, color: "#fff", fontWeight: 700 }}>
+          <Text
+            style={{ fontSize: 18, color: "#fff", fontWeight: 700 }}
+            className="p-2"
+          >
             {tableName}
           </Text>
         </View>

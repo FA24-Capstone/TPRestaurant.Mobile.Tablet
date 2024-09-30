@@ -36,7 +36,7 @@ const ListDishes: React.FC<ListDishesProps> = ({
         const fetchedDishes = await fetchDishes(1, pageSize);
         setDishes(fetchedDishes);
 
-        if (fetchedDishes.length < pageSize) {
+        if (fetchedDishes.length <= pageSize) {
           setHasMore(false);
         } else {
           setHasMore(true);

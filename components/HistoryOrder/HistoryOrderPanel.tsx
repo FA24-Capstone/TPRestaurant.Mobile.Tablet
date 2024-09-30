@@ -39,7 +39,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 const { width } = Dimensions.get("window");
 const numColumns = 4;
 const spacing = 8; // Margin on each side
-const itemWidth = (width - (numColumns + 1) * spacing) / numColumns;
+const itemWidth = (width - 21 - (numColumns + 1) * spacing) / numColumns;
 
 type RootStackParamList = {
   "list-dish": undefined; // Add this line
@@ -253,7 +253,7 @@ const HistoryOrderPanel: React.FC = () => {
                   if (item.empty) {
                     return `empty-${index}`; // Assign unique keys for empty items
                   }
-                  return item.orderDetailsId || `dish-${index}`; // Use `orderDetailsId` or fallback to index
+                  return `${item.orderDetailsId}-dish-${index}`; // Use `orderDetailsId` or fallback to index
                 }}
                 data={dataDishWithEmptySpaces}
                 renderItem={({ item }) => {
@@ -322,7 +322,7 @@ const HistoryOrderPanel: React.FC = () => {
                   if (item.empty) {
                     return `empty-${index}`; // Assign unique keys for empty items
                   }
-                  return item.orderDetailsId || `combo-${index}`; // Use `orderDetailsId` or fallback to index
+                  return `${item.orderDetailsId}-combo-${index}`; // Use `orderDetailsId` or fallback to index
                 }}
                 numColumns={numColumns}
                 scrollEnabled={false}

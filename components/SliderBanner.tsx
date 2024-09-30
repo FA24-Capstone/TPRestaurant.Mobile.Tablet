@@ -47,12 +47,14 @@ const SliderBanner = () => {
   }, [activeIndex]);
 
   const renderItem = ({ item }: { item: DataItem }) => (
-    <Surface className="w-[615px] overflow-hidden border-md shadow-lg items-center rounded-lg mx-3 ">
-      <Image
-        source={item.image} // Sử dụng nguồn hình ảnh đã được yêu cầu
-        className="w-full h-[300px]"
-        resizeMode="cover"
-      />
+    <Surface style={{ elevation: 4, borderRadius: 10, marginHorizontal: 10 }}>
+      <View style={{ overflow: "hidden", borderRadius: 10 }}>
+        <Image
+          source={item.image}
+          style={{ width: 615, height: 300 }}
+          resizeMode="cover"
+        />
+      </View>
     </Surface>
   );
 
