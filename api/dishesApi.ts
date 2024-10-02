@@ -20,13 +20,10 @@ export const fetchDishes = async (
         },
       }
     );
-    // console.log("dishes response data:", response.data);
     // Ánh xạ dữ liệu trả về từ API
     const dishes: Dish[] = response.data.result.items.map((item) => {
       const dishData = item.dish; // Lấy dữ liệu dish từ object chính
-      const dishSizeDetail = item.dishSizeDetails.filter(
-        (item) => item.dishSizeId === 0
-      ); // Lấy dữ liệu dish từ object chính
+      // console.log("itemNe", JSON.stringify(item)); // In ra response từ API
 
       return {
         id: dishData.dishId, // Sử dụng dishId thay vì id
@@ -43,21 +40,24 @@ export const fetchDishes = async (
           vietnameseName: dishData.dishItemType.vietnameseName,
         },
         dishSizeDetails: item.dishSizeDetails.map((detail) => ({
-          dishSizeDetailId: detail.dishSizeDetailId,
-          isAvailable: detail.isAvailable,
-          price: detail.price,
-          discount: detail.discount,
-          dishId: detail.dishId,
-          dishSizeId: detail.dishSizeId,
+          dishSizeDetailId: detail.dishSizeDetailId, //
+          isAvailable: detail.isAvailable, //
+          price: detail.price, //
+          discount: detail.discount, //
+          dishId: detail.dishId, //
+          dishSizeId: detail.dishSizeId, //
           dishSize: {
             id: detail.dishSize.id,
             name: detail.dishSize.name,
             vietnameseName: detail.dishSize.vietnameseName,
           },
+          dish: detail.dish, // Add missing property
+          quantityLeft: detail.quantityLeft, // Add missing property
+          dailyCountdown: detail.dailyCountdown, // Add missing property
         })),
         rating: dishData.averageRating, // Placeholder value
         ratingCount: dishData.numberOfRating, // Placeholder value
-        price: dishSizeDetail[0].price, // Placeholder value
+        price: item.dishSizeDetails[0].price, // Placeholder value
         quantity: 1, // Optional
       };
     });
@@ -65,7 +65,7 @@ export const fetchDishes = async (
 
     return dishes;
   } catch (error) {
-    console.error("Full error:", error); // Chi tiết lỗi sẽ được in ra console
+    console.error("Full error dish:", error); // Chi tiết lỗi sẽ được in ra console
     throw error;
   }
 };

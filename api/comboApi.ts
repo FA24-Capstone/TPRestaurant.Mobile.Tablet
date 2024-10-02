@@ -24,7 +24,7 @@ export const fetchCombos = async (
         },
       }
     );
-    // console.log("fetchCombos response data:", response.data);
+    // console.log("fetchCombos response data:", JSON.stringify(response.data));
 
     // Ánh xạ dữ liệu trả về từ API
     const combos: Combo[] = response.data.result.map((item) => ({
@@ -32,7 +32,7 @@ export const fetchCombos = async (
       name: item.name,
       description: item.description,
       image: item.image,
-      price: item.price,
+      price: item.price || 0,
       discount: item.discount,
       categoryId: item.categoryId,
       rating: item.averageRating,
@@ -50,7 +50,7 @@ export const fetchCombos = async (
 
     return combos;
   } catch (error) {
-    console.error("Full error:", error); // Chi tiết lỗi sẽ được in ra console
+    console.error("Full error combo:", error); // Chi tiết lỗi sẽ được in ra console
     throw error;
   }
 };
@@ -59,7 +59,7 @@ export const fetchComboById = async (
   comboId: string
 ): Promise<ComboIdApiResponse> => {
   try {
-    // console.log("comboIdNe", comboId);
+    console.log("comboIdNe", comboId);
 
     const response = await axios.get<ComboIdApiResponse>(
       `${API_URL}/combo/get-combo-by-id-ver-2/${comboId}`,
