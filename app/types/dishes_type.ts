@@ -28,11 +28,14 @@ export interface DishSize {
 export interface DishSizeDetail {
   dishSizeDetailId: string;
   isAvailable: boolean;
-  price: number;
+  price?: number;
   discount: number;
   dishId: string;
+  dish: any;
   dishSizeId: number;
   dishSize: DishSize;
+  quantityLeft: any;
+  dailyCountdown: number;
   note?: string;
 }
 
@@ -44,7 +47,7 @@ export interface Dish {
   type?: string;
   ratingCount?: number;
   dishItemTypeId: number;
-  price: number;
+  price?: number;
   quantity?: number;
   description?: string;
   averageRating?: number;
@@ -78,5 +81,8 @@ export interface ListOrderProps {
 export interface DishesApiResponse {
   result: {
     items: DishItemResponse[];
+    totalPages: number;
   };
+  isSuccess: boolean;
+  messages: any[];
 }
