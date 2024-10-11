@@ -138,7 +138,7 @@ const DishCard: React.FC<DishCardProps> = ({
               isSelected ? "text-[#C01D2E]" : "text-gray-600"
             }`}
           >
-            {formatPriceVND(item.price)}
+            {formatPriceVND(item.price ?? 0)}
           </Text>
           {item.discount > 0 && (
             <Text

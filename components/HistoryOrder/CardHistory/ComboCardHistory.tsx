@@ -21,7 +21,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
   showModal,
   noteOrder,
 }) => {
-  console.log("comboNha", combo);
+  // console.log("comboNha", combo);
 
   return (
     <TouchableOpacity
