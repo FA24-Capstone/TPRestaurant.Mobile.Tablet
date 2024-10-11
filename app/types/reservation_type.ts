@@ -127,3 +127,32 @@ export interface ReservationByPhoneApiResponse {
   isSuccess: boolean;
   messages: string[];
 }
+
+//================= Caculator Reservation =================
+
+export interface CalculateReservationRequest {
+  reservationDate: string;
+  numberOfPeople: number;
+  endTime: string;
+  customerId: string | undefined;
+  deposit: number;
+  note: string | undefined;
+  isPrivate: boolean;
+  reservationDishDtos: ReservationDishDto[];
+}
+
+export interface ReservationDishDto {
+  dishSizeDetailId?: string;
+  combo?: {
+    comboId?: string;
+    dishComboIds?: string[];
+  };
+  quantity: number;
+  note: string;
+}
+
+export interface CalculateReservationResponse {
+  result: number;
+  isSuccess: boolean;
+  messages: string[];
+}

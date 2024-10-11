@@ -37,6 +37,7 @@ import { useNavigation } from "expo-router";
 import { StackNavigationProp } from "@react-navigation/stack";
 import LoadingOverlay from "../LoadingOverlay";
 import StatusLabel from "../StatusLabel";
+import OrderInvoiceModal from "./Modal/OrderInvoiceModal";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -54,6 +55,8 @@ const HistoryOrderPanel: React.FC = () => {
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
   );
+  const { tableId, tableName } = useSelector((state: RootState) => state.auth);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [dishes, setDishes] = useState<OrderDish[]>([]);
   const [combos, setCombos] = useState<OrderDish[]>([]);
@@ -61,6 +64,7 @@ const HistoryOrderPanel: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [modalContent, setModalContent] = useState<any>(null); // State for modal content
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [invoiceVisible, setInvoiceVisible] = useState(false);
 
   const currentOrder = useSelector(
     (state: RootState) => state.orders.currentOrder
@@ -70,7 +74,7 @@ const HistoryOrderPanel: React.FC = () => {
   // Log ra => {"orderId":"6e5b9440-9478-4559-b572-da37d6ca6e1b","orderDate":"0001-01-01T00:00:00","deliveryTime":null,"reservationDate":null,"mealTime":"2024-09-14T13:14:13.6363496","endTime":null,"totalAmount":700000,"statusId":3,"status":null,"customerId":null,"customerInfo":null,"paymentMethodId":2,"paymentMethod":null,"loyalPointsHistoryId":null,"loyalPointsHistory":null,"note":"","orderTypeId":3,"orderType":null,"numOfPeople":0,"deposit":null,"isPrivate":null}
   const orderId = currentOrder?.orderId;
   const noteOrder = currentOrder?.note;
-  console.log("orderId nè", orderId);
+  // console.log("orderId nè", orderId);
 
   // console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
   // console.log("dishes nè", JSON.stringify(dishes, null, 2));
@@ -468,7 +472,7 @@ const HistoryOrderPanel: React.FC = () => {
                         onPress={hideModal}
                       >
                         <Text className="text-white text-center font-semibold text-lg uppercase">
-                          Huỷ
+                          Đóng
                         </Text>
                       </TouchableOpacity>
                       {/* <TouchableOpacity className="mt-4 bg-[#C01D2E] p-2 rounded-lg w-[200px] mr-6"
@@ -484,6 +488,42 @@ const HistoryOrderPanel: React.FC = () => {
             </View>
           </View>
         </Modal>
+
+        {/* Other components and logic */}
+        {(dataDishWithEmptySpaces.length > 0 ||
+          dataComboWithEmptySpaces.length > 0) && (
+          <View className="flex-row justify-center items-center">
+            <TouchableOpacity
+              className="py-2 px-4 bg-[#EDAA16] w-1/3 rounded-lg m-6"
+              onPress={() => setInvoiceVisible(true)} // Show modal when button is pressed
+            >
+              <Text className="text-white text-center font-semibold text-lg uppercase">
+                Hoá đơn thanh toán
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <OrderInvoiceModal
+          visible={invoiceVisible}
+          onClose={() => setInvoiceVisible(false)}
+          customerName={`${
+            reservationData?.result?.order?.account?.firstName ??
+            "Không có thông tin"
+          } ${reservationData?.result?.order?.account?.lastName ?? ""}`} // Replace with actual customer name
+          customerPhone={
+            reservationData?.result?.order?.account?.phoneNumber || ""
+          } // Replace with actual customer phone
+          mealTime={
+            reservationData?.result?.order?.mealTime ||
+            currentOrder?.mealTime ||
+            ""
+          }
+          numOfPeople={reservationData?.result?.order?.numOfPeople || 0}
+          tableName={tableName || ""} // Replace with actual table name
+          orderId={orderId || reservationData?.result?.order?.orderId || ""}
+          orderDetails={orderDetails}
+        />
       </View>
     </>
   );
