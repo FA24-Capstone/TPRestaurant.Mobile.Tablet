@@ -15,6 +15,8 @@ export const createOrderinTablet = async (
   orderRequest: OrderRequest
 ): Promise<CreateOrderReponse> => {
   try {
+    console.log("orderRequestCreateOrder", orderRequest);
+
     const response = await axios.post<CreateOrderReponse>(
       `${API_URL}/order/create-order`,
       orderRequest,
@@ -38,7 +40,7 @@ export const addPrelistOrder = async (
   orderId: string
 ): Promise<AddOrderReponse> => {
   try {
-    // console.log("orderDataNe", orderData);
+    console.log("orderDataNeaddPrelistOrder", orderId, orderData);
 
     const response = await axios.post<AddOrderReponse>(
       `${API_URL}/order/add-dish-to-order/${orderId}`,
@@ -49,6 +51,7 @@ export const addPrelistOrder = async (
         },
       }
     );
+    console.log("addPrelistOrderDataNe", JSON.stringify(response, null, 2));
 
     return response.data;
   } catch (error) {
@@ -68,10 +71,10 @@ export const getHistoryOrderId = async (
       { headers: { "Content-Type": "application/json" } }
     );
     // Log detailed response for debugging
-    console.log(
-      "API response for getHistoryOrderId:",
-      JSON.stringify(response.data.result, null, 2)
-    );
+    // console.log(
+    //   "API response for getHistoryOrderId:",
+    //   JSON.stringify(response.data.result, null, 2)
+    // );
     // Return the entire response data to match the expected shape
     return response.data;
   } catch (error) {

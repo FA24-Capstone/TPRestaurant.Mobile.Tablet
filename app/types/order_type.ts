@@ -165,6 +165,14 @@ export interface OrderDish {
   comboDish?: ComboDish;
   note: string;
   orderTime: string;
+  statusId: number;
+  status: Status;
+}
+//
+export interface Status {
+  id?: number;
+  name?: string;
+  vietnameseName?: string;
 }
 //
 export interface ComboDish {

@@ -1,13 +1,14 @@
+// src/components/SettingScreen.tsx
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useDispatch } from "react-redux";
-import { logout } from "@/redux/slices/authSlice"; // Adjust the import path to your authSlice file
+import { logout } from "@/redux/slices/authSlice"; // Ensure this path is correct
 
 const SettingScreen: React.FC = () => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch the logout action
+    dispatch(logout()); // Dispatch the logout action, resetting all state
   };
 
   return (

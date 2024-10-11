@@ -121,7 +121,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ item, note, setNote }) => {
                   {translateSize(item.selectedSizeDetail.dishSize.name)}
                 </Text>
                 <Text className="text-lg font-bold text-[#C01D2E]">
-                  {formatPriceVND(item.price)}
+                  {formatPriceVND(item?.price ?? 0)}
                 </Text>
               </View>
               <View className="items-center">
