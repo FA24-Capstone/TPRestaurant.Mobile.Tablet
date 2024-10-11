@@ -36,7 +36,8 @@ const reservationSlice = createSlice({
         fetchReservationWithTime.fulfilled,
         (state, action: PayloadAction<ReservationApiResponse>) => {
           state.isLoading = false;
-          state.data = action.payload; // Cập nhật dữ liệu bất kể state.data đã có hay chưa
+          // Check if the result is null, and clear data if true
+          state.data = action.payload.result ? action.payload : null;
         }
       )
       .addCase(fetchReservationWithTime.rejected, (state, action) => {
@@ -45,7 +46,6 @@ const reservationSlice = createSlice({
       });
   },
 });
-
 export const { clearReservationData } = reservationSlice.actions;
 
 export default reservationSlice.reducer;

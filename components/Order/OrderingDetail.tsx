@@ -121,23 +121,20 @@ const OrderingDetail: React.FC = () => {
           }),
     };
     console.log("orderRequestNHa", JSON.stringify(orderRequest, null, 2));
+    console.log("reservationData?nha", reservationData);
 
     try {
       console.log("currentOrder", currentOrder);
-
+      console.log("reservationDataNha", reservationData);
+      setIsLoading(true);
       // Kiểm tra currentOrder và trạng thái của nó
-      if (
-        !currentOrder ||
-        (!currentOrder &&
-          (!reservationData || !reservationData.result.order.orderId)) || // Nếu chưa có order
-        (currentOrder &&
-          (currentOrder.statusId === 7 || currentOrder.statusId === 8))
-      ) {
+      if ((!currentOrder || currentOrder.statusId === 8) && !reservationData) {
         console.log("orderRequestVaoCreate", orderRequest);
 
         // Nếu chưa có order hoặc trạng thái là 7 hoặc 8 thì tạo order mới
         const response = await createOrderinTablet(orderRequest);
         console.log("responseCreateNe", JSON.stringify(response, null, 2));
+        setIsLoading(false);
 
         if (response.isSuccess) {
           showSuccessMessage("Đặt món thành công!");
@@ -165,6 +162,7 @@ const OrderingDetail: React.FC = () => {
               reservationData?.result?.order.orderId ||
               ""
           );
+          setIsLoading(false);
 
           // console.log(
           //   "addOrderResponseNe",
@@ -218,16 +216,15 @@ const OrderingDetail: React.FC = () => {
                   {numberOfPeople} người
                 </Text>
               </View>
-              {startSession && (
-                <View className="flex-row items-center">
-                  <MaterialCommunityIcons name="clock" size={20} color="gray" />
+              <View className="flex-row items-center">
+                <MaterialCommunityIcons name="clock" size={20} color="gray" />
 
-                  <Text className="text-[#EDAA16] text-sm ml-3 font-bold">
-                    {moment.utc(startSession).format("HH:mm, DD/MM/YYYY")}
-                    {/* {startSession} */}
-                  </Text>
-                </View>
-              )}
+                <Text className="text-[#EDAA16] text-sm ml-3 font-bold">
+                  {moment(reservationData?.result?.order?.mealTime)
+                    .local()
+                    .format("HH:mm, DD/MM/YYYY")}
+                </Text>
+              </View>
             </View>
             <View className="justify-between p-2">
               <Text className="font-semibold text-gray-600 text-sm">

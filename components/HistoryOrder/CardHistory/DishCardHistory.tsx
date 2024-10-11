@@ -1,4 +1,5 @@
 import { formatPriceVND } from "@/components/Format/formatPrice";
+import StatusLabel from "@/components/StatusLabel";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment-timezone";
 import React from "react";
@@ -72,10 +73,8 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
           color="#FD495C"
         />
       </TouchableOpacity>
-      <View className="absolute top-3 left-3 bg-[#4F970F] rounded-md px-2 py-1">
-        <Text className=" text-sm text-right font-bold text-white uppercase">
-          {dish.status}
-        </Text>
+      <View className="absolute top-3 left-3">
+        <StatusLabel statusId={dish.statusId} />
       </View>
     </TouchableOpacity>
   );

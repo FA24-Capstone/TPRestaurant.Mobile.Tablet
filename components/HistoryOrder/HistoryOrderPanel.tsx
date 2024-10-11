@@ -36,6 +36,7 @@ import { formatPriceVND } from "../Format/formatPrice";
 import { useNavigation } from "expo-router";
 import { StackNavigationProp } from "@react-navigation/stack";
 import LoadingOverlay from "../LoadingOverlay";
+import StatusLabel from "../StatusLabel";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -69,6 +70,7 @@ const HistoryOrderPanel: React.FC = () => {
   // Log ra => {"orderId":"6e5b9440-9478-4559-b572-da37d6ca6e1b","orderDate":"0001-01-01T00:00:00","deliveryTime":null,"reservationDate":null,"mealTime":"2024-09-14T13:14:13.6363496","endTime":null,"totalAmount":700000,"statusId":3,"status":null,"customerId":null,"customerInfo":null,"paymentMethodId":2,"paymentMethod":null,"loyalPointsHistoryId":null,"loyalPointsHistory":null,"note":"","orderTypeId":3,"orderType":null,"numOfPeople":0,"deposit":null,"isPrivate":null}
   const orderId = currentOrder?.orderId;
   const noteOrder = currentOrder?.note;
+  console.log("orderId nè", orderId);
 
   // console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
   // console.log("dishes nè", JSON.stringify(dishes, null, 2));
@@ -116,13 +118,18 @@ const HistoryOrderPanel: React.FC = () => {
           orderDetailsId: orderDish.orderDetailsId,
           dishSizeId: orderDish.dishSizeDetailId,
           name: orderDish.dishSizeDetail?.dish.name,
-          quantity: orderDish.quantity, // Nếu không có quantity trong orderDish, mặc định là 1
+          quantity: orderDish.quantity,
           price: orderDish.dishSizeDetail?.price,
-          status: "Đã phục vụ",
+          status: {
+            id: orderDish.status.id,
+            name: orderDish.status.name,
+            vietnameseName: orderDish.status.vietnameseName,
+          }, // Ensure status is a Status object
+          statusId: orderDish.statusId,
           image: orderDish.dishSizeDetail?.dish.image,
           sizeName: orderDish.dishSizeDetail?.dishSize.name,
-          type: orderDish.dishSizeDetail?.dish.dishItemType, // loại món
-          startDate: orderDish.orderTime, // Giả sử startDate có ở đây
+          type: orderDish.dishSizeDetail?.dish.dishItemType,
+          startDate: orderDish.orderTime,
           description: orderDish.dishSizeDetail?.dish.description || "",
           note: orderDish.note || "",
         }));
@@ -134,12 +141,17 @@ const HistoryOrderPanel: React.FC = () => {
           orderDetailsId: orderDish.orderDetailsId,
           comboId: orderDish.comboDish?.comboId,
           comboName: orderDish.comboDish?.combo.name,
-          quantity: orderDish.quantity, // Mặc định là 1 nếu không có quantity trong comboDish
+          quantity: orderDish.quantity,
           price: orderDish.comboDish?.combo.price,
+          status: {
+            id: orderDish.status.id,
+            name: orderDish.status.name,
+            vietnameseName: orderDish.status.vietnameseName,
+          }, // Ensure status is a Status object
+          statusId: orderDish.statusId,
           image: orderDish.comboDish?.combo.image,
-          type: orderDish.comboDish?.combo.category, // loại món
+          type: orderDish.comboDish?.combo.category,
           startDate: orderDish.orderTime,
-          status: "Đã phục vụ",
           description: orderDish.comboDish?.combo.description || "",
           comboDishes: orderDish.comboDish?.dishCombos.map((dishCombo) => ({
             dishId: dishCombo.dishComboId,
@@ -413,6 +425,13 @@ const HistoryOrderPanel: React.FC = () => {
                             .format("HH:mm, DD/MM/YYYY")}
                         </Text>
                       </View>
+                    </View>
+
+                    <View className="flex-row item">
+                      <Text className="font-semibold mr-2 text-gray-700 text-lg mb-4">
+                        Trạng thái:
+                      </Text>
+                      <StatusLabel statusId={modalContent?.statusId} />
                     </View>
 
                     {modalContent.comboDishes && (

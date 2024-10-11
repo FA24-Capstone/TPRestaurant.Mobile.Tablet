@@ -1,4 +1,5 @@
 import { formatPriceVND } from "@/components/Format/formatPrice";
+import StatusLabel from "@/components/StatusLabel";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment-timezone";
 import React from "react";
@@ -20,7 +21,7 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
   showModal,
   noteOrder,
 }) => {
-  // console.log("comboNha", combo);
+  console.log("comboNha", combo);
 
   return (
     <TouchableOpacity
@@ -96,10 +97,8 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
           color="#FD495C"
         />
       </TouchableOpacity>
-      <View className="absolute top-3 left-3 bg-[#4F970F] rounded-md px-2 py-1">
-        <Text className=" text-sm text-right font-bold text-white uppercase">
-          {combo.status}
-        </Text>
+      <View className="absolute top-3 left-3">
+        <StatusLabel statusId={combo.statusId} />
       </View>
     </TouchableOpacity>
   );

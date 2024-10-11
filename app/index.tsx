@@ -82,8 +82,8 @@ const App = () => {
         dispatch(
           fetchReservationWithTime({
             tableId,
-            // time: "2024-09-28 23:10:44.3000000",
-            time: now,
+            time: "2024-10-07T14:00:00",
+            // time: now,
           })
         );
       }
