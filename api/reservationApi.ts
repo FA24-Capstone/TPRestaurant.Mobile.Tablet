@@ -1,6 +1,4 @@
 import {
-  CalculateReservationRequest,
-  CalculateReservationResponse,
   ReservationApiResponse,
   ReservationByPhoneApiResponse,
 } from "@/app/types/reservation_type";
@@ -38,25 +36,3 @@ export const fetchReservationWithTime = createAsyncThunk<
     }
   }
 );
-
-export const calculateReservation = async (
-  reservationData: CalculateReservationRequest
-): Promise<CalculateReservationResponse> => {
-  try {
-    const response = await axios.post<CalculateReservationResponse>(
-      `${API_URL}/order/calculate-reservation`,
-      reservationData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return response.data;
-  } catch (error: any) {
-    console.error("Failed to calculate reservation:", error);
-    throw new Error(
-      error.response?.data?.message || "Failed to calculate reservation"
-    );
-  }
-};

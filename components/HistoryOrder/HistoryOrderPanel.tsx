@@ -74,10 +74,10 @@ const HistoryOrderPanel: React.FC = () => {
   // Log ra => {"orderId":"6e5b9440-9478-4559-b572-da37d6ca6e1b","orderDate":"0001-01-01T00:00:00","deliveryTime":null,"reservationDate":null,"mealTime":"2024-09-14T13:14:13.6363496","endTime":null,"totalAmount":700000,"statusId":3,"status":null,"customerId":null,"customerInfo":null,"paymentMethodId":2,"paymentMethod":null,"loyalPointsHistoryId":null,"loyalPointsHistory":null,"note":"","orderTypeId":3,"orderType":null,"numOfPeople":0,"deposit":null,"isPrivate":null}
   const orderId = currentOrder?.orderId;
   const noteOrder = currentOrder?.note;
-  // console.log("orderId nè", orderId);
+  console.log("orderId nè", orderId);
 
   // console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
-  // console.log("dishes nè", JSON.stringify(dishes, null, 2));
+  console.log("dishes nè", JSON.stringify(dishes, null, 2));
 
   // console.log("reservationData nè", JSON.stringify(reservationData, null, 2));
 
@@ -94,7 +94,7 @@ const HistoryOrderPanel: React.FC = () => {
       const response = await getHistoryOrderId(
         orderId || reservationData?.result?.order?.orderId || ""
       );
-      // console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
+      console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
 
       // Set the order details in state
       setOrderDetails(response.result.orderDishes);
@@ -202,7 +202,11 @@ const HistoryOrderPanel: React.FC = () => {
 
   // Function to filter dishes based on the search query
   const filterDishesByQuery = (data: any[], query: string) => {
-    if (!query) return data;
+    if (!query) {
+      console.log("data nè", JSON.stringify(data, null, 2));
+
+      return data;
+    }
     return data.filter((item) =>
       item.name.toLowerCase().includes(query.toLowerCase())
     );
@@ -218,6 +222,7 @@ const HistoryOrderPanel: React.FC = () => {
 
   const filteredDishes = filterDishesByQuery(dishes, searchQuery);
   const filteredCombos = filterCombosByQuery(combos, searchQuery);
+  console.log("filteredDishes nè", JSON.stringify(filteredDishes, null, 2));
 
   // Function to add empty spaces to maintain layout
   const fillEmptySpaces = (data: any[]) => {
@@ -269,7 +274,7 @@ const HistoryOrderPanel: React.FC = () => {
         </View>
 
         {dataDishWithEmptySpaces.length > 0 ||
-        dataDishWithEmptySpaces.length > 0 ? (
+        dataComboWithEmptySpaces.length > 0 ? (
           <ScrollView contentContainerStyle={{ paddingBottom: 16 }}>
             {/* List of Dishes */}
             {dataDishWithEmptySpaces.length > 0 && (
@@ -507,6 +512,7 @@ const HistoryOrderPanel: React.FC = () => {
         <OrderInvoiceModal
           visible={invoiceVisible}
           onClose={() => setInvoiceVisible(false)}
+          onOpen={() => setInvoiceVisible(true)}
           customerName={`${
             reservationData?.result?.order?.account?.firstName ??
             "Không có thông tin"

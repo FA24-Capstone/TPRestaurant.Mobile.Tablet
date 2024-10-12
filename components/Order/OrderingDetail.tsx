@@ -129,7 +129,10 @@ const OrderingDetail: React.FC = () => {
       setIsLoading(true);
       // Kiểm tra currentOrder và trạng thái của nó
       if ((!currentOrder || currentOrder.statusId === 8) && !reservationData) {
-        console.log("orderRequestVaoCreate", orderRequest);
+        console.log(
+          "orderRequestVaoCreate",
+          JSON.stringify(orderRequest, null, 2)
+        );
 
         // Nếu chưa có order hoặc trạng thái là 7 hoặc 8 thì tạo order mới
         const response = await createOrderinTablet(orderRequest);
