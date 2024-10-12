@@ -59,7 +59,7 @@ export const fetchComboById = async (
   comboId: string
 ): Promise<ComboIdApiResponse> => {
   try {
-    console.log("comboIdNe", comboId);
+    // console.log("comboIdNe", comboId);
 
     const response = await axios.get<ComboIdApiResponse>(
       `${API_URL}/combo/get-combo-by-id-ver-2/${comboId}`,
