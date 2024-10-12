@@ -18,6 +18,7 @@ import { createPayment } from "@/api/paymentApi";
 import ChoosePaymentModal from "@/components/Payment/ChoosePayment";
 import SuccessModal from "@/components/Payment/SuccessModal";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import OrderDetails from "./OrderInfo";
 
 interface OrderInvoiceModalProps {
   visible: boolean;
@@ -30,6 +31,7 @@ interface OrderInvoiceModalProps {
   tableName: string;
   orderId: string;
   orderDetails: OrderDish[];
+  currentOrder: any;
 }
 
 const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
@@ -43,6 +45,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   tableName,
   orderId,
   orderDetails,
+  currentOrder,
 }) => {
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
@@ -52,6 +55,34 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   const [successVisible, setSuccessVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [invoiceVisible, setInvoiceVisible] = useState(false);
+
+  // console.log("currentOrder", currentOrder);
+
+  const getStatusInfo = (statusId: any) => {
+    const statusMapping = {
+      1: { colorClass: "text-blue-800", text: "Đã đặt bàn" },
+      2: { colorClass: "text-purple-800", text: "Đã thanh toán đặt cọc" },
+      3: { colorClass: "text-green-800", text: "Đang dùng bữa" },
+      4: { colorClass: "text-orange-800", text: "Chờ xử lý" },
+      5: { colorClass: "text-yellow-800", text: "Đang xử lý" },
+      6: { colorClass: "text-cyan-800", text: "Sẵn sàng giao hàng" },
+      7: { colorClass: "text-indigo-800", text: "Đã chỉ định cho shipper" },
+      8: { colorClass: "text-teal-800", text: "Đang giao hàng" },
+      9: { colorClass: "text-gray-800", text: "Đã hoàn thành" },
+      10: { colorClass: "text-red-800", text: "Đã hủy" },
+    };
+    return (
+      statusMapping[statusId] || {
+        colorClass: "text-green-800",
+        text: "Đang dùng bữa",
+      }
+    );
+  };
+
+  const statusInfo = getStatusInfo(
+    reservationData?.result?.order?.statusId || currentOrder?.statusId
+  );
+  // console.log("statusInfo", statusInfo);
 
   const totalAmount = orderDetails.reduce(
     (total, item) =>
@@ -116,111 +147,16 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
               data={orderDetails}
               keyExtractor={(item) => item.orderDetailsId}
               ListHeaderComponent={() => (
-                <>
-                  {/* Customer Information Section */}
-                  <View className="flex-row items-start justify-between">
-                    <View className="mb-4 w-[300px]">
-                      <Text className="font-semibold text-gray-800 text-lg mb-2">
-                        Thông tin khách hàng:
-                      </Text>
-                      <View className="flex-row justify-between">
-                        <Text className=" text-base font-semibold text-gray-500">
-                          Họ và tên:
-                        </Text>
-                        <Text className=" text-base font-semibold text-gray-800">
-                          {customerName || "Không có thông tin"}
-                        </Text>
-                      </View>
-                      <View className="flex-row justify-between">
-                        <Text className=" text-base font-semibold text-gray-500">
-                          Số điện thoại:
-                        </Text>
-                        <Text className=" text-base font-semibold text-gray-800">
-                          {`0${customerPhone}` || "Không có thông tin"}
-                        </Text>
-                      </View>
-                      <View className="flex-row justify-between">
-                        <Text className=" text-base font-semibold text-gray-500">
-                          Thời gian dùng bữa:
-                        </Text>
-                        <Text className=" text-base font-semibold text-gray-800">
-                          {moment.utc(mealTime).format("HH:mm, DD/MM/YYYY") ||
-                            "Không có thông tin"}
-                        </Text>
-                      </View>
-                      <View className="flex-row justify-between">
-                        <Text className=" text-base font-semibold text-gray-500">
-                          Số lượng khách:
-                        </Text>
-                        <Text className=" text-base font-semibold text-gray-800">
-                          {numOfPeople || "Không có thông tin"}
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* Order Information Section */}
-                    <View className="mb-4  w-[300px]">
-                      <Text className="font-semibold text-gray-800 text-lg mb-2">
-                        Thông tin đơn đặt món:
-                      </Text>
-
-                      <View className="flex-row justify-between">
-                        <Text className=" text-base font-semibold text-gray-500">
-                          Tên bàn:
-                        </Text>
-                        <Text className=" text-base font-semibold text-gray-800">
-                          {tableName || "Không có thông tin"}
-                        </Text>
-                      </View>
-                      <View className="flex-row justify-between">
-                        <Text className=" text-base font-semibold text-gray-500">
-                          Mã đơn:
-                        </Text>
-                        <Text className=" text-base font-semibold text-gray-800">
-                          {`#${orderId.slice(0, 8)}` || "Không có thông tin"}
-                        </Text>
-                      </View>
-                      <View className="flex-row justify-between">
-                        <Text className=" text-base font-semibold text-gray-500">
-                          Loại đơn:
-                        </Text>
-                        <Text className=" text-base font-semibold text-gray-800">
-                          {reservationData?.result?.order?.orderType
-                            ? "Đặt trước"
-                            : "Ăn trực tiếp"}
-                        </Text>
-                      </View>
-                      <View className="flex-row justify-between">
-                        <Text className=" text-base font-semibold text-gray-500">
-                          Trạng thái đơn:
-                        </Text>
-                        <Text className=" text-base font-semibold text-gray-800">
-                          Đang dùng bữa
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  <Text className="font-semibold text-gray-800 text-base mb-2">
-                    Danh sách món đã đặt:
-                  </Text>
-
-                  {/* Header Row */}
-                  <View className="flex-row items-center py-2 mt-2 bg-gray-100 rounded-md mb-2">
-                    <Text className="w-10 text-center font-semibold">STT</Text>
-                    <Text className="w-52 ml-4 font-semibold">Tên món ăn</Text>
-                    <Text className="w-16 ml-4 font-semibold">Size</Text>
-                    <Text className="w-20 text-center font-semibold">
-                      Đơn giá
-                    </Text>
-                    <Text className="w-10 text-center font-semibold">SL</Text>
-                    <Text className="w-20 text-center font-semibold">
-                      Thành tiền
-                    </Text>
-                    <Text className="w-52 text-center font-semibold">
-                      Ghi chú
-                    </Text>
-                  </View>
-                </>
+                <OrderDetails
+                  customerName={customerName}
+                  customerPhone={customerPhone}
+                  mealTime={mealTime}
+                  numOfPeople={numOfPeople}
+                  tableName={tableName}
+                  orderId={orderId}
+                  reservationData={reservationData || {}}
+                  statusInfo={statusInfo}
+                />
               )}
               renderItem={({ item, index }) => (
                 <View className="flex-row items-center py-2 border-b border-gray-200">
@@ -271,14 +207,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                         {formatPriceVND(totalAmount)}
                       </Text>
                     </View>
-                    {/* <View className="flex-row justify-between">
-                      <Text className="font-semibold text-gray-700">
-                        VAT (8%):
-                      </Text>
-                      <Text className="font-semibold">
-                        {formatPriceVND(vat)}
-                      </Text>
-                    </View> */}
+
                     {reservationData?.result?.order?.deposit && (
                       <View className="flex-row justify-between mt-2">
                         <Text className="font-semibold text-gray-700">

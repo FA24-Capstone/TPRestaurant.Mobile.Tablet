@@ -124,7 +124,7 @@ const OrderingDetail: React.FC = () => {
     console.log("reservationData?nha", reservationData);
 
     try {
-      console.log("currentOrder", currentOrder);
+      // console.log("currentOrder", currentOrder);
       console.log("reservationDataNha", reservationData);
       setIsLoading(true);
       // Kiểm tra currentOrder và trạng thái của nó

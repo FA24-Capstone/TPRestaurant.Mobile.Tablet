@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "landscape",
     "icon": "./assets/icon.jpeg",
-    "scheme": "simplemeditation",
+    "scheme": "thienphurestaurant",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/simpleMeditationLogo.jpeg",

@@ -1,5 +1,8 @@
+import { logout } from "@/redux/slices/authSlice";
+import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { Modal, View, Text, TouchableOpacity, Image } from "react-native";
+import { useDispatch } from "react-redux";
 
 interface SuccessModalProps {
   visible: boolean;
@@ -14,16 +17,26 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   onOpen,
   successMessage,
 }) => {
+  const router = useRouter();
+
+  const dispatch = useDispatch();
+
   // Automatically close the modal after 1 minute
   useEffect(() => {
     if (visible) {
       const timer = setTimeout(() => {
         onClose(); // Close the modal after 1 minute
+        dispatch(logout());
       }, 50000); // 60000 milliseconds = 1 minute
 
       return () => clearTimeout(timer);
     }
   }, [visible, onClose]);
+
+  const handleClearExceptAuth = () => {
+    onClose(); // Đóng modal sau khi reset Redux
+    dispatch(logout());
+  };
 
   return (
     <Modal transparent={true} visible={visible}>
@@ -53,7 +66,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               className="bg-green-500 px-3 w-56 py-2 rounded-md self-center"
-              onPress={onClose} // Close the modal when this button is pressed
+              onPress={handleClearExceptAuth} // Close the modal when this button is pressed
             >
               <Text className="text-white text-center text-base uppercase font-bold">
                 Đóng và thoát ra
