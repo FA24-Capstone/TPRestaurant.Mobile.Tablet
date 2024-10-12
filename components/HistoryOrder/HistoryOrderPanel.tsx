@@ -529,6 +529,7 @@ const HistoryOrderPanel: React.FC = () => {
           tableName={tableName || ""} // Replace with actual table name
           orderId={orderId || reservationData?.result?.order?.orderId || ""}
           orderDetails={orderDetails}
+          currentOrder={currentOrder}
         />
       </View>
     </>
