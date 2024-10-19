@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "Thiên Phú Restaurant",
+    "slug": "thienphu-restaurant",
     "version": "1.0.0",
     "orientation": "landscape",
     "icon": "./assets/icon.jpeg",
