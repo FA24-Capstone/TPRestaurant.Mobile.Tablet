@@ -7,9 +7,14 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "ts:check": "tsc"
+    "ts:check": "tsc",
+    "eas-build-post-install": "yarn ios-post-install-fix",
+    "ios-post-install-fix": "node postinstall.js"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.0.0",
+    "@react-native-firebase/app": "^21.0.0",
+    "@react-native-firebase/messaging": "^21.0.0",
     "@expo/vector-icons": "^14.0.1",
     "@react-native-community/slider": "^4.5.2",
     "@react-navigation/drawer": "^6.7.2",

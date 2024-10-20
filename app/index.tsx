@@ -20,7 +20,8 @@ import Animated, {
   FadeInUp,
   withSpring,
 } from "react-native-reanimated";
-
+import messaging from "@react-native-firebase/messaging";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const beachImage = require("@/assets/meditation-images/bg-restaurant.jpeg");
 import { NativeWindStyleSheet } from "nativewind";
 import { useDispatch, useSelector } from "react-redux";
@@ -154,7 +155,30 @@ const App = () => {
   };
 
   const isDisabled = !phoneNumber || phoneError !== null;
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
+    if (enabled) {
+      getToken();
+    }
+  }
+  const getToken = async () => {
+    const token = await messaging().getToken();
+    if (token) {
+      await AsyncStorage.setItem("device_token", token);
+      console.log("Your Firebase Token is:", token);
+    }
+  };
+
+  useEffect(() => {
+    requestUserPermission();
+  }, []);
+  messaging().setBackgroundMessageHandler(async (message) => {
+    console.log(message);
+  });
   return (
     <>
       {isLoading && (
