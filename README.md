@@ -11,7 +11,6 @@
 
   <h3 align="center">RESTAURANT THIEN PHU APP FOR TABLET </h3>
 
- 
 </div>
 
 ## 📋 <a name="table">Table of Contents</a>
@@ -23,10 +22,6 @@
 5. 🕸️ [Snippets](#snippets)
 6. 🔗 [Links](#links)
 7. 🚀 [More](#more)
-
-
-
-
 
 ## <a name="introduction">🤖 Introduction</a>
 
@@ -218,7 +213,7 @@ import treeImage from "@/assets/meditation-images/trees.webp";
 import meditatingUnderTree from "@/assets/meditation-images/meditate-under-tree.webp";
 import riverImage from "@/assets/meditation-images/river.webp";
 // import beachImage from "@/assets/meditation-images/beach.webp";
-import beachImage from "../assets/meditation-images/beach.png";
+import beachImage from "../assets/meditation-images/beach.jpg";
 
 import yosemiteStars from "@/assets/meditation-images/yosemite-stars.webp";
 import waterfall from "@/assets/meditation-images/waterfall.webp";
@@ -495,5 +490,3 @@ Assets and constants used in the project can be found [here](https://drive.googl
 **Advance your skills with StevenCodeCraft Courses**
 
 Enjoyed creating this project? Dive deeper into web development fundamentals with our PRO courses, offering beginner-friendly learning material. Give it a go!"
-
-
