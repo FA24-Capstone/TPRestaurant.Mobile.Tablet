@@ -36,7 +36,13 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
       <View className="p-2">
         <Text className="mt-2 text-lg font-bold">{combo.comboName}</Text>
 
-        <Text className="text-gray-500">{combo.description ?? "no"}</Text>
+        <Text
+          className="text-gray-500"
+          numberOfLines={1} // Số dòng tối đa
+          ellipsizeMode="tail" // Hiển thị dấu "..." ở cuối
+        >
+          {combo.description ?? "no"}
+        </Text>
         <View className="flex-row justify-between flex-wrap my-2">
           <Text className="text-center text-base font-semibold text-[#C01D2E]">
             {formatPriceVND(combo.price)}

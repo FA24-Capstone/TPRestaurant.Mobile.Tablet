@@ -218,7 +218,9 @@ const DishCard: React.FC<DishCardProps> = ({
                       </Text>
                     </View>
                   </View>
-                  <Text className="mb-4 text-lg">{description}</Text>
+                  <Text className="mb-4 text-lg max-w-[500px]">
+                    {description}
+                  </Text>
                   <Text className="font-semibold text-lg">
                     Các lựa chọn kích cỡ:
                   </Text>

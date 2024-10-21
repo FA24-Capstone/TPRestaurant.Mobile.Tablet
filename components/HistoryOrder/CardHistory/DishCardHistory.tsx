@@ -31,7 +31,11 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
       />
       <View className="p-2">
         <Text className="mt-2 text-lg font-bold">{dish.name}</Text>
-        <Text className="text-gray-500">
+        <Text
+          className="text-gray-500"
+          numberOfLines={1} // Số dòng tối đa
+          ellipsizeMode="tail"
+        >
           {dish.description ?? "chưa có mô tả"}
         </Text>
         <View className="flex-row justify-between my-2 flex-wrap">

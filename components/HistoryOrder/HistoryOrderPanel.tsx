@@ -397,79 +397,80 @@ const HistoryOrderPanel: React.FC = () => {
                     resizeMode="cover"
                   />
                   <View className="ml-6">
-                    {/* Hiển thị tên món ăn hoặc combo */}
-                    <Text className="font-bold text-2xl mb-2 text-gray-700">
-                      {modalContent.name || modalContent.comboName}
-                    </Text>
-
-                    {/* Hiển thị mô tả món ăn hoặc combo */}
-                    <Text className="mb-4 text-lg">
-                      {modalContent.description || modalContent.description}
-                    </Text>
-
-                    {/* Hiển thị giá của món ăn hoặc combo */}
-                    <Text className="font-bold text-lg text-[#C01D2E] mb-4">
-                      Giá: {formatPriceVND(modalContent.price)}
-                    </Text>
-
-                    {/* Hiển thị số lượng */}
-                    <View className="flex-row gap-2 ">
-                      <Text className="font-semibold text-gray-700 text-lg mb-4">
-                        Số lượng đã đặt:
+                    <ScrollView style={{ height: 500 }}>
+                      {/* Hiển thị tên món ăn hoặc combo */}
+                      <Text className="font-bold text-2xl mb-2 text-gray-700">
+                        {modalContent.name || modalContent.comboName}
                       </Text>
-                      <Text className="font-bold text-[#EDAA16] text-xl mb-4">
-                        + {modalContent.quantity} món
-                      </Text>
-                    </View>
 
-                    <View className="mt-2 flex-row flex-ư">
-                      <Text className="text-gray-700 font-semibold text-lg">
-                        Thời gian đặt:
+                      {/* Hiển thị mô tả món ăn hoặc combo */}
+                      <Text className="mb-4 text-lg max-w-[500px]">
+                        {modalContent.description || modalContent.description}
                       </Text>
-                      <View className="ml-4">
-                        <Text className="text-gray-500 text-lg">
-                          •{" "}
-                          {moment
-                            .utc(modalContent.startDate)
-                            .format("HH:mm, DD/MM/YYYY")}
+
+                      {/* Hiển thị giá của món ăn hoặc combo */}
+                      <Text className="font-bold text-lg text-[#C01D2E] mb-4">
+                        Giá: {formatPriceVND(modalContent.price)}
+                      </Text>
+
+                      {/* Hiển thị số lượng */}
+                      <View className="flex-row gap-2 ">
+                        <Text className="font-semibold text-gray-700 text-lg mb-4">
+                          Số lượng đã đặt:
+                        </Text>
+                        <Text className="font-bold text-[#EDAA16] text-xl mb-4">
+                          + {modalContent.quantity} món
                         </Text>
                       </View>
-                    </View>
 
-                    <View className="flex-row item">
-                      <Text className="font-semibold mr-2 text-gray-700 text-lg mb-4">
-                        Trạng thái:
-                      </Text>
-                      <StatusLabel statusId={modalContent?.statusId} />
-                    </View>
-
-                    {modalContent.comboDishes && (
-                      <View className="w-full">
-                        <Text className="font-semibold text-lg text-gray-700 h-fit my-2">
-                          Món đã chọn:
+                      <View className="mt-2 flex-row flex-ư">
+                        <Text className="text-gray-700 font-semibold text-lg">
+                          Thời gian đặt:
                         </Text>
-                        <View className="flex-row flex-wrap  gap-2">
-                          {modalContent.comboDishes.map((dish) => (
-                            <View
-                              key={dish.dishId}
-                              className="bg-white rounded-md p-2 shadow-md"
-                            >
-                              <Image
-                                source={{ uri: dish.image }}
-                                className="h-20 w-20 rounded-md mx-auto"
-                              />
-                              <Text className="text-center text-sm font-semibold">
-                                {dish.name}
-                              </Text>
-                              <Text className="text-center text-sm font-semibold text-red-600">
-                                {formatPriceVND(dish.price)}
-                              </Text>
-                            </View>
-                          ))}
+                        <View className="ml-4">
+                          <Text className="text-gray-500 text-lg">
+                            •{" "}
+                            {moment
+                              .utc(modalContent.startDate)
+                              .format("HH:mm, DD/MM/YYYY")}
+                          </Text>
                         </View>
                       </View>
-                    )}
 
+                      <View className="flex-row item">
+                        <Text className="font-semibold mr-2 text-gray-700 text-lg mb-4">
+                          Trạng thái:
+                        </Text>
+                        <StatusLabel statusId={modalContent?.statusId} />
+                      </View>
+
+                      {modalContent.comboDishes && (
+                        <View className="w-full">
+                          <Text className="font-semibold text-lg text-gray-700 h-fit my-2">
+                            Món đã chọn:
+                          </Text>
+                          <View className="flex-row flex-wrap  gap-2">
+                            {modalContent.comboDishes.map((dish) => (
+                              <View
+                                key={dish.dishId}
+                                className="bg-white rounded-md p-2 shadow-md"
+                              >
+                                <Image
+                                  source={{ uri: dish.image }}
+                                  className="h-20 w-20 rounded-md mx-auto"
+                                />
+                                <Text className="text-center text-sm font-semibold">
+                                  {dish.name}
+                                </Text>
+                                <Text className="text-center text-sm font-semibold text-red-600">
+                                  {formatPriceVND(dish.price)}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      )}
+                    </ScrollView>
                     {/* Nút hành động */}
                     <View className="flex-row justify-end mt-6 items-center">
                       <TouchableOpacity
