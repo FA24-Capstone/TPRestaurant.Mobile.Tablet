@@ -305,11 +305,18 @@ const ComboCard: React.FC<ComboCardProps> = ({
                 className=" rounded-lg mr-6"
                 resizeMode="cover"
               />
-              <View className="flex-wrap w-1/2">
-                <Text className="font-bold text-2xl h-[50px] mb-2 text-gray-700 w-full">
+              <ScrollView
+                className="flex-wrap w-1/2"
+                style={{
+                  backgroundColor: "white",
+
+                  height: 500,
+                }}
+              >
+                <Text className="font-bold text-2xl h-[50px]  text-gray-700 w-full">
                   {name}
                 </Text>
-                <Text className="text-gray-600 text-lg font-semibold mr-4 mb-2 w-full">
+                <Text className="text-gray-600 text-lg font-semibold mr-4 mb-2 max-w-[550px]">
                   {type} - {description}
                 </Text>
 
@@ -322,39 +329,39 @@ const ComboCard: React.FC<ComboCardProps> = ({
                       Các lựa chọn món ăn:
                     </Text>
 
-                    <ScrollView
+                    <View
                       style={{
                         backgroundColor: "white",
                         padding: 20,
                         marginBottom: 50,
-                        height: 400,
+                        // height: 400,
                       }}
                     >
                       {renderOptionSets()}
-                    </ScrollView>
+                    </View>
                   </View>
                 )}
-                <View className=" flex-row flex-wrap justify-end">
-                  <TouchableOpacity
-                    className="mt-4 bg-gray-500 p-2 rounded-lg w-[100px] mr-6"
-                    onPress={closeModal}
-                  >
-                    <Text className="text-white text-center font-semibold text-lg uppercase">
-                      Huỷ
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="mt-4 bg-[#C01D2E] w-[200px] p-2 rounded-lg"
-                    // onPress={handleAddToOrder}
-                    onPress={handleAddToOrder}
-                    // disabled={!allChoicesMade()}
-                  >
-                    <Text className="text-white text-center font-semibold text-lg uppercase">
-                      Thêm vào order
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+              </ScrollView>
+            </View>
+            <View className=" flex-row flex-wrap justify-end">
+              <TouchableOpacity
+                className="mt-4 bg-gray-500 p-2 rounded-lg w-[100px] mr-6"
+                onPress={closeModal}
+              >
+                <Text className="text-white text-center font-semibold text-lg uppercase">
+                  Huỷ
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="mt-4 bg-[#C01D2E] w-[200px] p-2 rounded-lg"
+                // onPress={handleAddToOrder}
+                onPress={handleAddToOrder}
+                // disabled={!allChoicesMade()}
+              >
+                <Text className="text-white text-center font-semibold text-lg uppercase">
+                  Thêm vào order
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

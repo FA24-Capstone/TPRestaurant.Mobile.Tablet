@@ -110,7 +110,7 @@ const ListDishes: React.FC<ListDishesProps> = ({
                         DishItemTypeTranslations[dish.dishItemType.name] ||
                         "Loại không xác định"
                       }
-                      price={dish.price}
+                      price={dish.price || 0}
                       description={dish.description}
                       dishSizeDetails={dish.dishSizeDetails}
                     />
