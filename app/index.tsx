@@ -35,6 +35,7 @@ import {
 } from "@/components/FlashMessageHelpers";
 import { AppDispatch } from "@/redux/store";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { Ionicons } from "@expo/vector-icons";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -62,6 +63,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   console.log("tableIdNe:", tableId);
+  console.log("phoneNumberDatban:", phoneNumber);
 
   console.log(`Width: ${width}, Height: ${height}`);
 
@@ -73,7 +75,7 @@ const App = () => {
 
   useEffect(() => {
     const fetchReservation = async () => {
-      if (tableId) {
+      if (tableId !== null && tableId !== undefined) {
         const now = moment()
           .tz("Asia/Ho_Chi_Minh")
           .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
@@ -82,7 +84,7 @@ const App = () => {
         // dispatch(fetchReservationWithTime({ tableId, time: now }));
         dispatch(
           fetchReservationWithTime({
-            tableId,
+            tableId: tableId ?? "",
             // time: "2024-10-07T14:00:00",
             time: now,
           })
@@ -94,6 +96,25 @@ const App = () => {
   }, [dispatch, tableId]);
 
   // Tính toán reservationText dựa trên dữ liệu từ Redux store
+  // const reservationText = useMemo(() => {
+  //   if (reservationData && reservationData.result) {
+  //     const reservation = reservationData.result.order;
+  //     const customerName = reservation?.account?.lastName
+  //       ? `${reservation.account.firstName} ${reservation.account.lastName}`
+  //       : "ẩn danh";
+
+  //     const reservationTime = moment(reservation.mealTime).format(
+  //       "HH:mm A, DD/MM/YYYY"
+  //     );
+
+  //     setPhoneNumberOrder(reservation.account.phoneNumber);
+
+  //     return `Bàn số ${tableName} đã có quý khách ${customerName} đặt bàn vào lúc ${reservationTime}. Nếu quý khách hàng đã tới nhận bàn, hãy nhập số điện thoại đã đặt bàn để tiến hành dùng bữa tại nhà hàng Thiên Phú. Chúc quý khách hàng dùng bữa ngon miệng!`;
+  //   }
+  //   return "";
+  // }, [reservationData, tableName]);
+
+  // Compute reservationText based on reservationData
   const reservationText = useMemo(() => {
     if (reservationData && reservationData.result) {
       const reservation = reservationData.result.order;
@@ -109,24 +130,43 @@ const App = () => {
 
       return `Bàn số ${tableName} đã có quý khách ${customerName} đặt bàn vào lúc ${reservationTime}. Nếu quý khách hàng đã tới nhận bàn, hãy nhập số điện thoại đã đặt bàn để tiến hành dùng bữa tại nhà hàng Thiên Phú. Chúc quý khách hàng dùng bữa ngon miệng!`;
     }
-    return "";
+    return `Xin chào quý khách, nếu quý khách đã đặt bàn số ${tableName} tại nhà hàng Thiên Phú thì xin vui lòng nhập số điện thoại đã đặt bàn vào phía dưới. Nếu không hãy bỏ qua nhé!`;
   }, [reservationData, tableName]);
 
-  const handleStartExploring = () => {
-    setIsLoading(true);
+  const handleStartExploring = async () => {
+    try {
+      setIsLoading(true);
+      const now = moment()
+        .tz("Asia/Ho_Chi_Minh")
+        .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
+
+      // Dispatch the fetchReservationWithTime action
+      await dispatch(
+        fetchReservationWithTime({
+          tableId: tableId ?? "",
+          time: now,
+        })
+      );
+
+      setIsLoading(false);
+      setModalVisible(true);
+    } catch (error) {
+      setIsLoading(false);
+      showErrorMessage("Có lỗi xảy ra khi lấy thông tin đặt bàn.");
+    }
   };
 
-  useEffect(() => {
-    if (isLoading) {
-      if (reservationText) {
-        setIsLoading(false);
-        setModalVisible(true);
-      } else {
-        setIsLoading(false);
-        router.push("/home-screen");
-      }
-    }
-  }, [isLoading, reservationText, router]);
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     if (reservationText) {
+  //       setIsLoading(false);
+  //       setModalVisible(true);
+  //     } else {
+  //       setIsLoading(false);
+  //       router.push("/home-screen");
+  //     }
+  //   }
+  // }, [isLoading, reservationText, router]);
 
   const isLandscape = width > height;
 
@@ -135,9 +175,7 @@ const App = () => {
   const validatePhoneNumber = (phone: string) => {
     const phoneRegex = /^\d{9,10}$/g; // Số điện thoại bắt đầu bằng 0 và có  chữ số
     if (!phoneRegex.test(phone)) {
-      setPhoneError(
-        "Số điện thoại không hợp lệ. Số điện thoại phải có ít nhất 9 và nhiều nhất 10 chữ số."
-      );
+      setPhoneError("Số điện thoại không đúng định dạng.");
       return false;
     }
     setPhoneError(null);
@@ -145,40 +183,62 @@ const App = () => {
   };
 
   const handleConfirmPhoneNumber = async () => {
-    if (phoneNumberOrder && phoneNumberOrder === phoneNumber) {
-      // Proceed to the next screen or show success message
-      setModalVisible(false);
-      router.push("/home-screen");
+    if (reservationData && reservationData.result) {
+      // If reservationData exists, verify the phone number
+      if (phoneNumberOrder === phoneNumber) {
+        setModalVisible(false);
+        router.push("/home-screen");
+        showSuccessMessage("Xác nhận đặt bàn thành công!");
+      } else {
+        showErrorMessage("Không tìm thấy đặt chỗ cho số điện thoại này.");
+      }
     } else {
-      showErrorMessage("Không tìm thấy đặt chỗ cho số điện thoại này.");
+      // If no reservationData, save the phone number and navigate
+      if (validatePhoneNumber(phoneNumber)) {
+        // Save the phone number as needed, e.g., to Redux or AsyncStorage
+        // For example:
+        // await AsyncStorage.setItem("user_phone_number", phoneNumber);
+        setModalVisible(false);
+        router.push("/home-screen");
+        showSuccessMessage("Số điện thoại đã được lưu!");
+      } else {
+        showErrorMessage("Vui lòng nhập số điện thoại hợp lệ.");
+      }
     }
   };
+
+  const handleSkip = () => {
+    setModalVisible(false);
+    router.push("/home-screen");
+  };
+
+  const isConfirmDisabled = !phoneNumber || phoneError !== null;
 
   const isDisabled = !phoneNumber || phoneError !== null;
-  async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  // async function requestUserPermission() {
+  //   const authStatus = await messaging().requestPermission();
+  //   const enabled =
+  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (enabled) {
-      getToken();
-    }
-  }
-  const getToken = async () => {
-    const token = await messaging().getToken();
-    if (token) {
-      await AsyncStorage.setItem("device_token", token);
-      console.log("Your Firebase Token is:", token);
-    }
-  };
+  //   if (enabled) {
+  //     getToken();
+  //   }
+  // }
+  // const getToken = async () => {
+  //   const token = await messaging().getToken();
+  //   if (token) {
+  //     await AsyncStorage.setItem("device_token", token);
+  //     console.log("Your Firebase Token is:", token);
+  //   }
+  // };
 
-  useEffect(() => {
-    requestUserPermission();
-  }, []);
-  messaging().setBackgroundMessageHandler(async (message) => {
-    console.log(message);
-  });
+  // useEffect(() => {
+  //   requestUserPermission();
+  // }, []);
+  // messaging().setBackgroundMessageHandler(async (message) => {
+  //   console.log(message);
+  // });
   return (
     <>
       {isLoading && (
@@ -227,6 +287,7 @@ const App = () => {
               animationType="slide"
               transparent={true}
               visible={modalVisible}
+              onRequestClose={() => setModalVisible(false)}
             >
               <View
                 style={{
@@ -246,21 +307,21 @@ const App = () => {
                     alignItems: "center",
                   }}
                 >
-                  <Text className="text-center mb-6 mt-2 font-bold text-2xl text-yellow-700">
-                    THÔNG BÁO BÀN ĐÃ ĐƯỢC ĐẶT
+                  <Text className="text-center mb-6 mt-2 uppercase font-extrabold text-2xl text-[#C01D2E]">
+                    Xác nhận bàn đã được đặt
                   </Text>
                   <Text
                     style={{
-                      fontSize: 20,
-                      fontWeight: 500,
-                      marginBottom: 40,
+                      fontSize: 24,
+                      fontWeight: "500",
+                      marginBottom: 30,
                       textAlign: "center",
                     }}
                   >
                     {reservationText}
                   </Text>
-                  <View className="flex-row  items-center mx-auto">
-                    <Text className=" text-2xl mr-4 mb-2 text-[#C01D2E]">
+                  <View className="flex-row items-center mx-auto">
+                    <Text className="text-2xl mr-4 mb-2 text-[#C01D2E]">
                       +84
                     </Text>
                     <View>
@@ -273,7 +334,7 @@ const App = () => {
                         keyboardType="phone-pad"
                         maxLength={10}
                         style={{
-                          width: 250,
+                          width: 300,
                           height: 45,
                           borderColor: phoneError ? "red" : "gray",
                           borderWidth: 1,
@@ -294,17 +355,29 @@ const App = () => {
                       {phoneError}
                     </Text>
                   )}
-                  <TouchableOpacity
-                    className={`my-2 w-[200px] p-2 rounded-lg ${
-                      isDisabled ? "bg-[#8B4513]" : "bg-[#C01D2E]"
-                    }`}
-                    onPress={handleConfirmPhoneNumber}
-                    disabled={isDisabled}
-                  >
-                    <Text className="text-white text-center font-semibold text-lg uppercase">
-                      Xác nhận
-                    </Text>
-                  </TouchableOpacity>
+                  <View className="flex-row justify-evenly mt-6 w-full items-center">
+                    <TouchableOpacity
+                      className={`my-2 w-[300px] p-2 rounded-lg ${
+                        isConfirmDisabled ? "bg-gray-800" : "bg-[#C01D2E]"
+                      }`}
+                      onPress={handleConfirmPhoneNumber}
+                      disabled={isConfirmDisabled}
+                    >
+                      <Text className="text-white text-center font-semibold text-xl uppercase">
+                        Xác nhận
+                      </Text>
+                    </TouchableOpacity>
+                    {/* Add the "Bỏ qua" button */}
+                    <TouchableOpacity
+                      className="my-2 w-[300px] p-2 rounded-lg flex-row items-center justify-center bg-gray-400"
+                      onPress={handleSkip}
+                    >
+                      <Text className="text-white text-center font-semibold text-xl uppercase mr-2">
+                        Bỏ qua
+                      </Text>
+                      <Ionicons name="arrow-forward" size={24} color="white" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             </Modal>
