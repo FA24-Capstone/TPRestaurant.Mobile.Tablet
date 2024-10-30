@@ -8,13 +8,11 @@
     "scheme": "thienphurestaurant",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/simpleMeditationLogo.jpeg",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "jsEngine": "hermes",
       "supportsTablet": true,
@@ -36,10 +34,7 @@
     "expo": {
       "jsEngine": "jsc"
     },
-    "plugins": [
-      "expo-router",
-      "expo-font"
-    ],
+    "plugins": ["expo-router", "expo-font"],
     "extra": {
       "eas": {
         "projectId": "28697004-3e3e-4c24-b616-5dfca2e5764d"

@@ -1,23 +1,33 @@
 import React, { useEffect } from "react";
 import { useFonts } from "expo-font";
+import * as ExpoSplashScreen from "expo-splash-screen"; // Sử dụng alias để tránh xung đột tên
+
 import { SplashScreen, Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Provider } from "react-redux";
-import store, { RootState } from "@/redux/store";
+import store, { persistor, RootState } from "@/redux/store";
 import CustomHeader from "@/components/CustomHeader";
 import CustomDrawerContent from "@/components/CustomDrawerContent"; // Import your custom drawer content
 import Colors from "@/constants/Colors";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import LoginScreen from "./(tabs)/login";
 import FlashMessage from "react-native-flash-message";
+import { PersistGate } from "redux-persist/integration/react";
+import LoadingOverlay from "@/components/LoadingOverlay";
+import * as SecureStore from "expo-secure-store";
+import { LoginResponse } from "./types/login_type";
+import axios from "axios";
+import { login } from "@/redux/slices/authSlice";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
 const Drawer = createDrawerNavigator();
 const NativeStack = createNativeStackNavigator();
 
-SplashScreen.preventAutoHideAsync();
+ExpoSplashScreen.preventAutoHideAsync(); // Sử dụng alias để tránh xung đột tên
 
 function MyDrawer() {
   return (
@@ -114,10 +124,66 @@ function RootLayout() {
   });
 
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const loadToken = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("token");
+        const deviceId = await SecureStore.getItemAsync("deviceId"); // Lấy deviceId từ SecureStore
+
+        if (token && deviceId) {
+          // Nếu token và deviceId tồn tại, gọi API để lấy thông tin thiết bị
+          console.log(
+            `Making request to: ${API_URL}/device/get-device-by-id/${deviceId}`
+          );
+          const response = await axios.get<LoginResponse>(
+            `${API_URL}/device/get-device-by-id/${deviceId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            const data = response.data.result;
+            dispatch(
+              login({
+                token: token,
+                deviceResponse: {
+                  deviceId: data.deviceResponse.deviceId,
+                  deviceCode: data.deviceResponse.deviceCode,
+                  tableId: data.deviceResponse.tableId,
+                  tableName: data.deviceResponse.tableName,
+                  mainRole: data.mainRole,
+                },
+                rememberMe: true, // Đặt rememberMe là true vì token được lưu trong SecureStore
+              })
+            );
+          } else {
+            // Nếu token không hợp lệ, xóa nó cùng với deviceId
+            await SecureStore.deleteItemAsync("token");
+            await SecureStore.deleteItemAsync("deviceId");
+            await SecureStore.deleteItemAsync("password");
+            await SecureStore.deleteItemAsync("rememberMe");
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load token from SecureStore:", error);
+      } finally {
+        ExpoSplashScreen.hideAsync();
+      }
+    };
+
+    if (fontsLoaded) {
+      loadToken();
+    }
+  }, [fontsLoaded, dispatch]);
 
   useEffect(() => {
     if (error) throw error;
-    if (fontsLoaded) SplashScreen.hideAsync();
+    if (fontsLoaded) ExpoSplashScreen.hideAsync(); // Sử dụng alias
   }, [fontsLoaded, error]);
 
   if (!fontsLoaded) {
@@ -160,7 +226,12 @@ function RootLayout() {
 export default function App() {
   return (
     <Provider store={store}>
-      <RootLayout />
+      <PersistGate
+        loading={<LoadingOverlay visible={true} />}
+        persistor={persistor}
+      >
+        <RootLayout />
+      </PersistGate>
     </Provider>
   );
 }

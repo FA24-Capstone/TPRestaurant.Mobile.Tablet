@@ -12,40 +12,73 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { loginDevice } from "../../api/loginApi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "@/redux/slices/authSlice";
 import { Feather } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { Checkbox } from "react-native-paper";
+import { AppDispatch, RootState } from "@/redux/store";
+import * as SecureStore from "expo-secure-store";
 
 const LoginScreen: React.FC = () => {
   const [deviceCode, setDeviceCode] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisibility, setPasswordVisibility] = useState(true);
   const [rightIcon, setRightIcon] = useState<"eye" | "eye-off">("eye"); // Explicitly type the state
-  const router = useRouter();
-  const dispatch = useDispatch();
-  const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  // const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
   const [loading, setLoading] = useState(false); // State to manage the loading spinner
 
+  const router = useRouter();
+  const dispatch: AppDispatch = useDispatch<AppDispatch>(); // Định nghĩa kiểu cho dispatch
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.replace("/home-screen");
+    }
+  }, [isLoggedIn, router]);
+
+  // Thêm useEffect để tải lại thông tin đăng nhập nếu "Remember Me" được chọn
+  useEffect(() => {
+    const loadSavedCredentials = async () => {
+      try {
+        const savedRememberMe = await SecureStore.getItemAsync("rememberMe");
+        if (savedRememberMe === "true") {
+          const savedDeviceCode = await SecureStore.getItemAsync("deviceCode");
+          const savedPassword = await SecureStore.getItemAsync("password");
+          if (savedDeviceCode && savedPassword) {
+            setDeviceCode(savedDeviceCode);
+            setPassword(savedPassword);
+            setRememberMe(true);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load saved credentials:", error);
+      }
+    };
+
+    loadSavedCredentials();
+  }, []);
+
   const handleLogin = async () => {
+    if (!deviceCode || !password) {
+      Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+
     try {
-      setLoading(true); // Start loading when login begins
-      await loginDevice(deviceCode, password, dispatch);
-      setIsLoginSuccessful(true);
+      setLoading(true);
+      await loginDevice(deviceCode, password, rememberMe, dispatch);
+      // Với redux-persist, trạng thái sẽ được tự động lưu trữ dựa trên rememberMe
     } catch (error) {
       console.error("Login error:", error);
       Alert.alert("Đăng nhập thất bại", "Đã xảy ra lỗi. Vui lòng thử lại.");
     } finally {
-      setLoading(false); // Stop loading after login attempt
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (isLoginSuccessful) {
-      router.push("/home-screen");
-    }
-  }, [isLoginSuccessful, router]);
 
   const handlePasswordVisibility = () => {
     setRightIcon(rightIcon === "eye" ? "eye-off" : "eye");
@@ -62,14 +95,14 @@ const LoginScreen: React.FC = () => {
       <ScrollView contentContainerStyle={{ flex: 1 }} className="bg-[#FFFFFF]">
         <View className="flex mx-auto my-auto bg-white w-full">
           <View className="mx-auto my-auto w-full">
-            <Text className="text-center text-[#970C1A] text-4xl  font-bold mb-6">
+            <Text className="text-center text-[#970C1A] text-4xl font-bold mb-6">
               NHÀ HÀNG THIÊN PHÚ
             </Text>
             <Text className="w-full text-center mb-7 text-slate-700 text-2xl italic">
               Chào mừng bạn trở lại, vui lòng đăng nhập
             </Text>
             <View className="w-[60%] mx-auto">
-              <View className="px-3  mb-4">
+              <View className="px-3 mb-4">
                 <Text className="mx-3 mb-5 text-xl text-slate-700 font-medium">
                   Mã Bàn
                 </Text>
@@ -92,7 +125,7 @@ const LoginScreen: React.FC = () => {
                     secureTextEntry={passwordVisibility}
                     value={password}
                     onChangeText={setPassword}
-                    className="w-[90%] text-lg ml-3  text-slate-400"
+                    className="w-[90%] text-lg ml-3 text-slate-400"
                   />
                   <TouchableOpacity
                     onPress={handlePasswordVisibility}
@@ -102,6 +135,18 @@ const LoginScreen: React.FC = () => {
                   </TouchableOpacity>
                 </View>
               </View>
+
+              {/* Remember Me checkbox */}
+              <View className="flex flex-row items-center mx-7 mt-3">
+                <Checkbox
+                  status={rememberMe ? "checked" : "unchecked"}
+                  onPress={() => setRememberMe(!rememberMe)}
+                />
+                <Text className="ml-2 text-lg text-slate-700">
+                  Ghi nhớ tài khoản này
+                </Text>
+              </View>
+
               <TouchableOpacity
                 className="mx-auto mt-8 bg-[#970C1A] rounded-3xl"
                 onPress={handleLogin}
@@ -114,22 +159,8 @@ const LoginScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Full-screen loading spinner */}
+        {/* Loading overlay */}
         {loading && (
-          // <View
-          //   style={{
-          //     position: "absolute",
-          //     top: 0,
-          //     left: 0,
-          //     right: 0,
-          //     bottom: 0,
-          //     justifyContent: "center",
-          //     alignItems: "center",
-          //     backgroundColor: "rgba(0, 0, 0, 0.3)", // Semi-transparent background
-          //   }}
-          // >
-          //   <ActivityIndicator size="large" color="#A31927" />
-          // </View>
           <View style={{ flex: 1 }}>
             <LoadingOverlay visible={loading} />
           </View>
