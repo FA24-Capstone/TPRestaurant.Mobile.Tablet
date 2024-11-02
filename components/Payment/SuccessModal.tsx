@@ -45,7 +45,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           {/* Centered Image Container */}
           <View className="absolute -top-20 left-0 right-0 items-center">
             <Image
-              source={require("../../assets/Icons/iconAI.png")}
+              source={require("../../assets/Icons/iconAI.jpg")}
               className="w-40 h-40"
             />
           </View>

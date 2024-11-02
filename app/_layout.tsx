@@ -214,6 +214,11 @@ function RootLayout() {
             component={require("./(modal)/adjust-meditation-duration").default}
             options={{ headerShown: false, presentation: "modal" }}
           />
+          <NativeStack.Screen
+            name="transaction"
+            component={require("./transaction").default}
+            options={{ headerShown: false }}
+          />
         </NativeStack.Navigator>
       ) : (
         <LoginScreen />

@@ -113,13 +113,13 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
           onClose();
           setLoading(true);
           Linking.openURL(response.result)
-            .then(() => {
-              // Prepare the modal to show upon returning
-              setSuccessMessage(
-                "Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi! Nhà hàng Thiên Phú xin cảm ơn và hẹn gặp lại quý khách!"
-              );
-              setSuccessVisible(true); // Show modal when user returns
-            })
+            // .then(() => {
+            //   // Prepare the modal to show upon returning
+            //   setSuccessMessage(
+            //     "Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi! Nhà hàng Thiên Phú xin cảm ơn và hẹn gặp lại quý khách!"
+            //   );
+            //   setSuccessVisible(true); // Show modal when user returns
+            // })
             .catch((err) => console.error("Failed to open URL:", err));
         }
       }
