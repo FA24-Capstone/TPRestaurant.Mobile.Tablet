@@ -44,6 +44,8 @@ export const fetchCombos = async (
       },
       startDate: item.startDate,
       endDate: item.endDate,
+      isDeleted: item.isDeleted, // Optional
+      isAvailable: item.isAvailable, // Optional
     }));
 
     // console.log("fetchCombos Ne", combos);

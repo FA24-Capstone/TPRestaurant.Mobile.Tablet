@@ -18,6 +18,7 @@ import { DishSizeDetail } from "@/app/types/dishes_type";
 import { formatPriceVND } from "../Format/formatPrice";
 import { fetchComboById } from "@/api/comboApi";
 import { Combo, DishCombo, DishComboDetail } from "@/app/types/combo_type";
+import { showErrorMessage } from "../FlashMessageHelpers";
 
 interface SelectedDishes {
   [setId: number]: string[]; // Use number if setId is numeric
@@ -31,6 +32,9 @@ interface ComboCardProps {
   rating: number;
   ratingCount: number;
   type: string;
+  isDeleted: boolean;
+  isAvailable: boolean;
+  quantityLeft?: number;
 }
 
 const ComboCard: React.FC<ComboCardProps> = ({
@@ -42,6 +46,9 @@ const ComboCard: React.FC<ComboCardProps> = ({
   type,
   price,
   description,
+  isDeleted,
+  isAvailable,
+  quantityLeft,
 }) => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
@@ -73,14 +80,25 @@ const ComboCard: React.FC<ComboCardProps> = ({
   }, [id]);
 
   const handleAddDish = async () => {
-    try {
-      const data = await fetchComboById(id);
-      setComboDetails(data.result.combo);
-      setDishCombos(data.result.dishCombo);
-      setModalVisible(true);
-    } catch (error) {
-      console.error("Error fetching combo details:", error);
-      alert("Failed to load combo details.");
+    if (!isAvailable || quantityLeft === 0 || quantityLeft === null) {
+      if (!isAvailable) {
+        showErrorMessage(
+          "Món ăn này không còn khả dụng. Vui lòng chọn món khác!"
+        );
+      } else if (quantityLeft === 0 || quantityLeft === null) {
+        showErrorMessage("Món ăn này đã hết. Vui lòng chọn món khác!");
+      }
+    } else {
+      console.log("quantityLeftNE", quantityLeft);
+      try {
+        const data = await fetchComboById(id);
+        setComboDetails(data.result.combo);
+        setDishCombos(data.result.dishCombo);
+        setModalVisible(true);
+      } catch (error) {
+        console.error("Error fetching combo details:", error);
+        alert("Failed to load combo details.");
+      }
     }
   };
 
@@ -260,11 +278,15 @@ const ComboCard: React.FC<ComboCardProps> = ({
     >
       <Image
         source={typeof image === "string" ? { uri: image } : image} // Handle both local and URL images
-        className="absolute  top-2 z-10 left-[18%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
+        className="absolute  top-2 z-10 left-[20%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
         resizeMode="cover"
       />
       <View className="pt-14 rounded-[16px] z-0 shadow-xl bg-[#FFF1E1]">
-        <Text className="font-bold mx-2 text-[20px] text-center h-[50px]">
+        <Text
+          className="font-bold mx-2 text-[20px] text-center h-[50px]"
+          numberOfLines={2} // Số dòng tối đa
+          ellipsizeMode="tail"
+        >
           {name}
         </Text>
         <Text className="text-gray-500 text-center mb-2">{type}</Text>
@@ -279,10 +301,21 @@ const ComboCard: React.FC<ComboCardProps> = ({
           {formatPriceVND(price)}
         </Text>
         <TouchableOpacity
-          className="border-[#E45834] border-2 p-2 rounded-[20px]  w-[80%] mx-auto mb-4 mt-2"
+          className={` border-2 p-2 rounded-[20px]  w-[80%] mx-auto mb-4 mt-2 ${
+            isAvailable && quantityLeft && quantityLeft > 0
+              ? "border-[#E45834]"
+              : "border-gray-400"
+          }`}
           onPress={handleAddDish}
+          disabled={!isAvailable || quantityLeft === null || quantityLeft === 0}
         >
-          <Text className="text-[#E45834] text-center font-bold text-lg">
+          <Text
+            className={`text-[#E45834] text-center font-bold text-lg ${
+              isAvailable && quantityLeft && quantityLeft > 0
+                ? "text-[#E45834]"
+                : "text-gray-500"
+            }`}
+          >
             Chọn món này
           </Text>
         </TouchableOpacity>
@@ -322,6 +355,9 @@ const ComboCard: React.FC<ComboCardProps> = ({
 
                 <Text className="font-bold  text-xl text-[#C01D2E] h-[40px] mb-4">
                   {formatPriceVND(price)}
+                </Text>
+                <Text className="font-semibold text-xl">
+                  Còn {quantityLeft} món
                 </Text>
                 {dishCombos.length > 0 && (
                   <View>

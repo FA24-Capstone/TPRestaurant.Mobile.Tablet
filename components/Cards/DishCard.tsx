@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { addOrUpdateDish } from "../../redux/slices/dishesSlice";
 import { Dish, DishSizeDetail } from "@/app/types/dishes_type";
 import { formatPriceVND } from "../Format/formatPrice";
+import { showErrorMessage } from "../FlashMessageHelpers";
 
 interface DishCardProps {
   id: string;
@@ -23,6 +24,8 @@ interface DishCardProps {
   price: number;
   description?: string;
   dishSizeDetails?: DishSizeDetail[];
+  isAvailable?: boolean;
+  isDeleted?: boolean;
 }
 
 const DishCard: React.FC<DishCardProps> = ({
@@ -35,37 +38,49 @@ const DishCard: React.FC<DishCardProps> = ({
   price,
   description,
   dishSizeDetails,
+  isAvailable,
+  isDeleted,
 }) => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
 
   const handleAddDish = () => {
-    if (dishSizeDetails && dishSizeDetails.length > 0) {
-      // Show modal if there are dishSizeDetails
-      setModalVisible(true);
-    } else {
-      // Create the Dish object
-      const dish: Dish = {
-        id,
-        image,
-        name,
-        rating,
-        ratingCount,
-        dishItemTypeId: 1, // Replace with actual type ID if available
-        price,
-        description,
-        dishSizeDetails: [],
-        dishItemType: { id: 1, name: type, vietnameseName: null }, // Replace with actual type if available
-      };
-
-      // Add dish to cart if no dishSizeDetails
-      dispatch(
-        addOrUpdateDish({
-          dish, // Pass the entire Dish object
-          selectedSizeId: "", // No size selected
-        })
+    if (!isAvailable) {
+      showErrorMessage(
+        "Món ăn này hiện không khả dụng. Vui lòng chọn món khác."
       );
+    } else if (dishSizeDetails && dishSizeDetails.length === 0) {
+      showErrorMessage("Món ăn này chưa hoàn thiện. Vui lòng chọn món khác!");
+    } else {
+      if (dishSizeDetails && dishSizeDetails.length > 0) {
+        // Show modal if there are dishSizeDetails
+        setModalVisible(true);
+      } else {
+        // Create the Dish object
+        const dish: Dish = {
+          id,
+          image,
+          name,
+          rating,
+          ratingCount,
+          dishItemTypeId: 1, // Replace with actual type ID if available
+          price,
+          description,
+          dishSizeDetails: [],
+          isDeleted: isDeleted ?? false,
+          dishItemType: { id: 1, name: type, vietnameseName: null }, // Replace with actual type if available
+          isAvailable: isAvailable ?? true, // Add isAvailable property
+        };
+
+        // Add dish to cart if no dishSizeDetails
+        dispatch(
+          addOrUpdateDish({
+            dish, // Pass the entire Dish object
+            selectedSizeId: "", // No size selected
+          })
+        );
+      }
     }
   };
 
@@ -86,6 +101,8 @@ const DishCard: React.FC<DishCardProps> = ({
           dishItemTypeId: 1, // Replace with actual type ID if available
           price: selectedSize.price, // Use the price of the selected size
           description,
+          isDeleted: isDeleted ?? false,
+          isAvailable: isAvailable ?? true, // Add isAvailable property
           dishSizeDetails: [selectedSize], // Only include the selected size detail
           dishItemType: { id: 1, name: type, vietnameseName: null }, // Replace with actual type if available
         };
@@ -105,6 +122,8 @@ const DishCard: React.FC<DishCardProps> = ({
 
   const renderDishSizeDetail = ({ item }: { item: DishSizeDetail }) => {
     const isSelected = item.dishSizeDetailId === selectedSizeId;
+    const isOutOfStock = item.quantityLeft === 0;
+
     // Translation function
     const translateSize = (size: string) => {
       switch (size) {
@@ -118,17 +137,29 @@ const DishCard: React.FC<DishCardProps> = ({
           return size; // If none matches, return the original value
       }
     };
+
+    const handleDisabledItemClick = () => {
+      showErrorMessage("Món này đã hết hàng và không thể chọn.");
+    };
+
     return (
       <TouchableOpacity
-        onPress={() => setSelectedSizeId(item.dishSizeDetailId)}
+        onPress={() => {
+          if (isOutOfStock) {
+            handleDisabledItemClick();
+          } else {
+            setSelectedSizeId(item.dishSizeDetailId);
+          }
+        }}
         className={`mb-2 p-4 rounded-md mr-4 mt-4 ${
           isSelected ? "bg-[#F2D2D5] border-2 border-[#F2D2D5]" : "bg-gray-200"
-        }`}
+        } ${isOutOfStock ? "bg-gray-900 opacity-50" : ""}`} // Gray out if out of stock
+        disabled={isOutOfStock} // Disable press if out of stock
       >
         <Text
           className={`font-semibold text-center text-lg uppercase ${
             isSelected ? "text-[#C01D2E]" : "text-gray-600"
-          }`}
+          } ${isOutOfStock ? "text-white" : ""}`}
         >
           {translateSize(item.dishSize.name || "")}
         </Text>
@@ -136,18 +167,29 @@ const DishCard: React.FC<DishCardProps> = ({
           <Text
             className={`font-semibold text-center text-lg ${
               isSelected ? "text-[#C01D2E]" : "text-gray-600"
-            }`}
+            } ${isOutOfStock ? "text-white" : ""}`}
           >
             {formatPriceVND(item.price ?? 0)}
           </Text>
           {item.discount > 0 && (
             <Text
-              className={`ml-4 ${isSelected ? "text-white" : "text-gray-600"}`}
+              className={`ml-4 ${
+                isSelected ? "text-[#C01D2E]" : "text-gray-600"
+              } ${isOutOfStock ? "text-white" : ""}`}
             >
               (- {item.discount}%)
             </Text>
           )}
         </View>
+        {item.quantityLeft && (
+          <Text
+            className={`text-center font-semibold  mt-2 ${
+              item.quantityLeft <= 5 ? "text-red-500" : "text-gray-600"
+            } ${isOutOfStock ? "text-white" : ""} `}
+          >
+            (Còn {item.quantityLeft} món)
+          </Text>
+        )}
       </TouchableOpacity>
     );
   };
@@ -159,11 +201,17 @@ const DishCard: React.FC<DishCardProps> = ({
     >
       <Image
         source={typeof image === "string" ? { uri: image } : image} // Handle both local and URL images
-        className="absolute top-2 z-10 left-[18%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
+        className="absolute top-2 z-10 left-[20%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
         resizeMode="cover"
       />
       <View className="pt-14 rounded-[16px] z-0 shadow-xl bg-[#FFF1E1]">
-        <Text className="font-bold text-[20px] text-center">{name}</Text>
+        <Text
+          className="font-bold text-[20px] px-2 text-center"
+          numberOfLines={1} // Số dòng tối đa
+          ellipsizeMode="tail"
+        >
+          {name}
+        </Text>
         <Text className="text-gray-500 text-center mb-2">{type}</Text>
         <View className="flex-row items-center mx-auto mb-2">
           <Icon name="star" size={20} color="#FFD700" />
@@ -176,10 +224,21 @@ const DishCard: React.FC<DishCardProps> = ({
           {formatPriceVND(price)}
         </Text>
         <TouchableOpacity
-          className="border-[#E45834] border-2 p-2 rounded-[20px]  w-[80%] mx-auto mb-4 mt-2"
+          className={` border-2 p-2 rounded-[20px]  w-[80%] mx-auto mb-4 mt-2 ${
+            isAvailable && dishSizeDetails && dishSizeDetails.length > 0
+              ? "border-[#E45834]"
+              : "border-gray-400"
+          }`}
           onPress={handleAddDish}
+          disabled={!isAvailable}
         >
-          <Text className="text-[#E45834] text-center font-bold text-lg">
+          <Text
+            className={`text-[#E45834] text-center font-bold text-lg ${
+              isAvailable && dishSizeDetails && dishSizeDetails.length > 0
+                ? "text-[#E45834]"
+                : "text-gray-500"
+            }`}
+          >
             Chọn món này
           </Text>
         </TouchableOpacity>

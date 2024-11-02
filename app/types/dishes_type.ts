@@ -9,6 +9,7 @@ export interface DishItemResponse {
     averageRating: number;
     numberOfRating: number;
     dishItemType: DishItemType;
+    isDeleted: boolean;
   };
   dishSizeDetails: DishSizeDetail[];
 }
@@ -52,7 +53,8 @@ export interface Dish {
   description?: string;
   averageRating?: number;
   numberOfRating?: number;
-  isAvailable?: boolean;
+  isAvailable: boolean;
+  isDeleted: boolean;
   dishSizeDetails: DishSizeDetail[];
   dishItemType: DishItemType;
 }
