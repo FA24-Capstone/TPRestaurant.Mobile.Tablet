@@ -79,8 +79,8 @@ const ListDishes: React.FC<ListDishesProps> = ({
     const matchesSearch =
       searchQuery === "" ||
       dish.name.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesCategory && matchesSearch;
+    const notDeleted = !dish.isDeleted;
+    return matchesCategory && matchesSearch && notDeleted;
   });
 
   return (
@@ -113,6 +113,8 @@ const ListDishes: React.FC<ListDishesProps> = ({
                       price={dish.price || 0}
                       description={dish.description}
                       dishSizeDetails={dish.dishSizeDetails}
+                      isAvailable={dish.isAvailable}
+                      isDeleted={dish.isDeleted}
                     />
                   </View>
                 ))}

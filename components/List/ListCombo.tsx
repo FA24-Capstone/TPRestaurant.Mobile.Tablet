@@ -84,8 +84,8 @@ const ListCombo: React.FC<ListComboProps> = ({
     const matchesSearch =
       searchQuery === "" ||
       combo.name.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesCategory && matchesSearch;
+    const notDeleted = !combo.isDeleted;
+    return matchesCategory && matchesSearch && notDeleted;
   });
 
   return (
@@ -117,6 +117,9 @@ const ListCombo: React.FC<ListComboProps> = ({
                       }
                       price={combo?.price}
                       description={combo?.description}
+                      isDeleted={combo?.isDeleted}
+                      isAvailable={combo?.isAvailable}
+                      quantityLeft={combo?.quantityLeft ?? 0}
                     />
                   </View>
                 ))}

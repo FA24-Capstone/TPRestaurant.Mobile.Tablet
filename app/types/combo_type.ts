@@ -27,6 +27,8 @@ export interface Combo {
   ratingCount?: number;
   quantityLeft?: any;
   dailyCountdown?: number;
+  isAvailable: boolean;
+  isDeleted: boolean;
   totalOptionSets?: number; // Assuming this is an integer
 }
 
@@ -148,6 +150,8 @@ export interface CombosData {
   numberOfRating: number;
   averageRating: number;
   totalPages?: number;
+  isAvailable: boolean;
+  isDeleted: boolean;
 }
 
 export interface ItemCombo {

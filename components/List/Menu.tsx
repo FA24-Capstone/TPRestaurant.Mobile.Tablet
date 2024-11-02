@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import SearchBar from "../SearchBar";
 import CategoryTabs from "../Tabs/CategoryTabs";
@@ -11,6 +11,7 @@ import { fetchCombos } from "@/api/comboApi";
 import ListCombo from "./ListCombo";
 import ListDishes from "./ListDishes";
 import LoadingOverlay from "../LoadingOverlay";
+import { useSignalRConnection } from "@/hook/useSignalRConnection";
 
 interface MenuProps {
   isPanelOpen: boolean;
@@ -28,6 +29,13 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
 
   // **New State for Search Query**
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const {
+    isConnected,
+    error: signalRError,
+    connect,
+    disconnect,
+  } = useSignalRConnection();
 
   // console.log("dishesList", dishes);
 
@@ -62,34 +70,45 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
     SAUCE: "Nước chấm",
   };
 
-  useEffect(() => {
-    const loadMenuItems = async () => {
-      try {
-        setLoading(true);
-        const [fetchedDishes, fetchedCombos] = await Promise.all([
-          fetchDishes(1, pageSize),
-          fetchCombos(1, pageSize),
-        ]);
+  const loadMenuItems = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null); // Reset error before fetching
+      const [fetchedDishes, fetchedCombos] = await Promise.all([
+        fetchDishes(1, pageSize),
+        fetchCombos(1, pageSize),
+      ]);
+      // console.log("fetchedDishesCombo", fetchedDishes, "VA", fetchedCombos);
 
-        setDishes(fetchedDishes);
-        setCombos(fetchedCombos);
+      setDishes(fetchedDishes);
+      setCombos(fetchedCombos);
 
-        if (
-          fetchedDishes.length < pageSize ||
-          fetchedCombos.length < pageSize
-        ) {
-          setHasMore(false);
-        } else {
-          setHasMore(true);
-        }
-      } catch (err) {
-        console.error("Error loading menu items:", err); // Log the actual error
-        setError("Failed to load menu items");
-      } finally {
-        setLoading(false);
+      if (fetchedDishes.length < pageSize || fetchedCombos.length < pageSize) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
       }
-    };
+    } catch (err: any) {
+      // TypeScript type for better error handling
+      console.error("Error loading menu items:", err);
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(`Failed to load menu items: ${err.response.data.message}`);
+      } else {
+        setError("Failed to load menu items");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [pageSize]);
 
+  useEffect(() => {
+    connect(loadMenuItems); // Truyền hàm handleReload vào hook
+    return () => {
+      disconnect();
+    };
+  }, [connect, disconnect]);
+
+  useEffect(() => {
     loadMenuItems();
   }, [pageSize]);
 
@@ -124,8 +143,6 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
     return hasDishes || hasCombos;
   };
 
-  // Function to handle "Load More"
-
   return (
     <View className="flex-1 bg-[#F9F9F9]">
       {/* <MarqueeText /> */}
@@ -140,6 +157,13 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
             setSearchQuery={setSearchQuery}
           />
         </View>
+        {/* <TouchableOpacity
+          onPress={loadMenuItems}
+          disabled={loading}
+          className={`ml-2 ${loading ? "opacity-50" : ""}`}
+        >
+          <Text>Tải Lại</Text>
+        </TouchableOpacity> */}
         <View className="flex-row justify-center mb-2">
           <CategoryTabs
             categories={categories.filter(shouldShowDishes)}
