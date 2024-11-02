@@ -85,7 +85,7 @@ const App = () => {
         dispatch(
           fetchReservationWithTime({
             tableId: tableId ?? "",
-            // time: "2024-10-07T14:00:00",
+            // time: "2024-10-30T23:55:25.028Z",
             time: now,
           })
         );
@@ -94,25 +94,6 @@ const App = () => {
 
     fetchReservation();
   }, [dispatch, tableId]);
-
-  // Tính toán reservationText dựa trên dữ liệu từ Redux store
-  // const reservationText = useMemo(() => {
-  //   if (reservationData && reservationData.result) {
-  //     const reservation = reservationData.result.order;
-  //     const customerName = reservation?.account?.lastName
-  //       ? `${reservation.account.firstName} ${reservation.account.lastName}`
-  //       : "ẩn danh";
-
-  //     const reservationTime = moment(reservation.mealTime).format(
-  //       "HH:mm A, DD/MM/YYYY"
-  //     );
-
-  //     setPhoneNumberOrder(reservation.account.phoneNumber);
-
-  //     return `Bàn số ${tableName} đã có quý khách ${customerName} đặt bàn vào lúc ${reservationTime}. Nếu quý khách hàng đã tới nhận bàn, hãy nhập số điện thoại đã đặt bàn để tiến hành dùng bữa tại nhà hàng Thiên Phú. Chúc quý khách hàng dùng bữa ngon miệng!`;
-  //   }
-  //   return "";
-  // }, [reservationData, tableName]);
 
   // Compute reservationText based on reservationData
   const reservationText = useMemo(() => {
@@ -145,6 +126,7 @@ const App = () => {
         fetchReservationWithTime({
           tableId: tableId ?? "",
           time: now,
+          // time: "2024-10-30T23:55:25.028Z",
         })
       );
 
@@ -215,30 +197,36 @@ const App = () => {
   const isConfirmDisabled = !phoneNumber || phoneError !== null;
 
   const isDisabled = !phoneNumber || phoneError !== null;
-  // async function requestUserPermission() {
-  //   const authStatus = await messaging().requestPermission();
-  //   const enabled =
-  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-  //   if (enabled) {
-  //     getToken();
-  //   }
-  // }
-  // const getToken = async () => {
-  //   const token = await messaging().getToken();
-  //   if (token) {
-  //     await AsyncStorage.setItem("device_token", token);
-  //     console.log("Your Firebase Token is:", token);
-  //   }
-  // };
+  // QUAN LAMMMMM ================= Start
 
-  // useEffect(() => {
-  //   requestUserPermission();
-  // }, []);
-  // messaging().setBackgroundMessageHandler(async (message) => {
-  //   console.log(message);
-  // });
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      getToken();
+    }
+  }
+  const getToken = async () => {
+    const token = await messaging().getToken();
+    if (token) {
+      await AsyncStorage.setItem("device_token", token);
+      console.log("Your Firebase Token is:", token);
+    }
+  };
+
+  useEffect(() => {
+    requestUserPermission();
+  }, []);
+  messaging().setBackgroundMessageHandler(async (message) => {
+    console.log(message);
+  });
+
+  // QUAN LAMMMMM ================= End
+
   return (
     <>
       {isLoading && (
