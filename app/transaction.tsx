@@ -22,13 +22,14 @@ type RouteParams = {
 };
 
 const TransactionScreen = () => {
+  const dispatch = useDispatch();
   const router = useRouter();
   const route = useRoute<RouteProp<RouteParams, "TransactionScreen">>();
   const { isSuccess } = route.params || {};
 
   const handleLogout = () => {
-    // dispatch(logout());
-    router.push("/home-screen");
+    dispatch(logout());
+    // router.push("/home-screen");
   };
 
   // // Tự động logout sau 1 phút nếu không có hành động gì
