@@ -4,7 +4,7 @@ on:
     branches:
       - master
     tags:
-      - 'v*'  # Triggers on version tags
+      - 'v*'
 
 jobs:
   build:
@@ -23,11 +23,19 @@ jobs:
         run: |
           yarn install --frozen-lockfile
 
-      - name: Setup EAS
+      - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
+          expo-version: latest    # Added this line
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
+
+      # Increase system limits to prevent ENOSPC errors
+      - name: Configure System Limits
+        run: |
+          sudo sysctl -w fs.inotify.max_user_watches=524288
+          sudo sysctl -w fs.inotify.max_queued_events=524288
+          sudo sysctl -w fs.inotify.max_user_instances=524288
 
       - name: Build Production Android
         run: |
