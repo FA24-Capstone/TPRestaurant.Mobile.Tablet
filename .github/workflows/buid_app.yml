@@ -42,4 +42,4 @@ jobs:
           eas build \
             --platform android \
             --profile production \
-            --non-interactive
+            --non-interactive --no-wait
