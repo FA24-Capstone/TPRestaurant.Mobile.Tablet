@@ -1,0 +1,33 @@
+name: EAS Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install -g expo-cli eas-cli
+          npm install
+
+      - name: Login to EAS
+        run: eas login --token ${{ secrets.EAS_ACCESS_TOKEN }}
+
+      - name: Build the app
+        run: eas build --profile ${{ secrets.EAS_BUILD_PROFILE }}
