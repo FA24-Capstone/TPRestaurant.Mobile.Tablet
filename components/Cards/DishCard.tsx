@@ -122,7 +122,7 @@ const DishCard: React.FC<DishCardProps> = ({
 
   const renderDishSizeDetail = ({ item }: { item: DishSizeDetail }) => {
     const isSelected = item.dishSizeDetailId === selectedSizeId;
-    const isOutOfStock = item.quantityLeft === 0;
+    const isOutOfStock = item.quantityLeft === 0 || item.isAvailable === false;
 
     // Translation function
     const translateSize = (size: string) => {
@@ -142,13 +142,15 @@ const DishCard: React.FC<DishCardProps> = ({
       showErrorMessage("Món này đã hết hàng và không thể chọn.");
     };
 
+    console.log("dishSizeDetailsDish", dishSizeDetails);
+
     return (
       <TouchableOpacity
         onPress={() => {
           if (isOutOfStock) {
             handleDisabledItemClick();
           } else {
-            setSelectedSizeId(item.dishSizeDetailId);
+            setSelectedSizeId(item?.dishSizeDetailId);
           }
         }}
         className={`mb-2 p-4 rounded-md mr-4 mt-4 ${
@@ -161,7 +163,7 @@ const DishCard: React.FC<DishCardProps> = ({
             isSelected ? "text-[#C01D2E]" : "text-gray-600"
           } ${isOutOfStock ? "text-white" : ""}`}
         >
-          {translateSize(item.dishSize.name || "")}
+          {translateSize(item?.dishSize?.name || "")}
         </Text>
         <View className="flex-row items-center justify-center mt-2">
           <Text
@@ -169,25 +171,33 @@ const DishCard: React.FC<DishCardProps> = ({
               isSelected ? "text-[#C01D2E]" : "text-gray-600"
             } ${isOutOfStock ? "text-white" : ""}`}
           >
-            {formatPriceVND(item.price ?? 0)}
+            {formatPriceVND(item?.price ?? 0)}
           </Text>
-          {item.discount > 0 && (
+          {/* {item?.discount > 0 && (
             <Text
               className={`ml-4 ${
                 isSelected ? "text-[#C01D2E]" : "text-gray-600"
               } ${isOutOfStock ? "text-white" : ""}`}
             >
-              (- {item.discount}%)
+              (- {item?.discount}%)
             </Text>
-          )}
+          )} */}
         </View>
-        {item.quantityLeft && (
+        {item.quantityLeft ? (
           <Text
             className={`text-center font-semibold  mt-2 ${
               item.quantityLeft <= 5 ? "text-red-500" : "text-gray-600"
             } ${isOutOfStock ? "text-white" : ""} `}
           >
-            (Còn {item.quantityLeft} món)
+            (Còn {item.quantityLeft ?? 0} món)
+          </Text>
+        ) : (
+          <Text
+            className={`text-center font-semibold  mt-2 ${"text-red-500"} ${
+              isOutOfStock ? "text-white" : ""
+            } `}
+          >
+            (Hết hàng)
           </Text>
         )}
       </TouchableOpacity>
@@ -201,7 +211,7 @@ const DishCard: React.FC<DishCardProps> = ({
     >
       <Image
         source={typeof image === "string" ? { uri: image } : image} // Handle both local and URL images
-        className="absolute top-2 z-10 left-[20%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
+        className="absolute top-2 z-10 left-[22%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
         resizeMode="cover"
       />
       <View className="pt-14 rounded-[16px] z-0 shadow-xl bg-[#FFF1E1]">
@@ -245,7 +255,7 @@ const DishCard: React.FC<DishCardProps> = ({
       </View>
 
       {/* Modal để chọn dish size */}
-      {dishSizeDetails && (
+      {dishSizeDetails && dishSizeDetails.length > 0 && (
         <Modal
           transparent={true}
           visible={modalVisible}

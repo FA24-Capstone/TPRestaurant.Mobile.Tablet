@@ -74,6 +74,8 @@ export interface DishComboDetail {
   dishSizeDetail: DishSizeDetail;
   comboOptionSetId: string;
   comboOptionSet: any;
+  isAvailable: boolean;
+  quantityLeft: any;
 }
 
 export interface ComboOptionSet {

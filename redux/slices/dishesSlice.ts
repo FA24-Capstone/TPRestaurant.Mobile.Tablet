@@ -78,10 +78,18 @@ const dishesSlice = createSlice({
       const combo = state.selectedCombos.find(
         (combo) => combo.comboId === action.payload
       );
-      if (combo && combo.quantity > 1) {
-        combo.quantity -= 1;
+      if (combo) {
+        if (combo.quantity > 1) {
+          combo.quantity -= 1;
+        } else {
+          // Remove combo if the quantity is 1 and is being decreased
+          state.selectedCombos = state.selectedCombos.filter(
+            (item) => item.comboId !== action.payload
+          );
+        }
       }
     },
+
     addOrUpdateDish: (
       state,
       action: PayloadAction<{ dish: Dish; selectedSizeId: string }>
