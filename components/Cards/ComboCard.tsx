@@ -80,16 +80,11 @@ const ComboCard: React.FC<ComboCardProps> = ({
   }, [id]);
 
   const handleAddDish = async () => {
-    if (!isAvailable || quantityLeft === 0 || quantityLeft === null) {
-      if (!isAvailable) {
-        showErrorMessage(
-          "Món ăn này không còn khả dụng. Vui lòng chọn món khác!"
-        );
-      } else if (quantityLeft === 0 || quantityLeft === null) {
-        showErrorMessage("Món ăn này đã hết. Vui lòng chọn món khác!");
-      }
+    if (!isAvailable) {
+      showErrorMessage(
+        "Món ăn này không còn khả dụng. Vui lòng chọn món khác!"
+      );
     } else {
-      console.log("quantityLeftNE", quantityLeft);
       try {
         const data = await fetchComboById(id);
         setComboDetails(data.result.combo);
@@ -102,7 +97,12 @@ const ComboCard: React.FC<ComboCardProps> = ({
     }
   };
 
-  const handleDishSelection = (setId, dishId) => {
+  const handleDishSelection = (setId, dishId, isDisabled) => {
+    if (isDisabled) {
+      showErrorMessage(
+        "Món ăn này không còn khả dụng. Vui lòng chọn món khác!"
+      );
+    }
     setSelectedDishes((prev) => {
       const currentSelection = prev[setId] || [];
       const maxChoices =
@@ -210,7 +210,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
               const isSelected = selectedDishes[index + 1]?.includes(
                 dish.dishComboId
               );
-
+              const isDisabled = !dish.dishSizeDetail?.isAvailable; // Check if the dish is not available
               return (
                 <TouchableOpacity
                   key={dish.dishComboId}
@@ -220,13 +220,29 @@ const ComboCard: React.FC<ComboCardProps> = ({
                     position: "relative",
                   }}
                   onPress={() =>
-                    handleDishSelection(index + 1, dish.dishComboId)
+                    handleDishSelection(index + 1, dish.dishComboId, isDisabled)
                   }
+                  disabled={isDisabled} // Disable touch event if the dish is not available
                 >
                   <Image
                     source={{ uri: dish.dishSizeDetail.dish.image }}
                     style={{ height: 100, width: 100, borderRadius: 10 }}
                   />
+                  {/* Add overlay if the dish is disabled */}
+                  {isDisabled && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.2)", // Dark semi-transparent overlay
+                        borderRadius: 10,
+                      }}
+                    />
+                  )}
+
                   {isSelected && (
                     <View
                       style={{
@@ -254,11 +270,16 @@ const ComboCard: React.FC<ComboCardProps> = ({
                       </View>
                     </View>
                   )}
-                  <Text className="font-semibold text-gray-600 text-base my-1 ">
+                  <Text className="font-semibold text-gray-700 text-base my-1 ">
                     {dish.dishSizeDetail.dish.name}
                   </Text>
                   <Text className="font-bold text-base text-center text-[#C01D2E]">
                     {formatPriceVND(dish.dishSizeDetail.price)}
+                  </Text>
+                  <Text className="font-semibold text-gray-500 text-sm my-1 ">
+                    {dish?.dishSizeDetail?.quantityLeft > 0
+                      ? `(Còn ${dish?.dishSizeDetail?.quantityLeft} món)`
+                      : "(Hết hàng)"}
                   </Text>
                 </TouchableOpacity>
               );
@@ -302,18 +323,14 @@ const ComboCard: React.FC<ComboCardProps> = ({
         </Text>
         <TouchableOpacity
           className={` border-2 p-2 rounded-[20px]  w-[80%] mx-auto mb-4 mt-2 ${
-            isAvailable && quantityLeft && quantityLeft > 0
-              ? "border-[#E45834]"
-              : "border-gray-400"
+            isAvailable ? "border-[#E45834]" : "border-gray-400"
           }`}
           onPress={handleAddDish}
-          disabled={!isAvailable || quantityLeft === null || quantityLeft === 0}
+          disabled={!isAvailable}
         >
           <Text
             className={`text-[#E45834] text-center font-bold text-lg ${
-              isAvailable && quantityLeft && quantityLeft > 0
-                ? "text-[#E45834]"
-                : "text-gray-500"
+              isAvailable ? "text-[#E45834]" : "text-gray-500"
             }`}
           >
             Chọn món này
@@ -356,9 +373,9 @@ const ComboCard: React.FC<ComboCardProps> = ({
                 <Text className="font-bold  text-xl text-[#C01D2E] h-[40px] mb-4">
                   {formatPriceVND(price)}
                 </Text>
-                <Text className="font-semibold text-xl">
+                {/* <Text className="font-semibold text-xl">
                   Còn {quantityLeft} món
-                </Text>
+                </Text> */}
                 {dishCombos.length > 0 && (
                   <View>
                     <Text className="font-semibold text-xl">

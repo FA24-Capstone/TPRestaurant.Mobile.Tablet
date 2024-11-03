@@ -12,10 +12,14 @@ import ListCombo from "./ListCombo";
 import ListDishes from "./ListDishes";
 import LoadingOverlay from "../LoadingOverlay";
 import { useSignalRConnection } from "@/hook/useSignalRConnection";
+import * as signalR from "@microsoft/signalr";
+import { showSuccessMessage } from "../FlashMessageHelpers";
 
 interface MenuProps {
   isPanelOpen: boolean;
 }
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
 const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
@@ -29,6 +33,9 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
 
   // **New State for Search Query**
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(
+    null
+  );
 
   const {
     isConnected,
@@ -78,7 +85,7 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
         fetchDishes(1, pageSize),
         fetchCombos(1, pageSize),
       ]);
-      // console.log("fetchedDishesCombo", fetchedDishes, "VA", fetchedCombos);
+      console.log("fetchedDishesCombo", fetchedDishes, "VA", fetchedCombos);
 
       setDishes(fetchedDishes);
       setCombos(fetchedCombos);
@@ -102,11 +109,39 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   }, [pageSize]);
 
   useEffect(() => {
-    connect(loadMenuItems); // Truyền hàm handleReload vào hook
+    // Create connection
+    const newConnection = new signalR.HubConnectionBuilder()
+      .withUrl(`${API_URL}/notifications`)
+      .withAutomaticReconnect()
+      .build();
+
+    setConnection(newConnection);
+  }, []);
+
+  useEffect(() => {
+    if (connection) {
+      // Start the connection
+      connection
+        .start()
+        .then(() => {
+          console.log("Connected to SignalR");
+          showSuccessMessage("Connected to SignalR");
+          // Subscribe to SignalR event
+          console.log("connection", connection);
+          connection.on("LOAD_NOTIFICATION", () => {
+            console.log("Received LOAD_NOTIFICATION event");
+            loadMenuItems();
+          });
+        })
+        .catch((error) => console.log("Connection failed: ", error));
+    }
+
     return () => {
-      disconnect();
+      if (connection) {
+        connection.stop();
+      }
     };
-  }, [connect, disconnect]);
+  }, [connection]);
 
   useEffect(() => {
     loadMenuItems();
@@ -157,13 +192,13 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
             setSearchQuery={setSearchQuery}
           />
         </View>
-        {/* <TouchableOpacity
+        <TouchableOpacity
           onPress={loadMenuItems}
           disabled={loading}
-          className={`ml-2 ${loading ? "opacity-50" : ""}`}
+          className={`my-2 ${loading ? "opacity-50" : ""}`}
         >
           <Text>Tải Lại</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
         <View className="flex-row justify-center mb-2">
           <CategoryTabs
             categories={categories.filter(shouldShowDishes)}

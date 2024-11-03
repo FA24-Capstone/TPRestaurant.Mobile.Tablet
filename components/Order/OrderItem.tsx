@@ -15,6 +15,7 @@ import {
 } from "../../redux/slices/dishesSlice";
 import { formatPriceVND } from "../Format/formatPrice";
 import { Dish, DishSizeDetail } from "@/app/types/dishes_type";
+import { showErrorMessage } from "../FlashMessageHelpers";
 // import { DishOrder } from "@/app/types/order_type";
 
 interface DishOrder extends Omit<Dish, "dishSizeDetails"> {
@@ -93,6 +94,7 @@ const OrderItem: React.FC<OrderItemProps> = ({ item, note, setNote }) => {
       />
     </TouchableOpacity>
   );
+  console.log("itemOrdeingDish", item.selectedSizeDetail.quantityLeft);
 
   return (
     <GestureDetector gesture={gesture}>
@@ -139,24 +141,32 @@ const OrderItem: React.FC<OrderItemProps> = ({ item, note, setNote }) => {
                   </TouchableOpacity>
                   <Text className="text-lg mx-2">{item.quantity}</Text>
                   <TouchableOpacity
-                    onPress={() =>
-                      dispatch(
-                        addOrUpdateDish({
-                          dish: {
-                            ...item,
-                            dishSizeDetails: [item.selectedSizeDetail], // Adding required dishSizeDetails array
-                            dishItemTypeId: 0, // Placeholder value, update accordingly
-                            dishItemType: {
-                              id: 0,
-                              name: "",
-                              vietnameseName: null,
-                            }, // Placeholder value, update accordingly
-                          },
-                          selectedSizeId:
-                            item.selectedSizeDetail.dishSizeDetailId,
-                        })
-                      )
-                    }
+                    onPress={() => {
+                      if (
+                        item.quantity < item.selectedSizeDetail.quantityLeft
+                      ) {
+                        dispatch(
+                          addOrUpdateDish({
+                            dish: {
+                              ...item,
+                              dishSizeDetails: [item.selectedSizeDetail], // Adding required dishSizeDetails array
+                              dishItemTypeId: 0, // Placeholder value, update accordingly
+                              dishItemType: {
+                                id: 0,
+                                name: "",
+                                vietnameseName: null,
+                              }, // Placeholder value, update accordingly
+                            },
+                            selectedSizeId:
+                              item.selectedSizeDetail.dishSizeDetailId,
+                          })
+                        );
+                      } else {
+                        showErrorMessage(
+                          `Xin lỗi quý khách, hiện món này chỉ còn ${item.selectedSizeDetail.quantityLeft} món`
+                        );
+                      }
+                    }}
                     className="p-1"
                   >
                     <MaterialCommunityIcons

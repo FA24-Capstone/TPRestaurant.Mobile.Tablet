@@ -200,30 +200,30 @@ const App = () => {
 
   // QUAN LAMMMMM ================= Start
 
-  async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  // async function requestUserPermission() {
+  //   const authStatus = await messaging().requestPermission();
+  //   const enabled =
+  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (enabled) {
-      getToken();
-    }
-  }
-  const getToken = async () => {
-    const token = await messaging().getToken();
-    if (token) {
-      await AsyncStorage.setItem("device_token", token);
-      console.log("Your Firebase Token is:", token);
-    }
-  };
+  //   if (enabled) {
+  //     getToken();
+  //   }
+  // }
+  // const getToken = async () => {
+  //   const token = await messaging().getToken();
+  //   if (token) {
+  //     await AsyncStorage.setItem("device_token", token);
+  //     console.log("Your Firebase Token is:", token);
+  //   }
+  // };
 
-  useEffect(() => {
-    requestUserPermission();
-  }, []);
-  messaging().setBackgroundMessageHandler(async (message) => {
-    console.log(message);
-  });
+  // useEffect(() => {
+  //   requestUserPermission();
+  // }, []);
+  // messaging().setBackgroundMessageHandler(async (message) => {
+  //   console.log(message);
+  // });
 
   // QUAN LAMMMMM ================= End
 
