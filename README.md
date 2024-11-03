@@ -1,5 +1,6 @@
-<div align="center">
 [![Production Android Build](https://github.com/FA24-Capstone/TPRestaurant.Mobile.Tablet/actions/workflows/buid_app.yml/badge.svg)](https://github.com/FA24-Capstone/TPRestaurant.Mobile.Tablet/actions/workflows/buid_app.yml)
+
+<div align="center">
   <br />
 
   <br />
