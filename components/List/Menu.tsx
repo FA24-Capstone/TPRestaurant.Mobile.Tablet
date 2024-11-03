@@ -119,23 +119,36 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   }, []);
 
   useEffect(() => {
-    if (connection) {
-      // Start the connection
-      connection
-        .start()
-        .then(() => {
-          console.log("Connected to SignalR");
-          showSuccessMessage("Connected to SignalR");
-          // Subscribe to SignalR event
-          console.log("connection", connection);
-          connection.on("LOAD_NOTIFICATION", () => {
-            console.log("Received LOAD_NOTIFICATION event");
-            loadMenuItems();
-          });
-        })
-        .catch((error) => console.log("Connection failed: ", error));
-    }
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 3000; // 3 seconds
 
+    const startConnection = async () => {
+      if (connection) {
+        // Start the connection
+        connection
+          .start()
+          .then(() => {
+            console.log("Connected to SignalR");
+            showSuccessMessage("Connected to SignalR");
+            // Subscribe to SignalR event
+            console.log("connection", connection);
+            connection.on("LOAD_NOTIFICATION", () => {
+              console.log("Received LOAD_NOTIFICATION event");
+              loadMenuItems();
+            });
+          })
+          .catch((error) => {
+            if (retryCount < MAX_RETRIES) {
+              retryCount++;
+              setTimeout(startConnection, RETRY_DELAY);
+            } else {
+              console.log("Max retries reached. Could not connect to SignalR.");
+            }
+          });
+      }
+    };
+    startConnection();
     return () => {
       if (connection) {
         connection.stop();
