@@ -25,8 +25,17 @@ jobs:
         run: |
           npm install -g expo-cli eas-cli
           npm install
+          
+      - name: Login to EAS
+        run: |
+          eas login <<EOF
+          ${{
+            secrets.USER_NAME
+          }}
+          ${{
+            secrets.PASSWORD
+          }}
+          EOF
 
       - name: Build the app
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: eas build --profile ${{ secrets.EAS_BUILD_PROFILE }}
