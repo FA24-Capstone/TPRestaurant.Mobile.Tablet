@@ -85,7 +85,7 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
         fetchDishes(1, pageSize),
         fetchCombos(1, pageSize),
       ]);
-      console.log("fetchedDishesCombo", fetchedDishes, "VA", fetchedCombos);
+      // console.log("fetchedDishesCombo", fetchedDishes, "VA", fetchedCombos);
 
       setDishes(fetchedDishes);
       setCombos(fetchedCombos);

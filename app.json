@@ -4,7 +4,7 @@
     "slug": "thienphu-restaurant",
     "version": "1.0.0",
     "orientation": "landscape",
-    "icon": "./assets/icon.jpeg",
+    "icon": "./assets/logoTP.jpg",
     "scheme": "thienphurestaurant",
     "userInterfaceStyle": "light",
     "splash": {
@@ -22,7 +22,7 @@
       "enablePngCrunchInReleaseBuilds": false,
       "jsEngine": "hermes",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.jpeg",
+        "foregroundImage": "./assets/logoTP.jpg",
         "backgroundColor": "#ffffff",
         "googleServicesFile": "./google-services.json"
       },
