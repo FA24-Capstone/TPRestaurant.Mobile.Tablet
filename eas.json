@@ -15,6 +15,9 @@
       "autoIncrement": true,
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://thienphurestaurant.calmwater-96d95895.eastasia.azurecontainerapps.io/"
       }
     }
   },
