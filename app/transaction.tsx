@@ -17,7 +17,7 @@ Asset.loadAsync(require("../assets/Icons/iconAI.jpg"));
 
 type RouteParams = {
   TransactionScreen: {
-    isSuccess?: string;
+    isSuccess?: boolean;
   };
 };
 
@@ -51,7 +51,7 @@ const TransactionScreen = () => {
         backgroundColor: "#fff",
       }}
     >
-      {isSuccess === "true" ? (
+      {isSuccess === true ? (
         <>
           <View className="mb-3">
             <Image
