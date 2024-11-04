@@ -11,7 +11,6 @@ import { fetchCombos } from "@/api/comboApi";
 import ListCombo from "./ListCombo";
 import ListDishes from "./ListDishes";
 import LoadingOverlay from "../LoadingOverlay";
-import { useSignalRConnection } from "@/hook/useSignalRConnection";
 import * as signalR from "@microsoft/signalr";
 import { showSuccessMessage } from "../FlashMessageHelpers";
 
@@ -36,13 +35,6 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
     null
   );
-
-  const {
-    isConnected,
-    error: signalRError,
-    connect,
-    disconnect,
-  } = useSignalRConnection();
 
   // console.log("dishesList", dishes);
 
@@ -199,7 +191,7 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
           <Text className="text-[25px] font-bold uppercase pb-2 border-b-2 text-[#970C1A] border-[#970C1A]">
             Thực đơn hôm nay
           </Text>
-          {/* **Pass searchQuery and setSearchQuery to SearchBar** */}
+
           <SearchBar
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
