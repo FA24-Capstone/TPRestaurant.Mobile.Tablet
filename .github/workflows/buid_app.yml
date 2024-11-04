@@ -1,33 +1,45 @@
-name: Build Android App
-
+name: Production Android Build
 on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
+    tags:
+      - 'v*'
 
 jobs:
   build:
+    name: Production Build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out the code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: 18.x
+          cache: 'yarn'
 
       - name: Install dependencies
         run: |
-          npm install -g expo-cli eas-cli
-          npm install
+          yarn install --frozen-lockfile
 
-      - name: Login to EAS
-        run: eas login --token ${{ secrets.EAS_ACCESS_TOKEN }}
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest    # Added this line
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Build the app
-        run: eas build --profile ${{ secrets.EAS_BUILD_PROFILE }}
+      # Increase system limits to prevent ENOSPC errors
+      - name: Configure System Limits
+        run: |
+          sudo sysctl -w fs.inotify.max_user_watches=524288
+          sudo sysctl -w fs.inotify.max_queued_events=524288
+          sudo sysctl -w fs.inotify.max_user_instances=524288
+
+      - name: Build Production Android
+        run: |
+          eas build \
+            --platform android \
+            --profile production \
+            --non-interactive --no-wait
