@@ -120,7 +120,8 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                {order.account.firstName} {order.account.lastName}
+                {order?.account?.firstName || "Không"}{" "}
+                {order?.account?.lastName || "xác định"}
               </Text>
             </View>
 
@@ -130,7 +131,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                {order.account.phoneNumber}
+                {order?.account?.phoneNumber
+                  ? `+84 ${order.account.phoneNumber}`
+                  : "Không xác định"}
               </Text>
             </View>
 
@@ -140,7 +143,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                {order.account.email}
+                {order?.account?.email ?? "Không xác định"}
               </Text>
             </View>
             <View className="flex-row justify-between">
@@ -149,7 +152,8 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                {order.customerInfoAddress.customerInfoAddressName}
+                {order?.customerInfoAddress?.customerInfoAddressName ??
+                  "Không xác định"}
               </Text>
             </View>
           </View>
