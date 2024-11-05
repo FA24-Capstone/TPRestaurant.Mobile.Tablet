@@ -15,6 +15,7 @@ import { Asset } from "expo-asset";
 import { PaymentDetailReponse } from "./types/payment_type";
 import { getPaymentById } from "@/api/paymentApi";
 import InvoiceTable from "@/components/Payment/InvoiceTable";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 Asset.loadAsync(require("../assets/Icons/iconAI.jpg"));
 
@@ -100,7 +101,13 @@ const TransactionScreen = () => {
             đánh giá phản hồi qua website hoặc nhân viên tư vấn tại cửa hàng.
             Chúc quý khách hàng nhiều sức khoẻ và thịnh vượng!
           </Text>
-          <InvoiceTable paymentDetails={paymentDetails} />
+          {loading ? (
+            <View>
+              <LoadingOverlay visible={loading} />
+            </View>
+          ) : (
+            <InvoiceTable paymentDetails={paymentDetails} />
+          )}
 
           {/* <Button title="Thoát ra" onPress={handleLogout} /> */}
         </>
@@ -121,7 +128,13 @@ const TransactionScreen = () => {
             Bạn vui lòng gặp nhân viên hoặc ra quầy thanh toán để thanh toán lại
             hoá đơn. Nhà hàng Thiên Phú xin lỗi vì sự cố bất tiện này.
           </Text>
-          <InvoiceTable paymentDetails={paymentDetails} />
+          {loading ? (
+            <View>
+              <LoadingOverlay visible={loading} />
+            </View>
+          ) : (
+            <InvoiceTable paymentDetails={paymentDetails} />
+          )}
         </>
       ) : (
         <>
