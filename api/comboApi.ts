@@ -5,9 +5,14 @@ import {
   CombosApiResponse,
   DishCombo,
 } from "@/app/types/combo_type";
+import {
+  showErrorMessage,
+  showSuccessMessage,
+} from "@/components/FlashMessageHelpers";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
+// ==================== Fetch All Combos ====================
 export const fetchCombos = async (
   pageNumber: number = 1,
   pageSize: number = 10,
@@ -24,59 +29,87 @@ export const fetchCombos = async (
         },
       }
     );
-    // console.log("fetchCombos response data:", JSON.stringify(response.data));
 
-    // Ánh xạ dữ liệu trả về từ API
-    const combos: Combo[] = response.data.result.map((item) => ({
-      comboId: item.comboId,
-      name: item.name,
-      description: item.description,
-      image: item.image,
-      price: item.price || 0,
-      discount: item.discount,
-      categoryId: item.categoryId,
-      rating: item.averageRating,
-      ratingCount: item.numberOfRating,
-      category: {
-        id: item.categoryId,
-        name: item.category.name,
-        vietnameseName: item.category.vietnameseName,
-      },
-      startDate: item.startDate,
-      endDate: item.endDate,
-      isDeleted: item.isDeleted, // Optional
-      isAvailable: item.isAvailable, // Optional
-    }));
+    const data = response.data;
 
-    // console.log("fetchCombos Ne", combos);
-
-    return combos;
-  } catch (error) {
-    console.error("Full error combo:", error); // Chi tiết lỗi sẽ được in ra console
-    throw error;
+    // Check if the API call was successful
+    if (data.isSuccess) {
+      // showSuccessMessage("Combos fetched successfully!");
+      // Map API data to Combo objects
+      const combos: Combo[] = data.result.map((item) => ({
+        comboId: item.comboId,
+        name: item.name,
+        description: item.description,
+        image: item.image,
+        price: item.price || 0,
+        discount: item.discount,
+        categoryId: item.categoryId,
+        rating: item.averageRating,
+        ratingCount: item.numberOfRating,
+        category: {
+          id: item.categoryId,
+          name: item.category.name,
+          vietnameseName: item.category.vietnameseName,
+        },
+        startDate: item.startDate,
+        endDate: item.endDate,
+        isDeleted: item.isDeleted, // Optional
+        isAvailable: item.isAvailable, // Optional
+      }));
+      return combos;
+    } else {
+      const errorMessage = data.messages?.[0] || "Failed to fetch combos.";
+      showErrorMessage(errorMessage);
+      throw new Error(errorMessage);
+    }
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const backendMessage =
+        error.response?.data?.messages?.[0] ||
+        "An error occurred while fetching combos.";
+      showErrorMessage(backendMessage);
+      throw new Error(backendMessage);
+    } else {
+      showErrorMessage("An unexpected error occurred.");
+      throw new Error("An unexpected error occurred.");
+    }
   }
 };
 
+// ==================== Fetch Combo By ID ====================
 export const fetchComboById = async (
   comboId: string
 ): Promise<ComboIdApiResponse> => {
   try {
-    // console.log("comboIdNe", comboId);
-
     const response = await axios.get<ComboIdApiResponse>(
       `${API_URL}/combo/get-combo-by-id-ver-2/${comboId}`,
-      { headers: { "Content-Type": "application/json" } }
+      {
+        headers: { "Content-Type": "application/json" },
+      }
     );
-    // Log detailed response for debugging
-    // console.log(
-    //   "API response for combo details:",
-    //   JSON.stringify(response.data.result, null, 2)
-    // );
-    // Return the response directly if it matches the expected shape
-    return response.data;
-  } catch (error) {
-    // Log and rethrow the error to handle it in the caller function or middleware
-    console.error("Failed to fetch combo details:", error);
-    throw error;
+
+    const data = response.data;
+
+    // Check if the API call was successful
+    if (data.isSuccess) {
+      // showSuccessMessage("Combo details fetched successfully!");
+      return data;
+    } else {
+      const errorMessage =
+        data.messages?.[0] || "Failed to fetch combo details.";
+      showErrorMessage(errorMessage);
+      throw new Error(errorMessage);
+    }
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const backendMessage =
+        error.response?.data?.messages?.[0] ||
+        "An error occurred while fetching combo details.";
+      showErrorMessage(backendMessage);
+      throw new Error(backendMessage);
+    } else {
+      showErrorMessage("An unexpected error occurred.");
+      throw new Error("An unexpected error occurred.");
+    }
   }
 };

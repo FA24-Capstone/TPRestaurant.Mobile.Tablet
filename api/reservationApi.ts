@@ -2,6 +2,10 @@ import {
   ReservationApiResponse,
   ReservationByPhoneApiResponse,
 } from "@/app/types/reservation_type";
+import {
+  showErrorMessage,
+  showSuccessMessage,
+} from "@/components/FlashMessageHelpers";
 
 import { AppDispatch } from "@/redux/store";
 import { createAsyncThunk } from "@reduxjs/toolkit";
@@ -27,12 +31,31 @@ export const fetchReservationWithTime = createAsyncThunk<
           },
         }
       );
-      return response.data;
+
+      const data = response.data;
+
+      // Check if the API call was successful
+      if (data.isSuccess) {
+        showSuccessMessage("Reservation fetched successfully!");
+        return data;
+      } else {
+        const errorMessage =
+          data.messages?.[0] || "Failed to fetch reservation.";
+        showErrorMessage(errorMessage);
+        return rejectWithValue(errorMessage);
+      }
     } catch (error: any) {
       console.error("Failed to fetch reservation with time:", error);
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch reservation"
-      );
+      if (axios.isAxiosError(error)) {
+        const backendMessage =
+          error.response?.data?.messages?.[0] ||
+          "An error occurred while fetching reservation.";
+        showErrorMessage(backendMessage);
+        return rejectWithValue(backendMessage);
+      } else {
+        showErrorMessage("An unexpected error occurred.");
+        return rejectWithValue("An unexpected error occurred.");
+      }
     }
   }
 );

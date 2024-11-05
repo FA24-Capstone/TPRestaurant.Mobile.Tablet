@@ -1,4 +1,8 @@
 import { LoginResponse } from "@/app/types/login_type";
+import {
+  showErrorMessage,
+  showSuccessMessage,
+} from "@/components/FlashMessageHelpers";
 import { login } from "@/redux/slices/authSlice";
 import { AppDispatch } from "@/redux/store";
 import axios from "axios";
@@ -6,11 +10,11 @@ import * as SecureStore from "expo-secure-store";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
-// Định nghĩa hàm loginDevice với thứ tự tham số đúng
+// ==================== Login Device ====================
 export const loginDevice = async (
   deviceCode: string,
   password: string,
-  rememberMe: boolean, // Thêm rememberMe vào tham số
+  rememberMe: boolean,
   dispatch: AppDispatch
 ): Promise<void> => {
   try {
@@ -22,40 +26,58 @@ export const loginDevice = async (
       }
     );
 
-    const { token, deviceResponse } = response.data.result;
+    const data = response.data;
 
-    // Dispatch to Redux store
-    dispatch(
-      login({
-        token,
-        deviceResponse: {
-          deviceId: deviceResponse.deviceId,
-          deviceCode: deviceResponse.deviceCode,
-          tableId: deviceResponse.tableId,
-          tableName: deviceResponse.tableName,
-          mainRole: deviceResponse.mainRole,
-        },
-        rememberMe, // Thêm rememberMe vào payload
-      })
-    );
+    // Check if the API call was successful
+    if (data.isSuccess) {
+      showSuccessMessage("Login successful!");
 
-    if (rememberMe) {
-      // Lưu token vào SecureStore nếu nhớ tài khoản
-      await SecureStore.setItemAsync("token", token);
-      // Lưu deviceCode và password vào SecureStore
-      await SecureStore.setItemAsync("deviceCode", deviceCode);
-      await SecureStore.setItemAsync("password", password);
-      // Lưu rememberMe vào SecureStore
-      await SecureStore.setItemAsync("rememberMe", "true");
+      const { token, deviceResponse } = data.result;
+
+      // Dispatch to Redux store
+      dispatch(
+        login({
+          token,
+          deviceResponse: {
+            deviceId: deviceResponse.deviceId,
+            deviceCode: deviceResponse.deviceCode,
+            tableId: deviceResponse.tableId,
+            tableName: deviceResponse.tableName,
+            mainRole: deviceResponse.mainRole,
+          },
+          rememberMe,
+        })
+      );
+
+      if (rememberMe) {
+        // Store credentials securely if 'rememberMe' is true
+        await SecureStore.setItemAsync("token", token);
+        await SecureStore.setItemAsync("deviceCode", deviceCode);
+        await SecureStore.setItemAsync("password", password);
+        await SecureStore.setItemAsync("rememberMe", "true");
+      } else {
+        // Remove stored credentials if 'rememberMe' is false
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("deviceCode");
+        await SecureStore.deleteItemAsync("password");
+        await SecureStore.deleteItemAsync("rememberMe");
+      }
     } else {
-      // Đảm bảo không lưu token và xóa các thông tin đăng nhập
-      await SecureStore.deleteItemAsync("token");
-      await SecureStore.deleteItemAsync("deviceCode");
-      await SecureStore.deleteItemAsync("password");
-      await SecureStore.deleteItemAsync("rememberMe");
+      const errorMessage = data.messages?.[0] || "Login failed.";
+      showErrorMessage(errorMessage);
+      throw new Error(errorMessage);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login error:", error);
-    throw error;
+    if (axios.isAxiosError(error)) {
+      const backendMessage =
+        error.response?.data?.messages?.[0] ||
+        "An error occurred during login.";
+      showErrorMessage(backendMessage);
+      throw new Error(backendMessage);
+    } else {
+      showErrorMessage("An unexpected error occurred.");
+      throw new Error("An unexpected error occurred.");
+    }
   }
 };

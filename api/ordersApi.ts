@@ -7,10 +7,15 @@ import {
   OrderRequest,
 } from "@/app/types/order_type";
 import { GetTableSessionResponse } from "@/app/types/tableSession_type";
+import {
+  showErrorMessage,
+  showSuccessMessage,
+} from "@/components/FlashMessageHelpers";
 import axios from "axios";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
+// ==================== Create Order in Tablet ====================
 export const createOrderinTablet = async (
   orderRequest: OrderRequest
 ): Promise<CreateOrderReponse> => {
@@ -26,15 +31,36 @@ export const createOrderinTablet = async (
         },
       }
     );
-    // console.log("createOrderDataNe", JSON.stringify(response, null, 2));
 
-    return response.data;
-  } catch (error) {
-    console.error("Failed to add table session:", error);
-    throw error;
+    const data = response.data;
+
+    // Check if the API call was successful
+    if (data.isSuccess) {
+      showSuccessMessage("Order created successfully!");
+      // Log for debugging
+      console.log("createOrderDataNe", JSON.stringify(data, null, 2));
+      return data;
+    } else {
+      const errorMessage = data.messages?.[0] || "Failed to create order.";
+      showErrorMessage(errorMessage);
+      throw new Error(errorMessage);
+    }
+  } catch (error: any) {
+    console.error("Failed to create order:", error);
+    if (axios.isAxiosError(error)) {
+      const backendMessage =
+        error.response?.data?.messages?.[0] ||
+        "An error occurred while creating the order.";
+      showErrorMessage(backendMessage);
+      throw new Error(backendMessage);
+    } else {
+      showErrorMessage("An unexpected error occurred.");
+      throw new Error("An unexpected error occurred.");
+    }
   }
 };
 
+// ==================== Add Prelist Order ====================
 export const addPrelistOrder = async (
   orderData: AddOrderRequest,
   orderId: string
@@ -51,35 +77,74 @@ export const addPrelistOrder = async (
         },
       }
     );
-    console.log("addPrelistOrderDataNe", JSON.stringify(response, null, 2));
 
-    return response.data;
-  } catch (error) {
-    console.error("Failed to add table session:", error);
-    throw error;
+    const data = response.data;
+
+    // Check if the API call was successful
+    if (data.isSuccess) {
+      showSuccessMessage("Dishes added to order successfully!");
+      console.log("addPrelistOrderDataNe", JSON.stringify(data, null, 2));
+      return data;
+    } else {
+      const errorMessage =
+        data.messages?.[0] || "Failed to add dishes to order.";
+      showErrorMessage(errorMessage);
+      throw new Error(errorMessage);
+    }
+  } catch (error: any) {
+    console.error("Failed to add prelist order:", error);
+    if (axios.isAxiosError(error)) {
+      const backendMessage =
+        error.response?.data?.messages?.[0] ||
+        "An error occurred while adding dishes to the order.";
+      showErrorMessage(backendMessage);
+      throw new Error(backendMessage);
+    } else {
+      showErrorMessage("An unexpected error occurred.");
+      throw new Error("An unexpected error occurred.");
+    }
   }
 };
 
+// ==================== Get History Order by ID ====================
 export const getHistoryOrderId = async (
   orderId: string
 ): Promise<GetHistoryOrderIdReponse> => {
-  // console.log("orderIdNe", orderId);
-
   try {
+    console.log("Fetching order history for ID:", orderId);
+
     const response = await axios.get<GetHistoryOrderIdReponse>(
       `${API_URL}/order/get-order-detail/${orderId}`,
       { headers: { "Content-Type": "application/json" } }
     );
-    // Log detailed response for debugging
-    // console.log(
-    //   "API response for getHistoryOrderId:",
-    //   JSON.stringify(response.data.result, null, 2)
-    // );
-    // Return the entire response data to match the expected shape
-    return response.data;
-  } catch (error) {
-    // Log and rethrow the error to handle it in the caller function or middleware
-    console.error("Failed to getHistoryOrderId:", error);
-    throw error;
+
+    const data = response.data;
+
+    // Check if the API call was successful
+    if (data.isSuccess) {
+      // showSuccessMessage("Order history retrieved successfully!");
+      console.log(
+        "API response for getHistoryOrderId:",
+        JSON.stringify(data.result, null, 2)
+      );
+      return data;
+    } else {
+      const errorMessage =
+        data.messages?.[0] || "Failed to fetch order history.";
+      showErrorMessage(errorMessage);
+      throw new Error(errorMessage);
+    }
+  } catch (error: any) {
+    console.error("Failed to get history order ID:", error);
+    if (axios.isAxiosError(error)) {
+      const backendMessage =
+        error.response?.data?.messages?.[0] ||
+        "An error occurred while fetching the order history.";
+      showErrorMessage(backendMessage);
+      throw new Error(backendMessage);
+    } else {
+      showErrorMessage("An unexpected error occurred.");
+      throw new Error("An unexpected error occurred.");
+    }
   }
 };
