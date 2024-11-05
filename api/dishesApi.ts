@@ -1,9 +1,14 @@
 import axios from "axios"; // Import Axios directly
 import { Dish, DishesApiResponse } from "@/app/types/dishes_type";
+import {
+  showErrorMessage,
+  showSuccessMessage,
+} from "@/components/FlashMessageHelpers";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 // const API_URL = "http://localhost:3000";
 
+// ==================== Fetch All Dishes ====================
 export const fetchDishes = async (
   pageNumber: number = 1,
   pageSize: number = 6,
@@ -20,53 +25,69 @@ export const fetchDishes = async (
         },
       }
     );
-    // Ánh xạ dữ liệu trả về từ API
-    const dishes: Dish[] = response.data.result.items.map((item) => {
-      const dishData = item?.dish; // Lấy dữ liệu dish từ object chính
-      // console.log("itemNe", JSON.stringify(item)); // In ra response từ API
 
-      return {
-        id: dishData?.dishId, // Sử dụng dishId thay vì id
-        name: dishData?.name,
-        description: dishData?.description,
-        image: dishData?.image,
-        dishItemTypeId: dishData?.dishItemTypeId,
-        isAvailable: dishData?.isAvailable ?? true,
-        // averageRating: dishData?.averageRating,
-        // numberOfRating: dishData?.numberOfRating,
-        dishItemType: {
-          id: dishData?.dishItemType?.id,
-          name: dishData?.dishItemType?.name,
-          vietnameseName: dishData?.dishItemType?.vietnameseName,
-        },
-        dishSizeDetails: item.dishSizeDetails.map((detail) => ({
-          dishSizeDetailId: detail?.dishSizeDetailId, //
-          isAvailable: detail?.isAvailable, //
-          price: detail?.price, //
-          discount: detail?.discount, //
-          dishId: detail?.dishId, //
-          dishSizeId: detail?.dishSizeId, //
-          dishSize: {
-            id: detail?.dishSize.id,
-            name: detail?.dishSize.name,
-            vietnameseName: detail?.dishSize.vietnameseName,
+    const data = response.data;
+
+    // Check if the API call was successful
+    if (data.isSuccess) {
+      // showSuccessMessage("Dishes fetched successfully!");
+
+      // Map API data to Dish objects
+      const dishes: Dish[] = data.result.items.map((item) => {
+        const dishData = item?.dish;
+
+        return {
+          id: dishData?.dishId,
+          name: dishData?.name,
+          description: dishData?.description,
+          image: dishData?.image,
+          dishItemTypeId: dishData?.dishItemTypeId,
+          isAvailable: dishData?.isAvailable ?? true,
+          dishItemType: {
+            id: dishData?.dishItemType?.id,
+            name: dishData?.dishItemType?.name,
+            vietnameseName: dishData?.dishItemType?.vietnameseName,
           },
-          dish: detail?.dish, // Add missing property
-          quantityLeft: detail?.quantityLeft, // Add missing property
-          dailyCountdown: detail?.dailyCountdown, // Add missing property
-        })),
-        rating: dishData?.averageRating, // Placeholder value
-        ratingCount: dishData?.numberOfRating, // Placeholder value
-        price: item?.dishSizeDetails[0]?.price ?? 0, // Placeholder value
-        quantity: 1, // Optional
-        isDeleted: dishData?.isDeleted, // Optional
-      };
-    });
-    // console.log("dishesNe1", JSON.stringify(dishes)); // In ra response từ API
+          dishSizeDetails: item.dishSizeDetails.map((detail) => ({
+            dishSizeDetailId: detail?.dishSizeDetailId,
+            isAvailable: detail?.isAvailable,
+            price: detail?.price,
+            discount: detail?.discount,
+            dishId: detail?.dishId,
+            dishSizeId: detail?.dishSizeId,
+            dishSize: {
+              id: detail?.dishSize.id,
+              name: detail?.dishSize.name,
+              vietnameseName: detail?.dishSize.vietnameseName,
+            },
+            dish: detail?.dish,
+            quantityLeft: detail?.quantityLeft,
+            dailyCountdown: detail?.dailyCountdown,
+          })),
+          rating: dishData?.averageRating,
+          ratingCount: dishData?.numberOfRating,
+          price: item?.dishSizeDetails[0]?.price ?? 0,
+          quantity: 1,
+          isDeleted: dishData?.isDeleted,
+        };
+      });
 
-    return dishes;
-  } catch (error) {
-    console.error("Full error dish:", error); // Chi tiết lỗi sẽ được in ra console
-    throw error;
+      return dishes;
+    } else {
+      const errorMessage = data.messages?.[0] || "Failed to fetch dishes.";
+      showErrorMessage(errorMessage);
+      throw new Error(errorMessage);
+    }
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const backendMessage =
+        error.response?.data?.messages?.[0] ||
+        "An error occurred while fetching dishes.";
+      showErrorMessage(backendMessage);
+      throw new Error(backendMessage);
+    } else {
+      showErrorMessage("An unexpected error occurred.");
+      throw new Error("An unexpected error occurred.");
+    }
   }
 };
