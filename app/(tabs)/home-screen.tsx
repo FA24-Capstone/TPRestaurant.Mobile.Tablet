@@ -8,7 +8,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Provider as PaperProvider } from "react-native-paper";
 
 type RootStackParamList = {
-  transaction: { isSuccess: boolean };
+  transaction: { isSuccess: string };
 };
 
 const HomeScreen: React.FC = () => {
@@ -44,7 +44,7 @@ const HomeScreen: React.FC = () => {
       <View className="absolute bottom-0 left-0 right-0 flex-row justify-around bg-[#FFF] p-4">
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate("transaction", { isSuccess: true })
+            navigation.navigate("transaction", { isSuccess: "true" })
           }
           className="bg-green-500 w-[45%] py-4 rounded-lg"
         >
@@ -54,7 +54,7 @@ const HomeScreen: React.FC = () => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate("transaction", { isSuccess: false })
+            navigation.navigate("transaction", { isSuccess: "false" })
           }
           className="bg-[#DC3545] w-[45%] py-4 rounded-lg"
         >

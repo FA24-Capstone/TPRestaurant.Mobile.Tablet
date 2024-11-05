@@ -17,7 +17,8 @@ Asset.loadAsync(require("../assets/Icons/iconAI.jpg"));
 
 type RouteParams = {
   TransactionScreen: {
-    isSuccess?: boolean;
+    isSuccess?: string;
+    transactionId?: string;
   };
 };
 
@@ -25,7 +26,9 @@ const TransactionScreen = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const route = useRoute<RouteProp<RouteParams, "TransactionScreen">>();
-  const { isSuccess } = route.params || {};
+  const { isSuccess, transactionId } = route.params || {};
+
+  console.log("isSuccess", isSuccess, "transactionId", transactionId);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -51,7 +54,7 @@ const TransactionScreen = () => {
         backgroundColor: "#fff",
       }}
     >
-      {isSuccess === true ? (
+      {isSuccess === "true" ? (
         <>
           <View className="mb-3">
             <Image
@@ -62,6 +65,7 @@ const TransactionScreen = () => {
           <Text className="uppercase text-green-500 text-xl mb-4 mt-2 text-center font-bold">
             Thanh toán hoá đơn thành công!
           </Text>
+          <Text>TRANSACTIONID: {transactionId ?? " chả có transactionid"}</Text>
           <Text className="font-semibold text-lg text-gray-600 text-center w-[70%] mb-8">
             Nhà hàng Thiên phú xin cảm ơn quý khách đã sử dụng và trải nghiệm
             dịch vụ ăn uống tại nhà hàng. Nếu có thiếu sót thì mong khách hàng
@@ -78,7 +82,7 @@ const TransactionScreen = () => {
           </TouchableOpacity>
           {/* <Button title="Thoát ra" onPress={handleLogout} /> */}
         </>
-      ) : (
+      ) : isSuccess === "flse" ? (
         <>
           <View className="mb-3">
             <Image
@@ -89,6 +93,8 @@ const TransactionScreen = () => {
           <Text className="uppercase text-red-600 text-xl mb-4 mt-2 text-center font-bold">
             Ôi, có vẻ bạn chưa thanh toán thành công.
           </Text>
+          <Text>TRANSACTIONID: {transactionId ?? " chả có transactionid"}</Text>
+
           <Text className="font-semibold text-lg text-gray-600 text-center w-[70%] mb-8">
             Bạn vui lòng gặp nhân viên hoặc ra quầy thanh toán để thanh toán lại
             hoá đơn. Nhà hàng Thiên Phú xin lỗi vì sự cố bất tiện này.
@@ -118,6 +124,27 @@ const TransactionScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
+        </>
+      ) : (
+        <>
+          <View className="mb-3">
+            <Image
+              source={require("../assets/Icons/iconAIsad.jpg")}
+              className="w-40 h-40 mx-auto"
+            />
+          </View>
+          <Text className="uppercase text-red-600 text-xl mb-4 mt-2 text-center font-bold">
+            Ôi, có vẻ đã có sai sót!
+          </Text>
+
+          <TouchableOpacity
+            className=" bg-[#C01D2E] p-2 rounded-lg w-[200px] self-center"
+            onPress={handleLogout}
+          >
+            <Text className="text-white text-center font-semibold text-lg uppercase">
+              Thoát ra
+            </Text>
+          </TouchableOpacity>
         </>
       )}
     </ScrollView>
