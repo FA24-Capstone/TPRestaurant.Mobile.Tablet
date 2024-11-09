@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import ListOrder from "../List/ListOrder";
 import { Order } from "@/app/types/dishes_type";
-import { fetchTableSessionById } from "@/api/tableSection";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import DishCardHistory from "./CardHistory/DishCardHistory";
@@ -38,6 +37,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import LoadingOverlay from "../LoadingOverlay";
 import StatusLabel from "../StatusLabel";
 import OrderInvoiceModal from "./Modal/OrderInvoiceModal";
+import { showErrorMessage, showSuccessMessage } from "../FlashMessageHelpers";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -95,15 +95,22 @@ const HistoryOrderPanel: React.FC = () => {
         orderId || reservationData?.result?.order?.orderId || ""
       );
       console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
-
+      // Check if the API call was successful
+      if (response.isSuccess) {
+        setOrderDetails(response.result.orderDishes);
+      } else {
+        const errorMessage =
+          response.messages?.[0] || "Failed to fetch order details.";
+        showErrorMessage(errorMessage);
+      }
       // Set the order details in state
-      setOrderDetails(response.result.orderDishes);
     } catch (error) {
       console.error("Error fetching order details:", error);
+      showErrorMessage("An error occurred while fetching the order details.");
     } finally {
       setLoading(false);
     }
-  }, [orderId]);
+  }, [orderId, reservationData]);
 
   // Re-fetch order details when page is focused
   useFocusEffect(

@@ -14,9 +14,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
     );
   }
 
-  const transaction = paymentDetails.result.transaction;
-  const order = paymentDetails.result.order.order;
-  const orderDishes = paymentDetails.result.order.orderDishes;
+  const transaction = paymentDetails?.result?.transaction;
+  const order = paymentDetails?.result?.order?.order;
+  const orderDishes = paymentDetails?.result?.order?.orderDishes;
 
   return (
     <ScrollView className="flex-1 w-[70%] bg-gray-100 p-4 rounded-lg">
@@ -51,7 +51,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold uppercase max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                #{order.orderId.slice(0, 8)}
+                #{order?.orderId.slice(0, 8)}
               </Text>
             </View>
 
@@ -61,7 +61,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                {moment(order.orderDate).format("HH:mm A, DD/MM/YYYY")}
+                {moment(order?.mealTime).format("HH:mm A, DD/MM/YYYY")}
               </Text>
             </View>
 
@@ -93,7 +93,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                {order.orderType.vietnameseName}
+                {order?.orderType?.vietnameseName}
               </Text>
             </View>
             <View className="flex-row justify-between">
@@ -102,62 +102,64 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                {order.note || "Không có ghi chú"}
+                {order?.note || "Không có ghi chú"}
               </Text>
             </View>
           </View>
         </View>
 
         {/* Customer Information */}
-        <View className="bg-white w-[48%] p-4 mt-4 rounded-lg">
-          <Text className="text-lg uppercase font-bold border-b-2 border-[#C01D2E] mb-2">
-            Thông tin khách hàng
-          </Text>
-          <View className="space-y-2">
-            <View className="flex-row justify-between">
-              <Text className="font-semibold text-gray-600 text-base">
-                Tên khách hàng:{" "}
-              </Text>
-              <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
-                {" "}
-                {order?.account?.firstName || "Không"}{" "}
-                {order?.account?.lastName || "xác định"}
-              </Text>
-            </View>
+        {order?.account ? (
+          <View className="bg-white w-[48%] p-4 mt-4 rounded-lg">
+            <Text className="text-lg uppercase font-bold border-b-2 border-[#C01D2E] mb-2">
+              Thông tin khách hàng
+            </Text>
+            <View className="space-y-2">
+              <View className="flex-row justify-between">
+                <Text className="font-semibold text-gray-600 text-base">
+                  Tên khách hàng:{" "}
+                </Text>
+                <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
+                  {" "}
+                  {order?.account?.firstName || "Không"}{" "}
+                  {order?.account?.lastName || "xác định"}
+                </Text>
+              </View>
 
-            <View className="flex-row justify-between">
-              <Text className="font-semibold text-gray-600 text-base">
-                Số điện thoại:{" "}
-              </Text>
-              <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
-                {" "}
-                {order?.account?.phoneNumber
-                  ? `+84 ${order.account.phoneNumber}`
-                  : "Không xác định"}
-              </Text>
-            </View>
+              <View className="flex-row justify-between">
+                <Text className="font-semibold text-gray-600 text-base">
+                  Số điện thoại:{" "}
+                </Text>
+                <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
+                  {" "}
+                  {order?.account?.phoneNumber
+                    ? `+84 ${order.account.phoneNumber}`
+                    : "Không xác định"}
+                </Text>
+              </View>
 
-            <View className="flex-row justify-between">
-              <Text className="font-semibold text-gray-600 text-base">
-                Email:{" "}
-              </Text>
-              <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
-                {" "}
-                {order?.account?.email ?? "Không xác định"}
-              </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <Text className="font-semibold text-gray-600 text-base">
-                Địa chỉ:{" "}
-              </Text>
-              <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
-                {" "}
-                {order?.customerInfoAddress?.customerInfoAddressName ??
-                  "Không xác định"}
-              </Text>
+              <View className="flex-row justify-between">
+                <Text className="font-semibold text-gray-600 text-base">
+                  Email:{" "}
+                </Text>
+                <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
+                  {" "}
+                  {order?.account?.email ?? "Không xác định"}
+                </Text>
+              </View>
+              <View className="flex-row justify-between">
+                <Text className="font-semibold text-gray-600 text-base">
+                  Địa chỉ:{" "}
+                </Text>
+                <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
+                  {" "}
+                  {order?.customerInfoAddress?.customerInfoAddressName ??
+                    "Không xác định"}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
+        ) : null}
       </View>
 
       {/* Dishes List */}
@@ -192,15 +194,20 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
 
         {/* Table Rows */}
         <View className="border-t border-gray-300">
-          {orderDishes.length > 0 ? (
-            orderDishes.map((dish, index) => {
+          {orderDishes?.length > 0 ? (
+            orderDishes?.map((dish, index) => {
               const totalPrice =
-                dish.dishSizeDetail.price *
-                dish.quantity *
-                (1 - dish.dishSizeDetail.discount / 100);
+                dish?.dishSizeDetail?.price *
+                dish?.quantity *
+                (1 - dish?.dishSizeDetail?.discount / 100);
+
+              const totalPriceCombo =
+                dish?.comboDish?.combo?.price *
+                dish?.quantity *
+                (1 - dish?.comboDish?.combo?.discount / 100);
 
               return (
-                <View key={dish.orderDetailsId}>
+                <View key={dish?.orderDetailsId}>
                   <View
                     className={`flex flex-row justify-between p-2 ${
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
@@ -210,48 +217,56 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
                       {index + 1}
                     </Text>
                     <Text className="flex-[2] text-center font-bold  text-lg">
-                      {dish.dishSizeDetail.dish.name}
+                      {dish?.dishSizeDetail?.dish?.name ||
+                        dish.comboDish.combo.name}
                     </Text>
                     <Text className="flex-[1] text-center text-base">
-                      {dish.dishSizeDetail.dishSize.vietnameseName}
+                      {dish?.dishSizeDetail?.dishSize?.vietnameseName ||
+                        "Combo"}
                     </Text>
                     <Text className="flex-[1] text-center text-base">
-                      {dish.quantity}
+                      {dish?.quantity}
                     </Text>
                     <Text className="flex-[1] text-center text-base">
-                      {dish.dishSizeDetail.price.toLocaleString("vi-VN")} VND
+                      {(
+                        dish?.dishSizeDetail?.price ||
+                        dish?.comboDish?.combo?.price
+                      ).toLocaleString("vi-VN")}{" "}
+                      VND
                     </Text>
                     <Text className="flex-[1] text-center text-base">
-                      {dish.dishSizeDetail.discount}%
+                      {dish?.dishSizeDetail?.discount ||
+                        dish?.comboDish?.combo?.discount}
+                      %
                     </Text>
                     <Text className="flex-[1] text-center text-base">
-                      {totalPrice.toLocaleString("vi-VN")} VND
+                      {(totalPrice || totalPriceCombo)?.toLocaleString("vi-VN")}{" "}
+                      VND
                     </Text>
                   </View>
                   <Text className="text-lg font-bold border-b-2 border-gray-300 mb-2"></Text>
-                  {/* Total Information */}
-                  <View className="text-right mt-1 mx-4">
-                    <Text className="text-xl text-right font-semibold">
-                      Tổng (đã bao gồm thuế và phí):{" "}
-                      <Text className="text-red-700 font-bold text-2xl">
-                        {(order.totalAmount ?? 0).toLocaleString("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                          minimumFractionDigits: 0,
-                        })}
-                      </Text>
-                    </Text>
-                    <Text className="text-sm text-right text-gray-600">
-                      Số tiền này đã bao gồm tất cả các loại thuế và phí bổ
-                      sung.
-                    </Text>
-                  </View>
                 </View>
               );
             })
           ) : (
             <Text className="italic text-center py-2">No dishes available</Text>
           )}
+        </View>
+        {/* Total Information */}
+        <View className="text-right mt-1 mx-4">
+          <Text className="text-xl text-right font-semibold">
+            Tổng (đã bao gồm thuế và phí):{" "}
+            <Text className="text-red-700 font-bold text-2xl">
+              {(order.totalAmount ?? 0).toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+              })}
+            </Text>
+          </Text>
+          <Text className="text-sm text-right text-gray-600">
+            Số tiền này đã bao gồm tất cả các loại thuế và phí bổ sung.
+          </Text>
         </View>
       </View>
 
