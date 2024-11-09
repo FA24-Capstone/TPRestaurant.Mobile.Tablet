@@ -19,6 +19,7 @@ import ChoosePaymentModal from "@/components/Payment/ChoosePayment";
 import SuccessModal from "@/components/Payment/SuccessModal";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OrderDetails from "./OrderInfo";
+import { showErrorMessage } from "@/components/FlashMessageHelpers";
 
 interface OrderInvoiceModalProps {
   visible: boolean;
@@ -109,22 +110,27 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
         onClose();
       } else if (paymentMethod === 2 || paymentMethod === 3) {
         // VNPay or Momo
-        if (response.result) {
+        setLoading(true);
+        if (response.isSuccess) {
           onClose();
-          setLoading(true);
-          Linking.openURL(response.result)
-            // .then(() => {
-            //   // Prepare the modal to show upon returning
-            //   setSuccessMessage(
-            //     "Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi! Nhà hàng Thiên Phú xin cảm ơn và hẹn gặp lại quý khách!"
-            //   );
-            //   setSuccessVisible(true); // Show modal when user returns
-            // })
-            .catch((err) => console.error("Failed to open URL:", err));
+          Linking.openURL(response.result) // Open the payment URL
+            .catch((err) => {
+              console.error("Failed to open URL:", err);
+              showErrorMessage("Không thể mở liên kết thanh toán.");
+            });
+          console.log(
+            "createPaymentResponse",
+            JSON.stringify(response.result, null, 2)
+          );
+        } else {
+          const errorMessage =
+            response.messages?.[0] || "Failed to create payment.";
+          showErrorMessage(errorMessage);
         }
       }
     } catch (error) {
       console.error("Payment failed:", error);
+      showErrorMessage("Thanh toán thất bại. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }

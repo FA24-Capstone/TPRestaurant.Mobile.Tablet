@@ -64,15 +64,23 @@ const ComboCard: React.FC<ComboCardProps> = ({
     const fetchData = async () => {
       try {
         const data = await fetchComboById(id);
-        setComboDetails(data.result.combo);
-        setDishCombos(data.result.dishCombo);
-        const maxNum = Math.max(
-          ...data.result.dishCombo.map((item) => item?.optionSetNumber)
-        );
-        setMaxOptionSetNumber(maxNum);
+
+        if (data.isSuccess) {
+          setComboDetails(data.result.combo);
+          setDishCombos(data.result.dishCombo);
+          const maxNum = Math.max(
+            ...data.result.dishCombo.map((item) => item?.optionSetNumber)
+          );
+          setMaxOptionSetNumber(maxNum);
+        } else {
+          // Handle the failure case when data.isSuccess is false
+          const errorMessage =
+            data.messages[0] || "Failed to fetch combo details.";
+          showErrorMessage(errorMessage);
+        }
       } catch (error) {
         console.error("Error fetching combo details:", error);
-        alert("Failed to load combo details.");
+        showErrorMessage("An unexpected error occurred.");
       }
     };
 
@@ -87,12 +95,19 @@ const ComboCard: React.FC<ComboCardProps> = ({
     } else {
       try {
         const data = await fetchComboById(id);
-        setComboDetails(data.result.combo);
-        setDishCombos(data.result.dishCombo);
-        setModalVisible(true);
+
+        if (data.isSuccess) {
+          setComboDetails(data.result.combo);
+          setDishCombos(data.result.dishCombo);
+          setModalVisible(true);
+        } else {
+          const errorMessage =
+            data.messages[0] || "Failed to load combo details.";
+          showErrorMessage(errorMessage);
+        }
       } catch (error) {
         console.error("Error fetching combo details:", error);
-        alert("Failed to load combo details.");
+        showErrorMessage("An unexpected error occurred.");
       }
     }
   };

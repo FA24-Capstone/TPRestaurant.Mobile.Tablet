@@ -1,6 +1,7 @@
 import axios from "axios";
 import {
   Combo,
+  ComboApiData,
   ComboIdApiResponse,
   CombosApiResponse,
   DishCombo,
@@ -9,6 +10,7 @@ import {
   showErrorMessage,
   showSuccessMessage,
 } from "@/components/FlashMessageHelpers";
+import { AppActionResult } from "@/app/types/app_action_result_type";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -79,37 +81,13 @@ export const fetchCombos = async (
 // ==================== Fetch Combo By ID ====================
 export const fetchComboById = async (
   comboId: string
-): Promise<ComboIdApiResponse> => {
-  try {
-    const response = await axios.get<ComboIdApiResponse>(
-      `${API_URL}/combo/get-combo-by-id-ver-2/${comboId}`,
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    const data = response.data;
-
-    // Check if the API call was successful
-    if (data.isSuccess) {
-      // showSuccessMessage("Combo details fetched successfully!");
-      return data;
-    } else {
-      const errorMessage =
-        data.messages?.[0] || "Failed to fetch combo details.";
-      showErrorMessage(errorMessage);
-      throw new Error(errorMessage);
+): Promise<AppActionResult<ComboApiData>> => {
+  const response = await axios.get<AppActionResult<ComboApiData>>(
+    `${API_URL}/combo/get-combo-by-id-ver-2/${comboId}`,
+    {
+      headers: { "Content-Type": "application/json" },
     }
-  } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      const backendMessage =
-        error.response?.data?.messages?.[0] ||
-        "An error occurred while fetching combo details.";
-      showErrorMessage(backendMessage);
-      throw new Error(backendMessage);
-    } else {
-      showErrorMessage("An unexpected error occurred.");
-      throw new Error("An unexpected error occurred.");
-    }
-  }
+  );
+
+  return response.data;
 };

@@ -7,7 +7,6 @@ import OrderItemList from "./OrderItemList";
 import { clearDishes } from "@/redux/slices/dishesSlice";
 import OrderFooter from "./OrderingFooter";
 import moment, { now } from "moment-timezone";
-import { addNewPrelistOrder, addTableSession } from "@/api/tableSection";
 import { showErrorMessage, showSuccessMessage } from "../FlashMessageHelpers";
 import { setCurrentSession } from "@/redux/slices/tableSessionSlice";
 import { OrderDetailsDto, OrderRequest } from "@/app/types/order_type";
@@ -142,9 +141,11 @@ const OrderingDetail: React.FC = () => {
         if (response.isSuccess) {
           showSuccessMessage("Đặt món thành công!");
           dispatch(clearDishes());
-          dispatch(addOrder(response.result.order)); // Lưu order mới vào state
+          dispatch(addOrder(response.result.order)); // Store the new order in state
         } else {
-          showErrorMessage("Đặt món thất bại. Vui lòng thử lại!");
+          const errorMessage =
+            response.messages?.[0] || "Đặt món thất bại. Vui lòng thử lại!";
+          showErrorMessage(errorMessage);
         }
       } else {
         // Nếu đã có order và trạng thái khác 7 và 8 thì thêm món vào order
@@ -175,9 +176,12 @@ const OrderingDetail: React.FC = () => {
           if (addOrderResponse.isSuccess) {
             showSuccessMessage("Thêm món thành công!");
             dispatch(clearDishes());
-            // Có thể cập nhật lại order sau khi thêm món thành công
+            // Optionally, update the order after adding the dish
           } else {
-            showErrorMessage("Thêm món thất bại. Vui lòng thử lại!");
+            const errorMessage =
+              addOrderResponse.messages?.[0] ||
+              "Đặt món thất bại. Vui lòng thử lại!";
+            showErrorMessage(errorMessage);
           }
         }
       }

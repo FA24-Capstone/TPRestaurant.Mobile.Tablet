@@ -16,6 +16,10 @@ import { PaymentDetailReponse } from "./types/payment_type";
 import { getPaymentById } from "@/api/paymentApi";
 import InvoiceTable from "@/components/Payment/InvoiceTable";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import {
+  showErrorMessage,
+  showSuccessMessage,
+} from "@/components/FlashMessageHelpers";
 
 Asset.loadAsync(require("../assets/Icons/iconAI.jpg"));
 
@@ -35,25 +39,40 @@ const TransactionScreen = () => {
   const { isSuccess, transactionId } = route.params || {};
   const [loading, setLoading] = useState(true);
 
-  // console.log("isSuccess", isSuccess, "transactionId", transactionId);
+  const transactionIdNE = transactionId;
 
-  const transactionIdNE =
-    transactionId || "c50560f8-81c6-4eec-bb14-aaa4f8b2e19c";
+  console.log("isSuccess", isSuccess, "transactionId", transactionIdNE);
   useEffect(() => {
     if (transactionIdNE) {
+      setLoading(true);
       const fetchPaymentDetails = async () => {
         try {
           // const data = await getPaymentById(transactionId);
-          const data = await getPaymentById(transactionIdNE);
-          setPaymentDetails(data);
+          const data = await getPaymentById(transactionIdNE); // Call API to fetch payment details
+
+          console.log("datagetPaymentById", data);
+
+          if (data.isSuccess) {
+            setPaymentDetails(data); // Update the state with payment details
+            showSuccessMessage("Payment details fetched successfully!");
+          } else {
+            const errorMessage =
+              data.messages?.[0] || "Failed to fetch payment details.";
+            showErrorMessage(errorMessage);
+          }
         } catch (error) {
+          setLoading(false);
+
           console.error("Error fetching payment details:", error);
+          showErrorMessage("An error occurred while fetching payment details.");
         } finally {
           setLoading(false);
         }
       };
 
       fetchPaymentDetails();
+    } else {
+      setLoading(false);
     }
   }, [transactionIdNE]);
 

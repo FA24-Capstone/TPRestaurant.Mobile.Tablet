@@ -19,6 +19,8 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
   showModal,
   noteOrder,
 }) => {
+  // console.log("DishCardHistory", dish);
+
   return (
     <TouchableOpacity
       onPress={() => showModal(dish)}
@@ -39,6 +41,15 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
           {dish.description ?? "chưa có mô tả"}
         </Text>
         <View className="flex-row justify-between my-2 flex-wrap">
+          <Text className="text-center text-base font-bold text-gray-500">
+            {dish.sizeName === "LARGE"
+              ? "LỚN"
+              : dish.sizeName === "MEDIUM"
+              ? "VỪA"
+              : dish.sizeName === "SMALL"
+              ? "NHỎ"
+              : "Size không xác định"}
+          </Text>
           <Text className="text-center text-base font-semibold text-[#C01D2E]">
             {formatPriceVND(dish.price)}
           </Text>
