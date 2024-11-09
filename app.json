@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "jsEngine": "hermes",
       "supportsTablet": true,
@@ -34,11 +36,15 @@
     "expo": {
       "jsEngine": "jsc"
     },
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
     "extra": {
       "eas": {
-        "projectId": "28697004-3e3e-4c24-b616-5dfca2e5764d"
+        "projectId": "fe539c47-84a9-48c3-ae32-4432fff1ce85"
       }
-    }
+    },
+    "owner": "quandhse170057"
   }
 }
