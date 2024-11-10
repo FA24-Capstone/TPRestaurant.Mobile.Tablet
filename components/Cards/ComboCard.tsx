@@ -375,7 +375,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
                 style={{
                   backgroundColor: "white",
 
-                  height: 500,
+                  maxHeight: 500,
                 }}
               >
                 <Text className="font-bold text-2xl h-[50px]  text-gray-700 w-full">

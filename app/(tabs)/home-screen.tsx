@@ -41,7 +41,7 @@ const HomeScreen: React.FC = () => {
           <PromotionList />
         </View>
       </ScrollView>
-      <View className="absolute bottom-0 left-0 right-0 flex-row justify-around bg-[#FFF] p-4">
+      {/* <View className="absolute bottom-0 left-0 right-0 flex-row justify-around bg-[#FFF] p-4">
         <TouchableOpacity
           onPress={() =>
             navigation.navigate("transaction", { isSuccess: "true" })
@@ -62,7 +62,7 @@ const HomeScreen: React.FC = () => {
             Test Transaction False
           </Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </PaperProvider>
   );
 };
