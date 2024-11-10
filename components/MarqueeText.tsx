@@ -35,7 +35,7 @@ const MarqueeText = () => {
           await dispatch(
             fetchReservationWithTime({
               tableId,
-              // time: "2024-10-30T23:55:25.028Z",
+              // time: "2024-11-11 21:29:13.1140000",
               time: now,
             })
           );

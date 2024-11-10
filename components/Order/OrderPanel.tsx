@@ -137,7 +137,11 @@ const OrderPanel: React.FC = () => {
       <View>
         <IconButton
           icon={() => (
-            <MaterialCommunityIcons name="arrow-right" size={25} color="gray" />
+            <MaterialCommunityIcons
+              name="arrow-right"
+              size={25}
+              color="white"
+            />
           )}
           onPress={() => setIsPanelOpen(false)}
           size={20}
@@ -146,7 +150,7 @@ const OrderPanel: React.FC = () => {
             top: 8,
             left: -40,
             transform: [{ translateX: -15 }, { translateY: -15 }], // Shifts the button outside
-            backgroundColor: "#fff",
+            backgroundColor: "#d83646",
             borderRadius: 25,
             shadowColor: "#000",
             shadowOffset: {
@@ -183,9 +187,15 @@ const OrderPanel: React.FC = () => {
         <Menu isPanelOpen={isPanelOpen} />
       </View>
       {!isPanelOpen && (
-        <View className="absolute right-2 top-1/2 transform -translate-y-1/2  rounded-md bg-gray-300">
+        <View className="absolute right-2 top-1/2 transform -translate-y-1/2  rounded-md bg-[#d83646]">
           <IconButton
-            icon="drag-vertical" // Sử dụng biểu tượng hai sọc dọc
+            icon={() => (
+              <MaterialCommunityIcons
+                name="drag-vertical"
+                size={30}
+                color="white"
+              />
+            )} // Sử dụng biểu tượng hai sọc dọc
             onPress={() => setIsPanelOpen(true)}
             size={30}
           />
