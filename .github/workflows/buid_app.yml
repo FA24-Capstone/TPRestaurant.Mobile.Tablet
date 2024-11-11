@@ -35,11 +35,7 @@ jobs:
           sudo sysctl -w fs.inotify.max_queued_events=524288
           sudo sysctl -w fs.inotify.max_user_instances=524288
 
-      # Configure EAS credentials
-      - name: Configure EAS Credentials
-        run: |
-          eas credentials --platform android --profile production
-
+     
       - name: Build Production Android
         run: |
           eas build \
