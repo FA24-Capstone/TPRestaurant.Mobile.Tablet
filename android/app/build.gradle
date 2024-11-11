@@ -109,9 +109,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.hongquan0312.myapp'
+    namespace 'com.qk.backend.thienphurestaurant'
     defaultConfig {
-        applicationId 'com.hongquan0312.myapp'
+        applicationId 'com.qk.backend.thienphurestaurant'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
