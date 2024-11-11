@@ -37,9 +37,9 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
           flexDirection: "row",
           alignItems: "center",
           paddingHorizontal: 20,
-          backgroundColor: "#fff",
-          paddingTop: 20,
-          paddingBottom: 20,
+          backgroundColor: "#C01D2E",
+          paddingTop: 30,
+          paddingBottom: 14,
           justifyContent: "space-between",
           shadowColor: "#000", // Màu của shadow
           shadowOffset: { width: 0, height: 2 }, // Offset của shadow
@@ -50,16 +50,16 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
       >
         <TouchableOpacity
           onPress={() => navigation.openDrawer()}
-          className="mx-4 p-3 rounded-lg bg-[#ffffff] shadow-lg"
+          className="mx-4 p-3 rounded-lg bg-[#d32637] shadow-lg"
         >
-          <MaterialCommunityIcons name="menu" size={30} color="black" />
+          <MaterialCommunityIcons name="menu" size={30} color="white" />
         </TouchableOpacity>
 
         <View className="flex-row items-center flex-1">
           <View className="flex-row justify-center items-center mr-2">
-            <Text className="font-bold uppercase text-[18px] text-gray-600 mr-2">
+            <Text className="font-bold uppercase text-white text-[18px]  mr-2">
               Xin chào,{" "}
-              <Text className="font-bold uppercase text-[18px] text-gray-600 mr-2">
+              <Text className="font-bold uppercase text-[18px] text-white mr-2">
                 {customerName}
               </Text>
             </Text>
@@ -81,10 +81,8 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
         </TouchableOpacity> */}
 
           <View className="flex-row justify-center items-center mr-8">
-            <FontAwesome name="calendar" size={20} color="gray" />
-            <Text className="ml-2 font-semibold text-lg text-gray-700">
-              {now}
-            </Text>
+            <FontAwesome name="calendar" size={20} color="white" />
+            <Text className="ml-2 font-semibold text-lg text-white">{now}</Text>
           </View>
 
           <View

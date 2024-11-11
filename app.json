@@ -16,7 +16,7 @@
     "ios": {
       "jsEngine": "hermes",
       "supportsTablet": true,
-      "bundleIdentifier": "com.hongquan0312.myapp"
+      "bundleIdentifier": "com.qk.backend.thienphurestaurant"
     },
     "android": {
       "enablePngCrunchInReleaseBuilds": false,
@@ -26,7 +26,7 @@
         "backgroundColor": "#ffffff",
         "googleServicesFile": "./google-services.json"
       },
-      "package": "com.hongquan0312.myapp"
+      "package": "com.qk.backend.thienphurestaurant"
     },
     "web": {
       "favicon": "./assets/favicon.jpeg"
@@ -37,8 +37,9 @@
     "plugins": ["expo-router", "expo-font"],
     "extra": {
       "eas": {
-        "projectId": "28697004-3e3e-4c24-b616-5dfca2e5764d"
+        "projectId": "4eddb6cb-3c68-4399-bae6-2fc546461f45"
       }
-    }
+    },
+    "owner": "qk.backend"
   }
 }

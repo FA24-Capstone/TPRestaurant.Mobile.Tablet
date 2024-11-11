@@ -197,13 +197,13 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
             setSearchQuery={setSearchQuery}
           />
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={loadMenuItems}
           disabled={loading}
           className={`my-2 ${loading ? "opacity-50" : ""}`}
         >
           <Text>Tải Lại</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <View className="flex-row justify-center mb-2">
           <CategoryTabs
             categories={categories.filter(shouldShowDishes)}

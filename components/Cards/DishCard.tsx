@@ -142,7 +142,7 @@ const DishCard: React.FC<DishCardProps> = ({
       showErrorMessage("Món này đã hết hàng và không thể chọn.");
     };
 
-    console.log("dishSizeDetailsDish", dishSizeDetails);
+    // console.log("dishSizeDetailsDish", dishSizeDetails);
 
     return (
       <TouchableOpacity

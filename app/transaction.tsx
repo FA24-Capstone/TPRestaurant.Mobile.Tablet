@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slices/authSlice";
 import { Asset } from "expo-asset";
@@ -20,6 +20,11 @@ import {
   showErrorMessage,
   showSuccessMessage,
 } from "@/components/FlashMessageHelpers";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { clearReservationData } from "@/redux/slices/reservationSlice";
+import { clearDishes } from "@/redux/slices/dishesSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import store from "@/redux/store";
 
 Asset.loadAsync(require("../assets/Icons/iconAI.jpg"));
 
@@ -30,9 +35,15 @@ type RouteParams = {
   };
 };
 
+type RootStackParamList = {
+  index: undefined;
+};
+
 const TransactionScreen = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   const route = useRoute<RouteProp<RouteParams, "TransactionScreen">>();
   const [paymentDetails, setPaymentDetails] =
     useState<PaymentDetailReponse | null>(null);
@@ -77,7 +88,14 @@ const TransactionScreen = () => {
   }, [transactionIdNE]);
 
   const handleLogout = () => {
-    dispatch(logout());
+    // Dispatch actions to clear reservation and dish data
+    dispatch(clearReservationData());
+    dispatch(clearDishes());
+    // Xác nhận dữ liệu đã bị xóa trong Redux
+    console.log("Reservation data cleared:", store.getState().reservation.data);
+
+    // Navigate to the "index" screen
+    navigation.navigate("index");
   };
 
   // // Tự động logout sau 1 phút nếu không có hành động gì

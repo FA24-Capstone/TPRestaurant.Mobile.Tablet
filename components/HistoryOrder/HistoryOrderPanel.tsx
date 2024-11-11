@@ -404,7 +404,7 @@ const HistoryOrderPanel: React.FC = () => {
                     resizeMode="cover"
                   />
                   <View className="ml-6">
-                    <ScrollView style={{ height: 500 }}>
+                    <ScrollView style={{ maxHeight: 500 }}>
                       {/* Hiển thị tên món ăn hoặc combo */}
                       <Text className="font-bold text-2xl mb-2 text-gray-700">
                         {modalContent.name || modalContent.comboName}

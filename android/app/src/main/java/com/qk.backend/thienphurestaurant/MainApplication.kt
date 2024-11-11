@@ -1,4 +1,4 @@
-package com.hongquan0312.myapp
+package com.qk.backend.thienphurestaurant
 
 import android.app.Application
 import android.content.res.Configuration
