@@ -38,7 +38,7 @@ jobs:
       # Configure EAS credentials
       - name: Configure EAS Credentials
         run: |
-          eas credentials --platform android --profile production --non-interactive
+          eas credentials --platform android
 
       - name: Build Production Android
         run: |
