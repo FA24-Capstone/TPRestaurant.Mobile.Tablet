@@ -20,11 +20,11 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install --frozen-lockfile
-
+          
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
-          expo-version: latest    # Added this line
+          expo-version: latest
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
@@ -34,6 +34,11 @@ jobs:
           sudo sysctl -w fs.inotify.max_user_watches=524288
           sudo sysctl -w fs.inotify.max_queued_events=524288
           sudo sysctl -w fs.inotify.max_user_instances=524288
+
+      # Configure EAS credentials
+      - name: Configure EAS Credentials
+        run: |
+          eas credentials --platform android --profile production --non-interactive
 
       - name: Build Production Android
         run: |
