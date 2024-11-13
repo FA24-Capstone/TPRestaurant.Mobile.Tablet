@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   Modal,
+  useWindowDimensions,
 } from "react-native";
 import ListOrder from "../List/ListOrder";
 import { Order } from "@/app/types/dishes_type";
@@ -38,6 +39,7 @@ import LoadingOverlay from "../LoadingOverlay";
 import StatusLabel from "../StatusLabel";
 import OrderInvoiceModal from "./Modal/OrderInvoiceModal";
 import { showErrorMessage, showSuccessMessage } from "../FlashMessageHelpers";
+import RenderHTML from "react-native-render-html";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -50,6 +52,7 @@ type RootStackParamList = {
 
 const HistoryOrderPanel: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  // const { width } = useWindowDimensions(); // Lấy chiều rộng của màn hình để điều chỉnh RenderHtml
 
   const dispatch: AppDispatch = useDispatch();
   const reservationData = useSelector(
@@ -229,7 +232,7 @@ const HistoryOrderPanel: React.FC = () => {
 
   const filteredDishes = filterDishesByQuery(dishes, searchQuery);
   const filteredCombos = filterCombosByQuery(combos, searchQuery);
-  console.log("filteredDishes nè", JSON.stringify(filteredDishes, null, 2));
+  // console.log("filteredDishes nè", JSON.stringify(filteredDishes, null, 2));
 
   // Function to add empty spaces to maintain layout
   const fillEmptySpaces = (data: any[]) => {
@@ -410,10 +413,21 @@ const HistoryOrderPanel: React.FC = () => {
                         {modalContent.name || modalContent.comboName}
                       </Text>
 
-                      {/* Hiển thị mô tả món ăn hoặc combo */}
+                      {/* Hiển thị mô tả món ăn hoặc combo
                       <Text className="mb-4 text-lg max-w-[500px]">
                         {modalContent.description || modalContent.description}
-                      </Text>
+                      </Text> */}
+
+                      {/* Hiển thị mô tả món ăn hoặc combo */}
+                      <View className="max-w-[600px]">
+                        <RenderHTML
+                          contentWidth={100}
+                          source={{ html: modalContent.description || "" }}
+                          tagsStyles={{
+                            p: { fontSize: 16, color: "#333" },
+                          }}
+                        />
+                      </View>
 
                       {/* Hiển thị giá của món ăn hoặc combo */}
                       <Text className="font-bold text-lg text-[#C01D2E] mb-4">

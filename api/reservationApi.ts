@@ -10,6 +10,7 @@ import {
 import { AppDispatch } from "@/redux/store";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import apiClient from "./config";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -22,17 +23,26 @@ export const fetchReservationWithTime = createAsyncThunk<
   "reservation/fetchReservationWithTime",
   async ({ tableId, time }, { rejectWithValue }) => {
     try {
-      const response = await axios.get<ReservationApiResponse>(
-        `${API_URL}/order/get-table-reservation-with-time`,
-        {
-          params: { tableId, time },
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      // Tạo một promise timeout để hủy yêu cầu sau 10 giây (10000 milliseconds)
+      const timeoutPromise = new Promise<ReservationApiResponse>((_, reject) =>
+        setTimeout(() => {
+          reject("Request timed out. Please try again.");
+        }, 10000)
       );
 
-      const data = response.data;
+      // Kết hợp timeoutPromise với yêu cầu API để lấy dữ liệu
+      const response = await Promise.race([
+        apiClient.get<ReservationApiResponse>(
+          `/order/get-table-reservation-with-time`,
+          {
+            params: { tableId, time },
+          }
+        ),
+        timeoutPromise,
+      ]);
+
+      const data = (response as any).data; // Ép kiểu để sử dụng `data`
+      console.log("responseReservationWithTime ", data);
 
       // Check if the API call was successful
       if (data.isSuccess) {

@@ -13,8 +13,8 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       {/* Logo */}
       <View style={{ alignItems: "center", padding: 16 }}>
         <Image
-          source={require("../assets/favicon.jpeg")} // Replace with your logo path
-          style={{ width: 40, height: 40, marginBottom: 20 }}
+          source={require("../assets/icon-nobg.jpg")} // Replace with your logo path
+          style={{ width: 150, height: 150, marginBottom: 5 }}
         />
       </View>
 

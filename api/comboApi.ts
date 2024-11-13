@@ -11,6 +11,7 @@ import {
   showSuccessMessage,
 } from "@/components/FlashMessageHelpers";
 import { AppActionResult } from "@/app/types/app_action_result_type";
+import apiClient from "./config";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -22,13 +23,10 @@ export const fetchCombos = async (
   category: number | null = null
 ): Promise<Combo[]> => {
   try {
-    const response = await axios.get<CombosApiResponse>(
-      `${API_URL}/combo/get-all-combo/${pageNumber}/${pageSize}`,
+    const response = await apiClient.get<CombosApiResponse>(
+      `/combo/get-all-combo/${pageNumber}/${pageSize}`,
       {
         params: { keyword, category },
-        headers: {
-          "Content-Type": "application/json",
-        },
       }
     );
 
@@ -82,11 +80,8 @@ export const fetchCombos = async (
 export const fetchComboById = async (
   comboId: string
 ): Promise<AppActionResult<ComboApiData>> => {
-  const response = await axios.get<AppActionResult<ComboApiData>>(
-    `${API_URL}/combo/get-combo-by-id-ver-2/${comboId}`,
-    {
-      headers: { "Content-Type": "application/json" },
-    }
+  const response = await apiClient.get<AppActionResult<ComboApiData>>(
+    `/combo/get-combo-by-id-ver-2/${comboId}`
   );
 
   return response.data;

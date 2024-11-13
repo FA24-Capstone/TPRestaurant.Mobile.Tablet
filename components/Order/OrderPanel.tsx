@@ -42,6 +42,9 @@ type RootStackParamList = {
 
 const OrderPanel: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const selectedDishes = useSelector(
+    (state: RootState) => state.dishes.selectedDishes.length
+  );
 
   const dispatch: AppDispatch = useDispatch();
   const reservationData = useSelector(
@@ -199,6 +202,11 @@ const OrderPanel: React.FC = () => {
             onPress={() => setIsPanelOpen(true)}
             size={30}
           />
+          {selectedDishes > 0 && (
+            <Text className="absolute -top-2 -left-6 py-1 px-3 rounded-full text-base text-white font-extrabold bg-[#EDAA16]">
+              {selectedDishes}
+            </Text>
+          )}
         </View>
       )}
       {isPanelOpen && <OrderDetails />}
