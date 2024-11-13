@@ -1,9 +1,7 @@
 import axios from "axios"; // Import Axios directly
 import { Dish, DishesApiResponse } from "@/app/types/dishes_type";
-import {
-  showErrorMessage,
-  showSuccessMessage,
-} from "@/components/FlashMessageHelpers";
+import { showErrorMessage } from "@/components/FlashMessageHelpers";
+import apiClient from "./config";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 // const API_URL = "http://localhost:3000";
@@ -16,13 +14,10 @@ export const fetchDishes = async (
   type: number | null = null
 ): Promise<Dish[]> => {
   try {
-    const response = await axios.get<DishesApiResponse>(
-      `${API_URL}/dish/get-all-dish/${pageNumber}/${pageSize}`,
+    const response = await apiClient.get<DishesApiResponse>(
+      `/dish/get-all-dish/${pageNumber}/${pageSize}`,
       {
         params: { keyword, type },
-        headers: {
-          "Content-Type": "application/json",
-        },
       }
     );
 

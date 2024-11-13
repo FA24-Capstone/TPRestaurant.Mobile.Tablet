@@ -1,10 +1,14 @@
-// src/api/index.ts
-import axios from "axios";
-import { apiConfig } from "./config";
+// // src/api/index.ts
+// import axios from "axios";
+// import { apiConfig } from "./config";
 
-const apiClient = axios.create({
-  baseURL: apiConfig.baseURL,
-  headers: apiConfig.headers,
-});
+// const apiClient = axios.create({
+//   baseURL: apiConfig.baseURL,
+//   headers: apiConfig.headers,
+// });
+
+// export default apiClient;
+
+import apiClient from "./config";
 
 export default apiClient;

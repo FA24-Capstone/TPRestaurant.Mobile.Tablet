@@ -13,6 +13,8 @@ import { addOrUpdateDish } from "../../redux/slices/dishesSlice";
 import { Dish, DishSizeDetail } from "@/app/types/dishes_type";
 import { formatPriceVND } from "../Format/formatPrice";
 import { showErrorMessage } from "../FlashMessageHelpers";
+import RenderHTML from "react-native-render-html";
+import LimitedRenderHTML from "../LimitedRenderHTML";
 
 interface DishCardProps {
   id: string;
@@ -209,11 +211,29 @@ const DishCard: React.FC<DishCardProps> = ({
       onPress={handleAddDish}
       className="pt-24 m-2 overflow-hidden w-full relative"
     >
-      <Image
-        source={typeof image === "string" ? { uri: image } : image} // Handle both local and URL images
-        className="absolute top-2 z-10 left-[22%] transform -translate-x-1/2 h-[130px] w-[130px] rounded-full border-2 p-2 border-black"
-        resizeMode="cover"
-      />
+      <View
+        style={{
+          width: 140,
+          height: 140,
+          borderRadius: 100,
+          overflow: "hidden", // Cắt phần ảnh thừa để hiển thị hình tròn
+          borderWidth: 2,
+          borderColor: "white",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        className="absolute top-0 left-[50px] right-0 mx-auto z-10"
+      >
+        <Image
+          source={typeof image === "string" ? { uri: image } : image}
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+          resizeMode="cover" // Đảm bảo ảnh lấp đầy khung tròn
+        />
+      </View>
+
       <View className="pt-14 rounded-[16px] z-0 shadow-xl bg-[#FFF1E1]">
         <Text
           className="font-bold text-[20px] px-2 text-center"
@@ -287,9 +307,15 @@ const DishCard: React.FC<DishCardProps> = ({
                       </Text>
                     </View>
                   </View>
-                  <Text className="mb-4 text-lg max-w-[500px]">
+
+                  <View className="max-w-[600px]">
+                    <LimitedRenderHTML
+                      htmlContent={description || "No description available"}
+                    />
+                  </View>
+                  {/* <Text className="mb-4 text-lg max-w-[500px]">
                     {description}
-                  </Text>
+                  </Text> */}
                   <Text className="font-semibold text-lg">
                     Các lựa chọn kích cỡ:
                   </Text>

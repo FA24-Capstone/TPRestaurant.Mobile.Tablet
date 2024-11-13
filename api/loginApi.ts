@@ -7,6 +7,7 @@ import { login } from "@/redux/slices/authSlice";
 import { AppDispatch } from "@/redux/store";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import apiClient from "./config";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -18,8 +19,8 @@ export const loginDevice = async (
   dispatch: AppDispatch
 ): Promise<void> => {
   try {
-    const response = await axios.post<LoginResponse>(
-      `${API_URL}/device/login-device`,
+    const response = await apiClient.post<LoginResponse>(
+      `/device/login-device`,
       {
         deviceCode,
         password,

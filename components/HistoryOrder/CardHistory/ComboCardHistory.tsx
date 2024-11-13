@@ -5,6 +5,7 @@ import moment from "moment-timezone";
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Button } from "react-native-paper";
+import RenderHTML from "react-native-render-html";
 
 interface ComboCardHistoryProps {
   combo: any; // Dữ liệu từ API
@@ -23,6 +24,14 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
 }) => {
   // console.log("comboNha", combo);
 
+  // Hàm để giới hạn số ký tự
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
+
   return (
     <TouchableOpacity
       onPress={() => showModal(combo)}
@@ -36,13 +45,24 @@ const ComboCardHistory: React.FC<ComboCardHistoryProps> = ({
       <View className="p-2">
         <Text className="mt-2 text-lg font-bold">{combo.comboName}</Text>
 
-        <Text
+        {/* <Text
           className="text-gray-500"
           numberOfLines={1} // Số dòng tối đa
           ellipsizeMode="tail" // Hiển thị dấu "..." ở cuối
         >
           {combo.description ?? "no"}
-        </Text>
+        </Text> */}
+        <View className="max-w-[600px]  -my-2">
+          <RenderHTML
+            contentWidth={100}
+            source={{
+              html: truncateText(combo.description || "chưa có mô tả", 60),
+            }} // Giới hạn số ký tự ở đây
+            tagsStyles={{
+              p: { fontSize: 14, color: "gray" },
+            }}
+          />
+        </View>
         <View className="flex-row justify-between flex-wrap my-2">
           <Text className="text-center text-base font-semibold text-[#C01D2E]">
             {formatPriceVND(combo.price)}

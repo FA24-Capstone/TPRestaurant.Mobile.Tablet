@@ -29,7 +29,7 @@
       "package": "com.qk.backend.thienphurestaurant"
     },
     "web": {
-      "favicon": "./assets/favicon.jpeg"
+      "favicon": "./assets/icon-nobg.jpg"
     },
     "expo": {
       "jsEngine": "jsc"
