@@ -10,7 +10,7 @@ Developed a comprehensive restaurant order management system with two mobile app
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/FA24-Capstone/TPRestaurent.FrontEnd
+   git clone https://github.com/FA24-Capstone/TPRestaurant.Mobile.Tablet
    cd TPRestaurant.FrontEnd
    ```
 
