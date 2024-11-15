@@ -80,7 +80,7 @@ const HistoryOrderPanel: React.FC = () => {
   console.log("orderId nè", orderId);
 
   // console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
-  console.log("dishes nè", JSON.stringify(dishes, null, 2));
+  // console.log("dishes nè", JSON.stringify(dishes, null, 2));
 
   // console.log("reservationData nè", JSON.stringify(reservationData, null, 2));
 
@@ -213,7 +213,7 @@ const HistoryOrderPanel: React.FC = () => {
   // Function to filter dishes based on the search query
   const filterDishesByQuery = (data: any[], query: string) => {
     if (!query) {
-      console.log("data nè", JSON.stringify(data, null, 2));
+      // console.log("data nè", JSON.stringify(data, null, 2));
 
       return data;
     }
