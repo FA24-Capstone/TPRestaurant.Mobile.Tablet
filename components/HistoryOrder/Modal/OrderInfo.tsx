@@ -1,7 +1,11 @@
 // OrderDetails.tsx
-import React from "react";
+import React, { useState } from "react";
 import { View, Text } from "react-native";
 import moment from "moment-timezone";
+import { TouchableOpacity } from "react-native";
+import { ItemCoupons } from "@/app/types/coupon_type";
+import ChooseCouponModal from "./ChooseCouponModal";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface OrderDetailsProps {
   customerName?: string;
@@ -10,6 +14,9 @@ interface OrderDetailsProps {
   numOfPeople?: number;
   tableName?: string;
   orderId?: string;
+  setSelectedCoupon: (coupon: ItemCoupons) => void;
+  selectedCoupon?: ItemCoupons;
+  totalAmount: number;
   reservationData?: {
     result?: {
       order?: {
@@ -32,7 +39,17 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   orderId,
   reservationData,
   statusInfo,
+  setSelectedCoupon,
+  selectedCoupon,
+  totalAmount,
 }) => {
+  const [couponModalVisible, setCouponModalVisible] = useState(false);
+
+  const handleSelectCoupon = (coupon: ItemCoupons) => {
+    setSelectedCoupon(coupon);
+    setCouponModalVisible(false);
+  };
+
   return (
     <>
       {/* Customer Information Section */}
@@ -120,6 +137,33 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               {statusInfo.text}
             </Text>
           </View>
+          <View className="flex-row justify-between items-center mt-2">
+            <Text className="text-base font-semibold text-gray-500">
+              Coupon áp dụng:
+            </Text>
+            {selectedCoupon ? (
+              <View className="flex-row items-center gap-2">
+                <Text className="text-base font-semibold text-gray-800">
+                  {selectedCoupon.code}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setCouponModalVisible(true)}
+                  // className="py-2 px-3 rounded-lg bg-[#EDAA16]"
+                >
+                  <FontAwesome name="pencil-square" size={30} color="#EDAA16" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity
+                onPress={() => setCouponModalVisible(true)}
+                className="py-2 px-3 rounded-lg bg-[#EDAA16]"
+              >
+                <Text className="text-sm font-bold text-white uppercase">
+                  Chọn Coupon
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
       <Text className="font-semibold text-gray-800 text-base mb-2">
@@ -136,6 +180,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
         <Text className="w-20 text-center font-semibold">Thành tiền</Text>
         <Text className="w-52 text-center font-semibold">Ghi chú</Text>
       </View>
+
+      <ChooseCouponModal
+        visible={couponModalVisible}
+        onClose={() => setCouponModalVisible(false)}
+        onSelectCoupon={handleSelectCoupon}
+        totalAmount={totalAmount}
+      />
     </>
   );
 };

@@ -20,6 +20,7 @@ import SuccessModal from "@/components/Payment/SuccessModal";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OrderDetails from "./OrderInfo";
 import { showErrorMessage } from "@/components/FlashMessageHelpers";
+import { ItemCoupons } from "@/app/types/coupon_type";
 
 interface OrderInvoiceModalProps {
   visible: boolean;
@@ -56,8 +57,11 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   const [successVisible, setSuccessVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [invoiceVisible, setInvoiceVisible] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<ItemCoupons | undefined>(
+    undefined
+  );
 
-  // console.log("currentOrder", currentOrder);
+  console.log("selectedCoupon", selectedCoupon);
 
   const getStatusInfo = (statusId: any) => {
     const statusMapping = {
@@ -93,7 +97,9 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
     0
   );
   const grandTotal =
-    totalAmount - (reservationData?.result?.order?.deposit || 0);
+    totalAmount -
+    (reservationData?.result?.order?.deposit || 0) -
+    (totalAmount * (selectedCoupon?.discountPercent || 0)) / 100;
 
   const handlePayment = async (paymentMethod: number) => {
     setLoading(true);
@@ -162,6 +168,9 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                   orderId={orderId}
                   reservationData={reservationData || {}}
                   statusInfo={statusInfo}
+                  setSelectedCoupon={setSelectedCoupon}
+                  selectedCoupon={selectedCoupon}
+                  totalAmount={totalAmount}
                 />
               )}
               renderItem={({ item, index }) => (
@@ -223,6 +232,21 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                           -{" "}
                           {formatPriceVND(
                             reservationData?.result?.order?.deposit
+                          )}
+                        </Text>
+                      </View>
+                    )}
+
+                    {selectedCoupon?.discountPercent && (
+                      <View className="flex-row justify-between mt-2">
+                        <Text className="font-semibold text-gray-700">
+                          Dùng Coupon:
+                        </Text>
+                        <Text className="font-semibold  text-gray-800">
+                          -{" "}
+                          {formatPriceVND(
+                            totalAmount *
+                              (selectedCoupon?.discountPercent / 100)
                           )}
                         </Text>
                       </View>

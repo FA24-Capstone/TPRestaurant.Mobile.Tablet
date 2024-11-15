@@ -153,7 +153,7 @@ const OrderPanel: React.FC = () => {
             top: 8,
             left: -40,
             transform: [{ translateX: -15 }, { translateY: -15 }], // Shifts the button outside
-            backgroundColor: "#d83646",
+            backgroundColor: "#C01D2E",
             borderRadius: 25,
             shadowColor: "#000",
             shadowOffset: {
@@ -190,7 +190,7 @@ const OrderPanel: React.FC = () => {
         <Menu isPanelOpen={isPanelOpen} />
       </View>
       {!isPanelOpen && (
-        <View className="absolute right-2 top-1/2 transform -translate-y-1/2  rounded-md bg-[#d83646]">
+        <View className="absolute right-2 top-1/2 transform -translate-y-1/2  rounded-md bg-[#C01D2E]">
           <IconButton
             icon={() => (
               <MaterialCommunityIcons
