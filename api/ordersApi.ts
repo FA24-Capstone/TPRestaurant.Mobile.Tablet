@@ -57,3 +57,25 @@ export const getHistoryOrderId = async (
 
   return response.data; // Return the AppActionResult data as is
 };
+
+// ==================== Update Order Status ====================
+
+export const updateOrderStatus = async (
+  orderId: string,
+  isSuccessful: boolean,
+  status: number,
+  asCustomer: boolean
+): Promise<AppActionResult<null>> => {
+  const response = await apiClient.put<AppActionResult<null>>(
+    `/order/update-order-status/${orderId}`,
+    null, // No body is required for this request
+    {
+      params: {
+        isSuccessful,
+        status,
+        asCustomer,
+      },
+    }
+  );
+  return response.data;
+};
