@@ -50,7 +50,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
       >
         <TouchableOpacity
           onPress={() => navigation.openDrawer()}
-          className="mx-4 p-3 rounded-lg bg-[#d32637] shadow-lg"
+          className="mx-4 p-3 rounded-lg bg-[#d33141] shadow-lg"
         >
           <MaterialCommunityIcons name="menu" size={30} color="white" />
         </TouchableOpacity>

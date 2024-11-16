@@ -5,6 +5,7 @@ import moment from "moment-timezone";
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Button } from "react-native-paper";
+import RenderHTML from "react-native-render-html";
 
 interface DishCardHistoryProps {
   dish: any; // Dữ liệu từ API
@@ -21,6 +22,14 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
 }) => {
   // console.log("DishCardHistory", dish);
 
+  // Hàm để giới hạn số ký tự
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
+
   return (
     <TouchableOpacity
       onPress={() => showModal(dish)}
@@ -33,13 +42,24 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
       />
       <View className="p-2">
         <Text className="mt-2 text-lg font-bold">{dish.name}</Text>
-        <Text
+        {/* <Text
           className="text-gray-500"
           numberOfLines={1} // Số dòng tối đa
           ellipsizeMode="tail"
         >
           {dish.description ?? "chưa có mô tả"}
-        </Text>
+        </Text> */}
+        <View className="max-w-[600px] -my-2">
+          <RenderHTML
+            contentWidth={100}
+            source={{
+              html: truncateText(dish.description || "chưa có mô tả", 60),
+            }} // Giới hạn số ký tự ở đây
+            tagsStyles={{
+              p: { fontSize: 14, color: "gray" },
+            }}
+          />
+        </View>
         <View className="flex-row justify-between my-2 flex-wrap">
           <Text className="text-center text-base font-bold text-gray-500">
             {dish.sizeName === "LARGE"

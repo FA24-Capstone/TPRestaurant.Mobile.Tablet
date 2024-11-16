@@ -42,6 +42,9 @@ type RootStackParamList = {
 
 const OrderPanel: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const selectedDishes = useSelector(
+    (state: RootState) => state.dishes.selectedDishes.length
+  );
 
   const dispatch: AppDispatch = useDispatch();
   const reservationData = useSelector(
@@ -150,7 +153,7 @@ const OrderPanel: React.FC = () => {
             top: 8,
             left: -40,
             transform: [{ translateX: -15 }, { translateY: -15 }], // Shifts the button outside
-            backgroundColor: "#d83646",
+            backgroundColor: "#C01D2E",
             borderRadius: 25,
             shadowColor: "#000",
             shadowOffset: {
@@ -187,7 +190,7 @@ const OrderPanel: React.FC = () => {
         <Menu isPanelOpen={isPanelOpen} />
       </View>
       {!isPanelOpen && (
-        <View className="absolute right-2 top-1/2 transform -translate-y-1/2  rounded-md bg-[#d83646]">
+        <View className="absolute right-2 top-1/2 transform -translate-y-1/2  rounded-md bg-[#C01D2E]">
           <IconButton
             icon={() => (
               <MaterialCommunityIcons
@@ -199,6 +202,11 @@ const OrderPanel: React.FC = () => {
             onPress={() => setIsPanelOpen(true)}
             size={30}
           />
+          {selectedDishes > 0 && (
+            <Text className="absolute -top-2 -left-6 py-1 px-3 rounded-full text-base text-white font-extrabold bg-[#EDAA16]">
+              {selectedDishes}
+            </Text>
+          )}
         </View>
       )}
       {isPanelOpen && <OrderDetails />}

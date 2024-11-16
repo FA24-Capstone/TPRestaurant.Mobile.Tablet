@@ -19,6 +19,7 @@ import { formatPriceVND } from "../Format/formatPrice";
 import { fetchComboById } from "@/api/comboApi";
 import { Combo, DishCombo, DishComboDetail } from "@/app/types/combo_type";
 import { showErrorMessage } from "../FlashMessageHelpers";
+import LimitedRenderHTML from "../LimitedRenderHTML";
 
 interface SelectedDishes {
   [setId: number]: string[]; // Use number if setId is numeric
@@ -88,6 +89,8 @@ const ComboCard: React.FC<ComboCardProps> = ({
   }, [id]);
 
   const handleAddDish = async () => {
+    console.log("Đã ấn combo");
+
     if (!isAvailable) {
       showErrorMessage(
         "Món ăn này không còn khả dụng. Vui lòng chọn món khác!"
@@ -381,9 +384,24 @@ const ComboCard: React.FC<ComboCardProps> = ({
                 <Text className="font-bold text-2xl h-[50px]  text-gray-700 w-full">
                   {name}
                 </Text>
-                <Text className="text-gray-600 text-lg font-semibold mr-4 mb-2 max-w-[550px]">
-                  {type} - {description}
-                </Text>
+                <View className="flex-row items-center mb-2">
+                  <Icon name="star" size={20} color="#FFD700" />
+                  <Text className=" text-gray-500 ml-1 text-base font-semibold">
+                    {rating}
+                  </Text>
+                  <Text className="text-gray-500 text-base ml-1 font-semibold">
+                    ({ratingCount})
+                  </Text>
+                </View>
+                <View className="max-w-[600px] items-center flex-row">
+                  <Text className="text-gray-600 text-xl font-semibold mr-4  max-w-[550px]">
+                    {" "}
+                    {type} -
+                  </Text>
+                  <LimitedRenderHTML
+                    htmlContent={description || "No description available"}
+                  />
+                </View>
 
                 <Text className="font-bold  text-xl text-[#C01D2E] h-[40px] mb-4">
                   {formatPriceVND(price)}

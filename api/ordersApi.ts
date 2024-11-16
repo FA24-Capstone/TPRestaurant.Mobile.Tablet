@@ -15,6 +15,7 @@ import {
   showSuccessMessage,
 } from "@/components/FlashMessageHelpers";
 import axios from "axios";
+import apiClient from "./config";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -23,14 +24,9 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export const createOrderinTablet = async (
   orderRequest: OrderRequest
 ): Promise<AppActionResult<CreateOrderData>> => {
-  const response = await axios.post<AppActionResult<CreateOrderData>>(
-    `${API_URL}/order/create-order`,
-    orderRequest,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
+  const response = await apiClient.post<AppActionResult<CreateOrderData>>(
+    `/order/create-order`,
+    orderRequest
   );
 
   return response.data; // Return the AppActionResult data as is
@@ -42,14 +38,9 @@ export const addPrelistOrder = async (
   orderData: AddOrderRequest,
   orderId: string
 ): Promise<AppActionResult<string>> => {
-  const response = await axios.post<AppActionResult<string>>(
-    `${API_URL}/order/add-dish-to-order/${orderId}`,
-    orderData,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
+  const response = await apiClient.post<AppActionResult<string>>(
+    `/order/add-dish-to-order/${orderId}`,
+    orderData
   );
 
   return response.data; // Return the AppActionResult data as is
@@ -60,10 +51,31 @@ export const addPrelistOrder = async (
 export const getHistoryOrderId = async (
   orderId: string
 ): Promise<AppActionResult<OrderHistoryData>> => {
-  const response = await axios.get<AppActionResult<OrderHistoryData>>(
-    `${API_URL}/order/get-order-detail/${orderId}`,
-    { headers: { "Content-Type": "application/json" } }
+  const response = await apiClient.get<AppActionResult<OrderHistoryData>>(
+    `/order/get-order-detail/${orderId}`
   );
 
   return response.data; // Return the AppActionResult data as is
+};
+
+// ==================== Update Order Status ====================
+
+export const updateOrderStatus = async (
+  orderId: string,
+  isSuccessful: boolean,
+  status: number,
+  asCustomer: boolean
+): Promise<AppActionResult<null>> => {
+  const response = await apiClient.put<AppActionResult<null>>(
+    `/order/update-order-status/${orderId}`,
+    null, // No body is required for this request
+    {
+      params: {
+        isSuccessful,
+        status,
+        asCustomer,
+      },
+    }
+  );
+  return response.data;
 };

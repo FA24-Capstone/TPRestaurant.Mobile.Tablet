@@ -36,6 +36,7 @@ import {
 import { AppDispatch } from "@/redux/store";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { Ionicons } from "@expo/vector-icons";
+import { updateOrderStatus } from "@/api/ordersApi";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -57,10 +58,14 @@ const App = () => {
 
   // const [reservationText, setReservationText] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  // Đảm bảo state phoneNumber luôn khởi tạo với null
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [phoneNumberOrder, setPhoneNumberOrder] = useState<string>("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Trạng thái để quản lý loại modal hiện tại
+  const [currentModal, setCurrentModal] = useState<string | null>(null); // "reservationCheck" hoặc "phoneInput"
 
   console.log("tableIdNe:", tableId);
   console.log("phoneNumberDatban:", phoneNumber);
@@ -79,6 +84,7 @@ const App = () => {
         const now = moment()
           .tz("Asia/Ho_Chi_Minh")
           .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
+        console.log("now", now);
 
         // Dispatch async thunk để fetch dữ liệu
         // dispatch(fetchReservationWithTime({ tableId, time: now }));
@@ -114,41 +120,39 @@ const App = () => {
     return `Xin chào quý khách, nếu quý khách đã đặt bàn số ${tableName} tại nhà hàng Thiên Phú thì xin vui lòng nhập số điện thoại đã đặt bàn vào phía dưới. Nếu không hãy bỏ qua nhé!`;
   }, [reservationData, tableName]);
 
-  const handleStartExploring = async () => {
-    try {
-      setIsLoading(true);
-      const now = moment()
-        .tz("Asia/Ho_Chi_Minh")
-        .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-
-      // Dispatch the fetchReservationWithTime action
-      await dispatch(
-        fetchReservationWithTime({
-          tableId: tableId ?? "",
-          time: now,
-          // time: "2024-11-11 21:29:13.1140000",
-        })
-      );
-
-      setIsLoading(false);
-      setModalVisible(true);
-    } catch (error) {
-      setIsLoading(false);
-      showErrorMessage("Có lỗi xảy ra khi lấy thông tin đặt bàn.");
-    }
+  const handleStartExploring = () => {
+    setCurrentModal("reservationCheck"); // Hiển thị modal kiểm tra đặt bàn
+    setModalVisible(false); // Đảm bảo ẩn modal cũ
   };
 
-  // useEffect(() => {
-  //   if (isLoading) {
-  //     if (reservationText) {
-  //       setIsLoading(false);
-  //       setModalVisible(true);
-  //     } else {
-  //       setIsLoading(false);
-  //       router.push("/home-screen");
-  //     }
-  //   }
-  // }, [isLoading, reservationText, router]);
+  // Khi chuyển sang modal phoneVerification, reset phoneNumber về null
+  const handleConfirmReservation = async (hasReservation: boolean) => {
+    if (hasReservation) {
+      try {
+        setIsLoading(true);
+        const now = moment()
+          .tz("Asia/Ho_Chi_Minh")
+          .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
+
+        // Dispatch the fetchReservationWithTime action
+        await dispatch(
+          fetchReservationWithTime({
+            tableId: tableId ?? "",
+            time: now,
+          })
+        );
+
+        setIsLoading(false);
+        setPhoneNumber(""); // Reset phoneNumber về giá trị null
+        setCurrentModal("phoneVerification");
+      } catch (error) {
+        setIsLoading(false);
+        showErrorMessage("Có lỗi xảy ra khi lấy thông tin đặt bàn.");
+      }
+    } else {
+      setCurrentModal("phoneInput");
+    }
+  };
 
   const isLandscape = width > height;
 
@@ -166,13 +170,29 @@ const App = () => {
 
   const handleConfirmPhoneNumber = async () => {
     if (reservationData && reservationData.result) {
+      const orderId = reservationData.result.order.orderId; // Assuming the order ID is present in reservationData
+
       // If reservationData exists, verify the phone number
+      setIsLoading(true);
       if (phoneNumberOrder === phoneNumber) {
         setModalVisible(false);
-        router.push("/home-screen");
-        showSuccessMessage("Xác nhận đặt bàn thành công!");
+        const updateStatus = await updateOrderStatus(orderId, true, 5, true);
+        if (updateStatus.isSuccess) {
+          router.push("/home-screen");
+          showSuccessMessage(
+            "Xác nhận đặt bàn thành công và đơn hàng đã được chuyển trạng thái!"
+          );
+          setIsLoading(false);
+        } else {
+          showSuccessMessage(
+            "Xác nhận đặt bàn thành công và đơn hàng chưa được chuyển trạng thái!"
+          );
+          setIsLoading(false);
+          router.push("/home-screen");
+        }
       } else {
         showErrorMessage("Không tìm thấy đặt chỗ cho số điện thoại này.");
+        setIsLoading(false);
       }
     } else {
       // If no reservationData, save the phone number and navigate
@@ -227,6 +247,10 @@ const App = () => {
 
   // QUAN LAMMMMM ================= End
 
+  const closeModal = () => {
+    setCurrentModal(null); // Đóng modal
+  };
+
   return (
     <>
       {isLoading && (
@@ -271,104 +295,291 @@ const App = () => {
               <StatusBar style="light" />
             </SafeAreaView>
 
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => setModalVisible(false)}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  zIndex: 100,
-                }}
+            {/* Modal kiểm tra đặt bàn */}
+            {currentModal === "reservationCheck" && (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={true}
+                onRequestClose={() => setCurrentModal(null)}
               >
                 <View
                   style={{
-                    width: width * 0.8,
-                    backgroundColor: "white",
-                    borderRadius: 20,
-                    padding: 20,
+                    flex: 1,
+                    justifyContent: "center",
                     alignItems: "center",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
                   }}
                 >
-                  <Text className="text-center mb-6 mt-2 uppercase font-extrabold text-2xl text-[#C01D2E]">
-                    Xác nhận bàn đã được đặt
-                  </Text>
-                  <Text
+                  <View
                     style={{
-                      fontSize: 24,
-                      fontWeight: "500",
-                      marginBottom: 30,
-                      textAlign: "center",
+                      width: width * 0.5,
+                      backgroundColor: "white",
+                      borderRadius: 20,
+                      padding: 20,
+                      alignItems: "center",
                     }}
                   >
-                    {reservationText}
-                  </Text>
-                  <View className="flex-row items-center mx-auto">
-                    <Text className="text-2xl mr-4 mb-2 text-[#C01D2E]">
-                      +84
+                    <Image
+                      source={require("../assets/Icons/iconAI.jpg")}
+                      className="w-40 h-40 absolute -top-20 mx-auto"
+                    />
+                    <Text className="text-center mt-12 font-bold text-2xl mb-6">
+                      Nhà hàng Thiên Phú xin chào quý khách!
                     </Text>
-                    <View>
-                      <TextInput
-                        placeholder="Nhập số điện thoại"
-                        value={phoneNumber}
-                        onChangeText={(text) => {
-                          setPhoneNumber(text);
-                        }}
-                        keyboardType="phone-pad"
-                        maxLength={10}
-                        style={{
-                          width: 300,
-                          height: 45,
-                          borderColor: phoneError ? "red" : "gray",
-                          borderWidth: 1,
-                          marginBottom: 5,
-                          paddingHorizontal: 10,
-                          borderRadius: 10,
-                          fontSize: 24,
-                          color: "#C01D2E",
-                        }}
-                      />
+                    <Text className="text-center text-2xl mb-10 font-semibold text-gray-600">
+                      Cho chúng tôi biết quý khách đã đặt bàn chưa?
+                    </Text>
+                    <View className="flex-row justify-evenly w-full mb-4">
+                      <TouchableOpacity
+                        className="bg-gray-400 rounded-lg w-[120px] py-3 "
+                        onPress={() => handleConfirmReservation(false)}
+                      >
+                        <Text className="text-white text-lg font-semibold uppercase text-center">
+                          Chưa
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        className="bg-[#C01D2E] rounded-lg w-[120px] py-3 "
+                        onPress={() => handleConfirmReservation(true)}
+                      >
+                        <Text className="text-white text-lg font-semibold uppercase text-center">
+                          Rồi
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                  {phoneError && (
-                    <Text
-                      style={{ color: "red", marginBottom: 20 }}
-                      className="no-wrap"
+                </View>
+              </Modal>
+            )}
+
+            {/* Modal nhập số điện thoại */}
+            {currentModal === "phoneInput" && (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={true}
+                onRequestClose={() => setCurrentModal(null)}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  }}
+                >
+                  <View
+                    style={{
+                      width: width * 0.6,
+                      backgroundColor: "white",
+                      borderRadius: 20,
+                      padding: 20,
+                      alignItems: "center",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => setCurrentModal("reservationCheck")}
+                      className="mb-2 absolute -top-14 left-0 w-[30%] p-2 rounded-lg flex-row items-center justify-center bg-white"
                     >
-                      {phoneError}
+                      <Ionicons name="arrow-back" size={24} color="gray" />
+                      <Text className="text-gray-500 text-center ml-4 font-semibold text-xl uppercase mr-2">
+                        Quay lại
+                      </Text>
+                    </TouchableOpacity>
+                    <Text className="text-center font-bold text-2xl my-6">
+                      Bạn đã có tài khoản tại nhà hàng chưa?
                     </Text>
-                  )}
-                  <View className="flex-row justify-evenly mt-6 w-full items-center">
-                    <TouchableOpacity
-                      className={`my-2 w-[300px] p-2 rounded-lg ${
-                        isConfirmDisabled ? "bg-gray-800" : "bg-[#C01D2E]"
-                      }`}
-                      onPress={handleConfirmPhoneNumber}
-                      disabled={isConfirmDisabled}
-                    >
-                      <Text className="text-white text-center font-semibold text-xl uppercase">
-                        Xác nhận
-                      </Text>
-                    </TouchableOpacity>
-                    {/* Add the "Bỏ qua" button */}
-                    <TouchableOpacity
-                      className="my-2 w-[300px] p-2 rounded-lg flex-row items-center justify-center bg-gray-400"
-                      onPress={handleSkip}
-                    >
-                      <Text className="text-white text-center font-semibold text-xl uppercase mr-2">
-                        Bỏ qua
-                      </Text>
-                      <Ionicons name="arrow-forward" size={24} color="white" />
-                    </TouchableOpacity>
+                    <Text className="text-center text-2xl mb-10 font-semibold text-gray-600">
+                      Nếu có, vui lòng nhập số điện thoại để được tích điểm!
+                    </Text>
+                    <View>
+                      <View className="flex-row items-center mx-auto">
+                        <Text className="text-2xl mr-4 mb-2 text-[#C01D2E]">
+                          +84
+                        </Text>
+                        <View>
+                          <TextInput
+                            placeholder="Nhập số điện thoại"
+                            value={phoneNumber}
+                            onChangeText={(text) => {
+                              setPhoneNumber(text);
+                            }}
+                            keyboardType="phone-pad"
+                            maxLength={10}
+                            style={{
+                              width: 300,
+                              height: 45,
+                              borderColor: phoneError ? "red" : "gray",
+                              borderWidth: 1,
+                              marginBottom: 5,
+                              paddingHorizontal: 10,
+                              borderRadius: 10,
+                              fontSize: 24,
+                              color: "#C01D2E",
+                            }}
+                          />
+                        </View>
+                      </View>
+                      {phoneError && (
+                        <Text
+                          style={{ color: "red", marginBottom: 20 }}
+                          className="no-wrap text-center"
+                        >
+                          {phoneError}
+                        </Text>
+                      )}
+                    </View>
+                    <View className="flex-row justify-around mt-6 w-full items-center">
+                      <TouchableOpacity
+                        className={`my-2 w-[40%] p-2 rounded-lg ${
+                          isDisabled ? "bg-gray-800" : "bg-[#C01D2E]"
+                        }`}
+                        onPress={handleConfirmPhoneNumber}
+                        disabled={isDisabled}
+                      >
+                        <Text className="text-white text-center font-semibold text-xl uppercase">
+                          Xác nhận
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        className="my-2 w-[40%] p-2 rounded-lg flex-row items-center justify-center bg-gray-400"
+                        onPress={() => {
+                          setCurrentModal(null);
+                          handleSkip();
+                        }}
+                      >
+                        <Text className="text-white text-center font-semibold text-xl uppercase mr-2">
+                          Bỏ qua
+                        </Text>
+                        <Ionicons
+                          name="arrow-forward"
+                          size={24}
+                          color="white"
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-              </View>
-            </Modal>
+              </Modal>
+            )}
+
+            {/* Modal xác nhận đặt bàn (modal cũ) */}
+            {currentModal === "phoneVerification" && (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={true}
+                onRequestClose={closeModal}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  }}
+                >
+                  <View
+                    style={{
+                      width: width * 0.8,
+                      backgroundColor: "white",
+                      borderRadius: 20,
+                      padding: 20,
+                      alignItems: "center",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => setCurrentModal("reservationCheck")}
+                      className="mb-2 absolute -top-14 left-0 w-[30%] p-2 rounded-lg flex-row items-center justify-center bg-white"
+                    >
+                      <Ionicons name="arrow-back" size={24} color="gray" />
+                      <Text className="text-gray-500 text-center ml-4 font-semibold text-xl uppercase mr-2">
+                        Quay lại
+                      </Text>
+                    </TouchableOpacity>
+                    <Text className="text-center mb-6 mt-2 uppercase font-extrabold text-2xl text-[#C01D2E]">
+                      Xác nhận bàn đã được đặt
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 24,
+                        fontWeight: "500",
+                        marginBottom: 30,
+                        textAlign: "center",
+                      }}
+                    >
+                      {reservationText}
+                    </Text>
+                    <View className="flex-row items-center mx-auto">
+                      <Text className="text-2xl mr-4 mb-2 text-[#C01D2E]">
+                        +84
+                      </Text>
+                      <View>
+                        <TextInput
+                          placeholder="Nhập số điện thoại"
+                          value={phoneNumber}
+                          onChangeText={(text) => {
+                            setPhoneNumber(text);
+                          }}
+                          keyboardType="phone-pad"
+                          maxLength={10}
+                          style={{
+                            width: 300,
+                            height: 45,
+                            borderColor: phoneError ? "red" : "gray",
+                            borderWidth: 1,
+                            marginBottom: 5,
+                            paddingHorizontal: 10,
+                            borderRadius: 10,
+                            fontSize: 24,
+                            color: "#C01D2E",
+                          }}
+                        />
+                      </View>
+                    </View>
+                    {phoneError && (
+                      <Text
+                        style={{ color: "red", marginBottom: 20 }}
+                        className="no-wrap"
+                      >
+                        {phoneError}
+                      </Text>
+                    )}
+                    <View className="flex-row justify-evenly mt-6 w-full items-center">
+                      <TouchableOpacity
+                        className={`my-2 w-[300px] p-2 rounded-lg ${
+                          isConfirmDisabled ? "bg-gray-800" : "bg-[#C01D2E]"
+                        }`}
+                        onPress={handleConfirmPhoneNumber}
+                        disabled={isConfirmDisabled}
+                      >
+                        <Text className="text-white text-center font-semibold text-xl uppercase">
+                          Xác nhận
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        className="my-2 w-[300px] p-2 rounded-lg flex-row items-center justify-center bg-gray-400"
+                        onPress={() => {
+                          closeModal;
+                          handleSkip();
+                        }}
+                      >
+                        <Text className="text-white text-center font-semibold text-xl uppercase mr-2">
+                          Bỏ qua
+                        </Text>
+                        <Ionicons
+                          name="arrow-forward"
+                          size={24}
+                          color="white"
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </Modal>
+            )}
           </AppGradient>
         </ImageBackground>
       </View>
