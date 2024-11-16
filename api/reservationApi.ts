@@ -1,4 +1,5 @@
 import {
+  AccountApiResponse,
   ReservationApiResponse,
   ReservationByPhoneApiResponse,
 } from "@/app/types/reservation_type";
@@ -60,6 +61,50 @@ export const fetchReservationWithTime = createAsyncThunk<
         const backendMessage =
           error.response?.data?.messages?.[0] ||
           "An error occurred while fetching reservation.";
+        showErrorMessage(backendMessage);
+        return rejectWithValue(backendMessage);
+      } else {
+        showErrorMessage("An unexpected error occurred.");
+        return rejectWithValue("An unexpected error occurred.");
+      }
+    }
+  }
+);
+
+export const fetchAccountByPhoneNumber = createAsyncThunk<
+  AccountApiResponse,
+  { phoneNumber: string },
+  { rejectValue: string }
+>(
+  "account/fetchAccountByPhoneNumber",
+  async ({ phoneNumber }, { rejectWithValue }) => {
+    try {
+      // Make API call
+      const response = await apiClient.get<AccountApiResponse>(
+        `/api/account/get-account-by-phone-number`,
+        {
+          params: { phoneNumber },
+        }
+      );
+
+      const data = response.data;
+
+      // Check if the API call was successful
+      if (data.isSuccess) {
+        showSuccessMessage("Account fetched successfully!");
+        return data;
+      } else {
+        const errorMessage =
+          data.messages?.[0] || "Failed to fetch account information.";
+        showErrorMessage(errorMessage);
+        return rejectWithValue(errorMessage);
+      }
+    } catch (error: any) {
+      console.error("Failed to fetch account by phone number:", error);
+      if (axios.isAxiosError(error)) {
+        const backendMessage =
+          error.response?.data?.messages?.[0] ||
+          "An error occurred while fetching account information.";
         showErrorMessage(backendMessage);
         return rejectWithValue(backendMessage);
       } else {

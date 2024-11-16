@@ -12,6 +12,10 @@ import {
 } from "@/components/FlashMessageHelpers";
 import { AppActionResult } from "@/app/types/app_action_result_type";
 import apiClient from "./config";
+import {
+  MakeDineInOrderBillRequest,
+  MakeDineResult,
+} from "@/app/types/payment_v2_type";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -37,4 +41,19 @@ export const getPaymentById = async (
   );
 
   return response.data; // Return the AppActionResult data as is
+};
+
+// ==================== Make Dine In Order Bill ====================
+
+export const makeDineInOrderBill = async (
+  requestBody: MakeDineInOrderBillRequest
+): Promise<AppActionResult<MakeDineResult>> => {
+  console.log("makeDineInOrderBillRequest", requestBody);
+
+  const response = await apiClient.post<AppActionResult<MakeDineResult>>(
+    `/order/make-dine-in-order-bill`,
+    requestBody
+  );
+
+  return response.data;
 };

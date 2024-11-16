@@ -28,12 +28,6 @@ const ChoosePaymentModal: React.FC<ChoosePaymentModalProps> = ({
   // Enum for payment methods
   const paymentMethods = [
     {
-      id: 1,
-      name: "TIỀN MẶT",
-      description: "Thanh toán trực tiếp",
-      image: require("../../assets/Icons/wallet.jpg"),
-    },
-    {
       id: 2,
       name: "VNPAY",
       description: "Tài khoản ví VNPAY",
@@ -83,12 +77,21 @@ const ChoosePaymentModal: React.FC<ChoosePaymentModalProps> = ({
             <Text className="text-xl font-semibold my-8 uppercase text-[#C01D2E] text-center">
               Chọn Phương Thức Thanh Toán
             </Text>
+            <Text className="text-center font-semibold text-lg mb-10">
+              Nếu khách hàng muốn thanh toán bằng
+              <Text className="font-semibold text-yellow-500 uppercase">
+                {" "}
+                tiền mặt
+              </Text>{" "}
+              vui lòng đến quầy lễ tân để thanh toán tiền mặt. Cảm ơn quý khách
+              đã sử dụng dịch vụ ăn uống của Nhà hàng Thiên Phú!
+            </Text>
             {paymentMethods.map((method) => (
               <TouchableOpacity
                 key={method.id}
                 className={`flex-row items-center justify-between p-4 mb-4 rounded-lg bg-gray-100 ${
                   selectedPaymentMethod === method.id
-                    ? "border-2 border-black"
+                    ? "border-2 border-yellow-500"
                     : ""
                 }`}
                 onPress={() => setSelectedPaymentMethod(method.id)}
@@ -112,7 +115,7 @@ const ChoosePaymentModal: React.FC<ChoosePaymentModalProps> = ({
                     }
                     size={24}
                     color={
-                      selectedPaymentMethod === method.id ? "black" : "gray"
+                      selectedPaymentMethod === method.id ? "#EDAA16" : "gray"
                     }
                   />
                 </View>

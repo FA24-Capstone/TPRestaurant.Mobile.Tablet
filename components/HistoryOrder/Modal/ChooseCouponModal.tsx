@@ -16,7 +16,7 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 interface ChooseCouponModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectCoupon: (coupon: ItemCoupons) => void;
+  onSelectCoupon: (coupon: ItemCoupons[]) => void;
   totalAmount: number; // Pass the total amount to check conditions
 }
 
@@ -28,7 +28,7 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
 }) => {
   const [coupons, setCoupons] = useState<ItemCoupons[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null);
+  const [selectedCouponIds, setSelectedCouponIds] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchCoupons = async () => {
@@ -55,13 +55,21 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
   }, [visible]);
 
   const handleConfirmCoupon = () => {
-    const selectedCoupon = coupons.find(
-      (coupon) => coupon.couponProgramId === selectedCouponId
+    const selectedCoupons = coupons.filter((coupon) =>
+      selectedCouponIds.includes(coupon.couponProgramId)
     );
-    if (selectedCoupon) {
-      onSelectCoupon(selectedCoupon);
+    if (selectedCoupons.length > 0) {
+      onSelectCoupon(selectedCoupons);
       onClose();
     }
+  };
+
+  const toggleCouponSelection = (couponId: string) => {
+    setSelectedCouponIds((prevSelectedCouponIds) =>
+      prevSelectedCouponIds.includes(couponId)
+        ? prevSelectedCouponIds.filter((id) => id !== couponId)
+        : [...prevSelectedCouponIds, couponId]
+    );
   };
 
   // Separate coupons into valid and invalid lists
@@ -95,7 +103,7 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
               <TouchableOpacity
                 className="bg-[#EDAA16] p-2 rounded-lg w-1/3 self-center"
                 onPress={handleConfirmCoupon}
-                disabled={!selectedCouponId}
+                disabled={selectedCouponIds.length === 0}
               >
                 <Text className="text-white text-center font-semibold text-lg uppercase">
                   Chọn Coupon
@@ -139,12 +147,12 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
                       <TouchableOpacity
                         key={coupon.couponProgramId}
                         className={`flex-row items-center justify-between p-4 mb-4 rounded-lg bg-gray-100 ${
-                          selectedCouponId === coupon.couponProgramId
+                          selectedCouponIds.includes(coupon.couponProgramId)
                             ? "border-2 border-[#EDAA16]"
                             : ""
                         }`}
                         onPress={() =>
-                          setSelectedCouponId(coupon.couponProgramId)
+                          toggleCouponSelection(coupon.couponProgramId)
                         }
                       >
                         <View className="flex-row items-center">
@@ -172,13 +180,13 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
                         <View className="mr-2">
                           <MaterialIcons
                             name={
-                              selectedCouponId === coupon.couponProgramId
+                              selectedCouponIds.includes(coupon.couponProgramId)
                                 ? "radio-button-checked"
                                 : "radio-button-unchecked"
                             }
                             size={24}
                             color={
-                              selectedCouponId === coupon.couponProgramId
+                              selectedCouponIds.includes(coupon.couponProgramId)
                                 ? "#EDAA16"
                                 : "gray"
                             }

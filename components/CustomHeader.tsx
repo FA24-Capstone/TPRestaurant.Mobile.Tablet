@@ -23,10 +23,14 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title }) => {
     (state: RootState) => state.reservation.data
   );
 
+  const accountByPhone = useSelector((state: RootState) => state.account.data);
+
   // console.log("reservationData", reservationData);
 
   const customerName =
-    reservationData?.result?.order?.account?.firstName || "Quý Khách";
+    reservationData?.result?.order?.account?.firstName ||
+    accountByPhone?.firstName ||
+    "Quý Khách";
 
   const now = moment().tz("Asia/Ho_Chi_Minh").format("HH:mm,  DD/MM/YYYY ");
 
