@@ -24,7 +24,7 @@ const OrderItemList: React.FC<ItemListOrder> = ({
     ...dishes.map((dish) => ({ ...dish, type: "dish" })), // Add type 'dish' to each dish item
     ...combos.map((combo) => ({ ...combo, type: "combo" })), // Add type 'combo' to each combo item
   ];
-  console.log("combinedItems", JSON.stringify(combinedItems));
+  // console.log("combinedItems", JSON.stringify(combinedItems));
 
   return (
     <FlatList

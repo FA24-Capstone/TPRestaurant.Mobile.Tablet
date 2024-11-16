@@ -24,6 +24,8 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export const createOrderinTablet = async (
   orderRequest: OrderRequest
 ): Promise<AppActionResult<CreateOrderData>> => {
+  console.log("orderRequest", orderRequest);
+
   const response = await apiClient.post<AppActionResult<CreateOrderData>>(
     `/order/create-order`,
     orderRequest

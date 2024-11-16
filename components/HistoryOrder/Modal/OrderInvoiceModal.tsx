@@ -14,7 +14,7 @@ import { formatPriceVND } from "@/components/Format/formatPrice";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { createPayment } from "@/api/paymentApi";
+import { createPayment, makeDineInOrderBill } from "@/api/paymentApi";
 import ChoosePaymentModal from "@/components/Payment/ChoosePayment";
 import SuccessModal from "@/components/Payment/SuccessModal";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -52,14 +52,17 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
   );
+  const accountByPhone = useSelector((state: RootState) => state.account.data);
+
   const [loading, setLoading] = useState(false);
   const [choosePaymentVisible, setChoosePaymentVisible] = useState(false);
   const [successVisible, setSuccessVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [invoiceVisible, setInvoiceVisible] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState<ItemCoupons | undefined>(
-    undefined
-  );
+  const [selectedCoupon, setSelectedCoupon] = useState<
+    ItemCoupons[] | undefined
+  >(undefined);
+  const [usePoints, setUsePoints] = useState(false);
 
   console.log("selectedCoupon", selectedCoupon);
 
@@ -99,40 +102,73 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   const grandTotal =
     totalAmount -
     (reservationData?.result?.order?.deposit || 0) -
-    (totalAmount * (selectedCoupon?.discountPercent || 0)) / 100;
+    (totalAmount *
+      (selectedCoupon?.reduce(
+        (acc, coupon) => acc + (coupon.discountPercent || 0),
+        0
+      ) || 0)) /
+      100;
+  const grandTotalUsePoint =
+    totalAmount -
+    (reservationData?.result?.order?.deposit || 0) -
+    (accountByPhone?.loyalPoint ??
+      reservationData?.result?.order?.account?.loyaltyPoint ??
+      0) -
+    (totalAmount *
+      (selectedCoupon?.reduce(
+        (acc, coupon) => acc + (coupon.discountPercent || 0),
+        0
+      ) || 0)) /
+      100;
 
   const handlePayment = async (paymentMethod: number) => {
     setLoading(true);
     try {
-      const paymentRequest = { orderId, paymentMethod };
-      const response = await createPayment(paymentRequest);
+      const paymentRequest: any = {
+        orderId,
+        cashReceived: 0,
+        changeReturned: 0,
+        paymentMethod,
+        couponIds: selectedCoupon?.map((coupon) => coupon.couponProgramId),
+        chooseCashRefund: true,
+      };
 
-      if (paymentMethod === 1) {
-        // Cash
-        setSuccessMessage(
-          "Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi! Xin mời quý khách di chuyển đến quầy lễ tân để thanh toán tiền mặt! Nhà hàng Thiên Phú xin cảm ơn và hẹn gặp lại quý khách!"
-        );
-        setSuccessVisible(true);
-        onClose();
-      } else if (paymentMethod === 2 || paymentMethod === 3) {
-        // VNPay or Momo
-        setLoading(true);
-        if (response.isSuccess) {
+      // Conditionally add accountId if it exists
+      if (accountByPhone?.id) {
+        paymentRequest.accountId = accountByPhone.id;
+      }
+      // Conditionally add loyalPointsToUse if usePoints is true
+      if (usePoints && accountByPhone?.loyalPoint) {
+        paymentRequest.loyalPointsToUse = accountByPhone.loyalPoint;
+      }
+
+      // Call API
+      const response = await makeDineInOrderBill(paymentRequest);
+
+      if (response.isSuccess) {
+        if (paymentMethod === 1) {
+          // Cash payment success
+          setSuccessMessage(
+            "Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi! Xin mời quý khách di chuyển đến quầy lễ tân để thanh toán tiền mặt! Nhà hàng Thiên Phú xin cảm ơn và hẹn gặp lại quý khách!"
+          );
+          setSuccessVisible(true);
           onClose();
-          Linking.openURL(response.result) // Open the payment URL
-            .catch((err) => {
-              console.error("Failed to open URL:", err);
+        } else {
+          // Online payment (VNPay or Momo)
+          if (response.result?.paymentLink) {
+            Linking.openURL(response.result.paymentLink).catch((err) => {
+              console.error("Failed to open payment URL:", err);
               showErrorMessage("Không thể mở liên kết thanh toán.");
             });
-          console.log(
-            "createPaymentResponse",
-            JSON.stringify(response.result, null, 2)
-          );
-        } else {
-          const errorMessage =
-            response.messages?.[0] || "Failed to create payment.";
-          showErrorMessage(errorMessage);
+          } else {
+            showErrorMessage("Không thể lấy liên kết thanh toán.");
+          }
+          onClose();
         }
+      } else {
+        const errorMessage =
+          response.messages?.[0] || "Tạo thanh toán thất bại.";
+        showErrorMessage(errorMessage);
       }
     } catch (error) {
       console.error("Payment failed:", error);
@@ -166,11 +202,13 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                   numOfPeople={numOfPeople}
                   tableName={tableName}
                   orderId={orderId}
-                  reservationData={reservationData || {}}
+                  reservationData={reservationData || undefined}
                   statusInfo={statusInfo}
                   setSelectedCoupon={setSelectedCoupon}
                   selectedCoupon={selectedCoupon}
                   totalAmount={totalAmount}
+                  setUsePoints={setUsePoints}
+                  usePoints={usePoints}
                 />
               )}
               renderItem={({ item, index }) => (
@@ -237,7 +275,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                       </View>
                     )}
 
-                    {selectedCoupon?.discountPercent && (
+                    {selectedCoupon && selectedCoupon?.length > 0 && (
                       <View className="flex-row justify-between mt-2">
                         <Text className="font-semibold text-gray-700">
                           Dùng Coupon:
@@ -246,17 +284,43 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                           -{" "}
                           {formatPriceVND(
                             totalAmount *
-                              (selectedCoupon?.discountPercent / 100)
+                              (selectedCoupon.reduce(
+                                (acc, coupon) =>
+                                  acc + (coupon.discountPercent || 0),
+                                0
+                              ) /
+                                100)
                           )}
                         </Text>
                       </View>
                     )}
+                    {usePoints &&
+                      (accountByPhone?.loyalPoint ||
+                        reservationData?.result?.order?.account
+                          ?.loyaltyPoint) && (
+                        <View className="flex-row justify-between mt-2">
+                          <Text className="font-semibold text-gray-700">
+                            Dùng Điểm:
+                          </Text>
+                          <Text className="font-semibold  text-gray-800">
+                            -{" "}
+                            {formatPriceVND(
+                              accountByPhone?.loyalPoint ??
+                                reservationData?.result?.order?.account
+                                  ?.loyaltyPoint ??
+                                0
+                            )}
+                          </Text>
+                        </View>
+                      )}
                     <View className="flex-row justify-between mt-2">
                       <Text className="font-semibold text-xl text-[#C01D2E]">
                         Tổng cộng:
                       </Text>
                       <Text className="font-semibold text-xl text-[#C01D2E]">
-                        {formatPriceVND(grandTotal)}
+                        {formatPriceVND(
+                          usePoints ? grandTotalUsePoint : grandTotal
+                        )}
                       </Text>
                     </View>
                   </View>
