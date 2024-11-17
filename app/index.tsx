@@ -8,6 +8,7 @@ import {
   TextInput,
   Modal,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,7 +28,10 @@ import { NativeWindStyleSheet } from "nativewind";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import moment from "moment-timezone";
-import { fetchReservationWithTime } from "@/api/reservationApi";
+import {
+  fetchAccountByPhoneNumber,
+  fetchReservationWithTime,
+} from "@/api/reservationApi";
 import { Button } from "react-native-paper";
 import {
   showErrorMessage,
@@ -63,6 +67,8 @@ const App = () => {
   const [phoneNumberOrder, setPhoneNumberOrder] = useState<string>("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [accountError, seAccountError] = useState<string | null>(null);
 
   // Trạng thái để quản lý loại modal hiện tại
   const [currentModal, setCurrentModal] = useState<string | null>(null); // "reservationCheck" hoặc "phoneInput"
@@ -206,6 +212,37 @@ const App = () => {
       } else {
         showErrorMessage("Vui lòng nhập số điện thoại hợp lệ.");
       }
+    }
+  };
+
+  const handleConfirmPhoneNumberInModal = async () => {
+    if (!validatePhoneNumber(phoneNumber)) {
+      showErrorMessage("Vui lòng nhập số điện thoại hợp lệ.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await dispatch(
+        fetchAccountByPhoneNumber({ phoneNumber })
+      ).unwrap(); // Unwrap to handle success or error
+
+      if (result?.isSuccess && result.result) {
+        setIsLoading(false);
+        showSuccessMessage("Tài khoản đã được xác nhận!");
+        router.push("/home-screen"); // Navigate to home screen
+      } else {
+        setIsLoading(false);
+        seAccountError(
+          "Bạn chưa có account trên hệ thống, vui lòng tạo tài khoản trên website: "
+        );
+      }
+    } catch (error) {
+      setIsLoading(false);
+      seAccountError(
+        "Bạn chưa có account trên hệ thống, vui lòng tạo tài khoản trên website: "
+      );
     }
   };
 
@@ -430,13 +467,42 @@ const App = () => {
                           {phoneError}
                         </Text>
                       )}
+                      {accountError && (
+                        <View>
+                          <Text
+                            style={{
+                              color: "red",
+                              marginBottom: 20,
+                              textAlign: "center",
+                            }}
+                            className="text-xl mt-5 font-semibold"
+                          >
+                            {accountError}{" "}
+                          </Text>
+                          <Text
+                            style={{
+                              color: "#C01D2E",
+                              textDecorationLine: "underline",
+                              fontWeight: "bold",
+                            }}
+                            className="text-xl text-center font-semibold"
+                            onPress={() =>
+                              Linking.openURL(
+                                "https://thienphurestaurant.vercel.app/"
+                              )
+                            }
+                          >
+                            Nhấn vào đây để tạo tài khoản.
+                          </Text>
+                        </View>
+                      )}
                     </View>
                     <View className="flex-row justify-around mt-6 w-full items-center">
                       <TouchableOpacity
                         className={`my-2 w-[40%] p-2 rounded-lg ${
                           isDisabled ? "bg-gray-800" : "bg-[#C01D2E]"
                         }`}
-                        onPress={handleConfirmPhoneNumber}
+                        onPress={handleConfirmPhoneNumberInModal}
                         disabled={isDisabled}
                       >
                         <Text className="text-white text-center font-semibold text-xl uppercase">

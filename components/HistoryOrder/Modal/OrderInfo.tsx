@@ -4,8 +4,11 @@ import { View, Text } from "react-native";
 import moment from "moment-timezone";
 import { TouchableOpacity } from "react-native";
 import { ItemCoupons } from "@/app/types/coupon_type";
-import ChooseCouponModal from "./ChooseCouponModal";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import ChooseCouponModal from "./ChooseCouponModal";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { ReservationApiResponse } from "@/app/types/reservation_type";
 
 interface OrderDetailsProps {
   customerName?: string;
@@ -14,16 +17,12 @@ interface OrderDetailsProps {
   numOfPeople?: number;
   tableName?: string;
   orderId?: string;
-  setSelectedCoupon: (coupon: ItemCoupons) => void;
-  selectedCoupon?: ItemCoupons;
+  setSelectedCoupon: (coupon: ItemCoupons[]) => void;
+  selectedCoupon?: ItemCoupons[] | null;
   totalAmount: number;
-  reservationData?: {
-    result?: {
-      order?: {
-        orderType?: boolean;
-      };
-    };
-  };
+  usePoints: boolean;
+  setUsePoints: (value: boolean) => void;
+  reservationData?: ReservationApiResponse | null;
   statusInfo: {
     color: string;
     text: string;
@@ -42,13 +41,22 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   setSelectedCoupon,
   selectedCoupon,
   totalAmount,
+  usePoints,
+  setUsePoints,
 }) => {
   const [couponModalVisible, setCouponModalVisible] = useState(false);
+  const accountByPhone = useSelector((state: RootState) => state.account.data);
+  // State to manage whether to use points for payment
 
-  const handleSelectCoupon = (coupon: ItemCoupons) => {
+  const handleTogglePoints = () => {
+    setUsePoints(!usePoints); // Toggle the state
+  };
+
+  const handleSelectCoupon = (coupon: ItemCoupons[]) => {
     setSelectedCoupon(coupon);
     setCouponModalVisible(false);
   };
+  console.log("accountByPhone", JSON.stringify(accountByPhone, null, 2));
 
   return (
     <>
@@ -63,7 +71,11 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               Họ và tên:
             </Text>
             <Text className=" text-base font-semibold text-gray-800">
-              {customerName || "Không có thông tin"}
+              {accountByPhone?.firstName
+                ? ` ${accountByPhone.lastName} ${accountByPhone.firstName}`
+                : customerName
+                ? customerName
+                : "Không có thông tin"}
             </Text>
           </View>
           <View className="flex-row justify-between">
@@ -71,7 +83,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               Số điện thoại:
             </Text>
             <Text className=" text-base font-semibold text-gray-800">
-              {`0${customerPhone}` || "Không có thông tin"}
+              {`0${
+                customerPhone
+                  ? customerPhone
+                  : accountByPhone?.phoneNumber
+                  ? accountByPhone?.phoneNumber
+                  : "Khong co"
+              }` || "Không có thông tin"}
             </Text>
           </View>
           <View className="flex-row justify-between">
@@ -92,6 +110,32 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               {numOfPeople || "Không có thông tin"}
             </Text>
           </View>
+          {(accountByPhone || reservationData) && (
+            <View className="flex-row justify-between">
+              <Text className=" text-base font-semibold text-gray-500">
+                Dùng điểm:
+              </Text>
+              <TouchableOpacity onPress={handleTogglePoints}>
+                <FontAwesome
+                  name={usePoints ? "toggle-on" : "toggle-off"}
+                  size={30}
+                  disabled={
+                    accountByPhone?.loyalPoint === 0 ||
+                    reservationData?.result?.order?.account?.loyaltyPoint === 0
+                  }
+                  color={usePoints ? "#4CAF50" : "#757575"}
+                />
+              </TouchableOpacity>
+              <Text className=" text-base font-semibold text-gray-800">
+                {accountByPhone?.loyalPoint
+                  ? accountByPhone?.loyalPoint
+                  : reservationData?.result?.order?.account?.loyaltyPoint
+                  ? reservationData?.result?.order?.account?.loyaltyPoint
+                  : 0}{" "}
+                điểm
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Order Information Section */}
@@ -137,33 +181,39 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               {statusInfo.text}
             </Text>
           </View>
-          <View className="flex-row justify-between items-center mt-2">
-            <Text className="text-base font-semibold text-gray-500">
-              Coupon áp dụng:
-            </Text>
-            {selectedCoupon ? (
-              <View className="flex-row items-center gap-2">
-                <Text className="text-base font-semibold text-gray-800">
-                  {selectedCoupon.code}
-                </Text>
+          {(accountByPhone || reservationData) && (
+            <View className="flex-row justify-between items-center mt-2">
+              <Text className="text-base font-semibold text-gray-500">
+                Coupon áp dụng:
+              </Text>
+              {selectedCoupon ? (
+                <View className="flex-row items-center gap-2">
+                  <Text className="text-base font-semibold text-gray-800">
+                    {selectedCoupon.map((coupon) => coupon.code).join(", ")}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => setCouponModalVisible(true)}
+                    // className="py-2 px-3 rounded-lg bg-[#EDAA16]"
+                  >
+                    <FontAwesome
+                      name="pencil-square"
+                      size={30}
+                      color="#EDAA16"
+                    />
+                  </TouchableOpacity>
+                </View>
+              ) : (
                 <TouchableOpacity
                   onPress={() => setCouponModalVisible(true)}
-                  // className="py-2 px-3 rounded-lg bg-[#EDAA16]"
+                  className="py-2 px-3 rounded-lg bg-[#EDAA16]"
                 >
-                  <FontAwesome name="pencil-square" size={30} color="#EDAA16" />
+                  <Text className="text-sm font-bold text-white uppercase">
+                    Chọn Coupon
+                  </Text>
                 </TouchableOpacity>
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={() => setCouponModalVisible(true)}
-                className="py-2 px-3 rounded-lg bg-[#EDAA16]"
-              >
-                <Text className="text-sm font-bold text-white uppercase">
-                  Chọn Coupon
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+              )}
+            </View>
+          )}
         </View>
       </View>
       <Text className="font-semibold text-gray-800 text-base mb-2">

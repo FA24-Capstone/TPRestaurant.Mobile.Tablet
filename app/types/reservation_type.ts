@@ -127,3 +127,84 @@ export interface ReservationByPhoneApiResponse {
   isSuccess: boolean;
   messages: string[];
 }
+
+// Get account by phone number
+
+export interface AccountApiResponse {
+  result: AccountResult;
+  isSuccess: boolean;
+  messages: any[];
+}
+
+export interface AccountResult {
+  id: string;
+  phoneNumber: string;
+  firstName: string;
+  lastName: string;
+  gender: boolean;
+  dob: string;
+  isVerified: boolean;
+  userName: string;
+  email: string;
+  avatar: any;
+  addresses: Address[];
+  loyalPoint: number;
+  amount: number;
+  isDeleted: boolean;
+  isDelivering: boolean;
+  storeCreditExpireDay: string;
+  isManuallyCreated: boolean;
+  roles: Role[];
+  mainRole: string;
+}
+
+export interface Address {
+  customerInfoAddressId: string;
+  customerInfoAddressName: string;
+  isCurrentUsed: boolean;
+  accountId: string;
+  account: Account;
+  lat: number;
+  lng: number;
+  isDeleted: boolean;
+}
+
+export interface Account {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  dob: string;
+  gender: boolean;
+  address: string;
+  isVerified: boolean;
+  isDeleted: boolean;
+  loyaltyPoint: number;
+  avatar: any;
+  isManuallyCreated: boolean;
+  isDelivering: boolean;
+  storeCreditAmount: number;
+  expiredDate: string;
+  registeredDate: string;
+  isBanned: boolean;
+  id: string;
+  userName: string;
+  normalizedUserName: string;
+  email: string;
+  normalizedEmail: string;
+  emailConfirmed: boolean;
+  passwordHash: string;
+  securityStamp: string;
+  concurrencyStamp: string;
+  phoneNumberConfirmed: boolean;
+  twoFactorEnabled: boolean;
+  lockoutEnd: any;
+  lockoutEnabled: boolean;
+  accessFailedCount: number;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+  normalizedName: string;
+  concurrencyStamp: string;
+}

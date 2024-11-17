@@ -6,6 +6,7 @@ import reservationReducer from "./slices/reservationSlice";
 import tableSessionReducer from "./slices/tableSessionSlice";
 import ordersReducer from "./slices/ordersSlice";
 import { clearAllExceptAuth } from "./actions"; // Import action mới
+import accountReducer from "./slices/accountSlice"; // Ensure this line is uncommented
 
 const appReducer = combineReducers({
   dishes: dishesReducer,
@@ -13,6 +14,7 @@ const appReducer = combineReducers({
   reservation: reservationReducer,
   tableSession: tableSessionReducer,
   orders: ordersReducer,
+  account: accountReducer, // Ensure this line is uncommented
 });
 
 const rootReducer = (
@@ -35,6 +37,8 @@ const rootReducer = (
       reservation: reservationReducer(undefined, { type: "unknown" }),
       tableSession: tableSessionReducer(undefined, { type: "unknown" }),
       orders: ordersReducer(undefined, { type: "unknown" }),
+      account: accountReducer(undefined, { type: "unknown" }), // Include account explicitly
+
       // Thêm các slice khác nếu có
     };
   }
