@@ -85,6 +85,10 @@ const App = () => {
   }, [phoneNumber]);
 
   useEffect(() => {
+    console.log("Current Modal Changed:", currentModal);
+  }, [currentModal]);
+
+  useEffect(() => {
     const fetchReservation = async () => {
       if (tableId !== null && tableId !== undefined) {
         const now = moment()
@@ -184,6 +188,8 @@ const App = () => {
         setModalVisible(false);
         const updateStatus = await updateOrderStatus(orderId, true, 5, true);
         if (updateStatus.isSuccess) {
+          setCurrentModal(null);
+
           router.push("/home-screen");
           showSuccessMessage(
             "Xác nhận đặt bàn thành công và đơn hàng đã được chuyển trạng thái!"
@@ -194,6 +200,8 @@ const App = () => {
             "Xác nhận đặt bàn thành công và đơn hàng chưa được chuyển trạng thái!"
           );
           setIsLoading(false);
+          setCurrentModal(null);
+
           router.push("/home-screen");
         }
       } else {
@@ -207,6 +215,8 @@ const App = () => {
         // For example:
         // await AsyncStorage.setItem("user_phone_number", phoneNumber);
         setModalVisible(false);
+        setCurrentModal(null);
+
         router.push("/home-screen");
         showSuccessMessage("Số điện thoại đã được lưu!");
       } else {
@@ -231,6 +241,8 @@ const App = () => {
       if (result?.isSuccess && result.result) {
         setIsLoading(false);
         showSuccessMessage("Tài khoản đã được xác nhận!");
+        setCurrentModal(null);
+
         router.push("/home-screen"); // Navigate to home screen
       } else {
         setIsLoading(false);
@@ -248,6 +260,7 @@ const App = () => {
 
   const handleSkip = () => {
     setModalVisible(false);
+    setCurrentModal(null);
     router.push("/home-screen");
   };
 
@@ -337,7 +350,7 @@ const App = () => {
               <Modal
                 animationType="slide"
                 transparent={true}
-                visible={true}
+                visible={currentModal === "reservationCheck"}
                 onRequestClose={() => setCurrentModal(null)}
               >
                 <View
@@ -396,7 +409,7 @@ const App = () => {
               <Modal
                 animationType="slide"
                 transparent={true}
-                visible={true}
+                visible={currentModal === "phoneInput"}
                 onRequestClose={() => setCurrentModal(null)}
               >
                 <View
@@ -536,7 +549,7 @@ const App = () => {
               <Modal
                 animationType="slide"
                 transparent={true}
-                visible={true}
+                visible={currentModal === "phoneVerification"}
                 onRequestClose={closeModal}
               >
                 <View
@@ -629,6 +642,8 @@ const App = () => {
                         className="my-2 w-[300px] p-2 rounded-lg flex-row items-center justify-center bg-gray-400"
                         onPress={() => {
                           closeModal;
+                          setCurrentModal(null);
+
                           handleSkip();
                         }}
                       >

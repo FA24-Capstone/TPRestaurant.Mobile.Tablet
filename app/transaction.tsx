@@ -50,7 +50,8 @@ const TransactionScreen = () => {
   const { isSuccess, transactionId } = route.params || {};
   const [loading, setLoading] = useState(true);
 
-  const transactionIdNE = transactionId;
+  const transactionIdNE =
+    transactionId || "58efcac5-826a-4850-b540-f476e19fac64";
 
   console.log("isSuccess", isSuccess, "transactionId", transactionIdNE);
   useEffect(() => {
@@ -99,13 +100,13 @@ const TransactionScreen = () => {
   };
 
   // // Tự động logout sau 1 phút nếu không có hành động gì
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      handleLogout();
-    }, 60000); // 60000 ms = 1 phút
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     handleLogout();
+  //   }, 60000); // 60000 ms = 1 phút
 
-    return () => clearTimeout(timeout); // Clear timeout nếu người dùng hành động
-  }, []);
+  //   return () => clearTimeout(timeout); // Clear timeout nếu người dùng hành động
+  // }, []);
 
   return (
     <ScrollView

@@ -13,11 +13,11 @@ const StatusLabel: React.FC<StatusLabelProps> = ({ statusId }) => {
   switch (statusId) {
     case 1:
       backgroundColor = "bg-gray-500";
-      statusText = "Đã gửi đặt món";
+      statusText = "Đã gửi đặt trước";
       break;
     case 2:
       backgroundColor = "bg-yellow-500";
-      statusText = "Đã Xem";
+      statusText = "Đã gửi yêu cầu";
       break;
     case 3:
       backgroundColor = "bg-blue-500";

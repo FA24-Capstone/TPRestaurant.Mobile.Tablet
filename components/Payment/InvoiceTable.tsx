@@ -19,7 +19,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
   const orderDishes = paymentDetails?.result?.order?.orderDishes;
 
   return (
-    <ScrollView className="flex-1 w-[70%] bg-gray-100 p-4 rounded-lg">
+    <ScrollView className="flex-1 w-[75%] bg-gray-100 p-4 rounded-lg">
       {/* Header */}
       <View className="flex flex-row justify-between items-center bg-[#C01D2E] p-4 rounded-t-lg">
         <Image
@@ -80,11 +80,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
               </Text>
               <Text className="font-semibold  max-w-[70%] text-gray-800 text-right text-base">
                 {" "}
-                {order.totalAmount.toLocaleString("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                  minimumFractionDigits: 0,
-                })}
+                {order.totalAmount.toLocaleString("vi-VN")} VND
               </Text>
             </View>
             <View className="flex-row justify-between">
@@ -172,7 +168,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
           <Text className="flex-[0.5] text-center text-white font-semibold text-base">
             No
           </Text>
-          <Text className="flex-[2] text-center text-white font-semibold text-base">
+          <Text className="flex-[2] text-left text-white font-semibold text-base">
             Tên món
           </Text>
           <Text className="flex-[1] text-center text-white font-semibold text-base">
@@ -181,14 +177,14 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
           <Text className="flex-[1] text-center text-white font-semibold text-base">
             Số lượng
           </Text>
-          <Text className="flex-[1] text-center text-white font-semibold text-base">
+          <Text className="flex-[1] text-right text-white font-semibold text-base">
             Giá (VND)
           </Text>
-          <Text className="flex-[1] text-center text-white font-semibold text-base">
+          <Text className="flex-[1] text-right text-white font-semibold text-base">
             Giảm giá (%)
           </Text>
-          <Text className="flex-[1] text-center text-white font-semibold text-base">
-            Thành tiền
+          <Text className="flex-[1.5] text-right text-white font-semibold text-base">
+            Thành tiền (VND)
           </Text>
         </View>
 
@@ -216,7 +212,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
                     <Text className="flex-[0.5] text-center text-base">
                       {index + 1}
                     </Text>
-                    <Text className="flex-[2] text-center font-bold  text-lg">
+                    <Text className="flex-[2] text-left font-bold  text-lg">
                       {dish?.dishSizeDetail?.dish?.name ||
                         dish.comboDish.combo.name}
                     </Text>
@@ -224,24 +220,22 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
                       {dish?.dishSizeDetail?.dishSize?.vietnameseName ||
                         "Combo"}
                     </Text>
-                    <Text className="flex-[1] text-center text-base">
+                    <Text className="flex-[1] text-right  text-base">
                       {dish?.quantity}
                     </Text>
-                    <Text className="flex-[1] text-center text-base">
+                    <Text className="flex-[1] text-right text-base">
                       {(
                         dish?.dishSizeDetail?.price ||
                         dish?.comboDish?.combo?.price
                       ).toLocaleString("vi-VN")}{" "}
-                      VND
                     </Text>
-                    <Text className="flex-[1] text-center text-base">
+                    <Text className="flex-[1] text-right text-base">
                       {dish?.dishSizeDetail?.discount ||
-                        dish?.comboDish?.combo?.discount}
-                      %
+                        dish?.comboDish?.combo?.discount ||
+                        0}
                     </Text>
-                    <Text className="flex-[1] text-center text-base">
+                    <Text className="flex-[1.5] text-right  font-semibold text-base">
                       {(totalPrice || totalPriceCombo)?.toLocaleString("vi-VN")}{" "}
-                      VND
                     </Text>
                   </View>
                   <Text className="text-lg font-bold border-b-2 border-gray-300 mb-2"></Text>
@@ -257,11 +251,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
           <Text className="text-xl text-right font-semibold">
             Tổng (đã bao gồm thuế và phí):{" "}
             <Text className="text-red-700 font-bold text-2xl">
-              {(order.totalAmount ?? 0).toLocaleString("vi-VN", {
-                style: "currency",
-                currency: "VND",
-                minimumFractionDigits: 0,
-              })}
+              {(order.totalAmount ?? 0).toLocaleString("vi-VN")} VND
             </Text>
           </Text>
           <Text className="text-sm text-right text-gray-600">
