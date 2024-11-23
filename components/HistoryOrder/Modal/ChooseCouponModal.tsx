@@ -9,14 +9,17 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { showErrorMessage } from "@/components/FlashMessageHelpers";
-import { getAvailableCoupons } from "@/api/couponApi";
-import { ItemCoupons } from "@/app/types/coupon_type";
+// import { getAvailableCoupons } from "@/api/couponApi";
+import { Coupon, ItemCoupons } from "@/app/types/coupon_type";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { getAvailableCouponsByAccountId } from "@/api/couponApi";
 
 interface ChooseCouponModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectCoupon: (coupon: ItemCoupons[]) => void;
+  onSelectCoupon: (coupon: Coupon[]) => void;
   totalAmount: number; // Pass the total amount to check conditions
 }
 
@@ -26,26 +29,43 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
   onSelectCoupon,
   totalAmount,
 }) => {
-  const [coupons, setCoupons] = useState<ItemCoupons[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]); // State cho danh sách coupon
   const [loading, setLoading] = useState(false);
   const [selectedCouponIds, setSelectedCouponIds] = useState<string[]>([]);
+
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
+  const accountByPhone = useSelector((state: RootState) => state.account.data);
+
+  const customerId =
+    reservationData?.result?.order.accountId || accountByPhone?.id;
 
   useEffect(() => {
     const fetchCoupons = async () => {
       setLoading(true);
-      try {
-        const response = await getAvailableCoupons(1, 10); // Fetch first page with 10 coupons
-        if (response.isSuccess && response.result?.items) {
-          setCoupons(response.result.items);
-        } else {
-          showErrorMessage(
-            response.messages?.[0] || "Failed to fetch coupons."
+      const pageNumber = 1;
+      const pageSize = 10;
+      if (customerId) {
+        try {
+          const response = await getAvailableCouponsByAccountId(
+            customerId,
+            pageNumber,
+            pageSize,
+            totalAmount
           );
+          if (response.isSuccess && response.result?.items) {
+            setCoupons(response.result.items);
+          } else {
+            showErrorMessage(
+              response.messages?.[0] || "Failed to fetch coupons."
+            );
+          }
+        } catch (error) {
+          showErrorMessage("An error occurred while fetching coupons.");
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        showErrorMessage("An error occurred while fetching coupons.");
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -56,7 +76,7 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
 
   const handleConfirmCoupon = () => {
     const selectedCoupons = coupons.filter((coupon) =>
-      selectedCouponIds.includes(coupon.couponProgramId)
+      selectedCouponIds.includes(coupon.couponId)
     );
     if (selectedCoupons.length > 0) {
       onSelectCoupon(selectedCoupons);
@@ -74,10 +94,10 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
 
   // Separate coupons into valid and invalid lists
   const validCoupons = coupons.filter(
-    (coupon) => totalAmount >= coupon.minimumAmount
+    (coupon) => totalAmount >= coupon.couponProgram.minimumAmount
   );
   const invalidCoupons = coupons.filter(
-    (coupon) => totalAmount < coupon.minimumAmount
+    (coupon) => totalAmount < coupon.couponProgram.minimumAmount
   );
 
   return (
@@ -145,48 +165,51 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
                     </Text>
                     {validCoupons.map((coupon) => (
                       <TouchableOpacity
-                        key={coupon.couponProgramId}
+                        key={coupon.couponId}
                         className={`flex-row items-center justify-between p-4 mb-4 rounded-lg bg-gray-100 ${
-                          selectedCouponIds.includes(coupon.couponProgramId)
+                          selectedCouponIds.includes(coupon.couponId)
                             ? "border-2 border-[#EDAA16]"
                             : ""
                         }`}
-                        onPress={() =>
-                          toggleCouponSelection(coupon.couponProgramId)
-                        }
+                        onPress={() => toggleCouponSelection(coupon.couponId)}
                       >
                         <View className="flex-row items-center">
                           <Image
-                            source={{ uri: coupon.img }}
+                            source={{ uri: coupon.couponProgram.img }}
                             className="w-32 h-20 rounded mr-4"
                           />
                           <View>
                             <Text className="font-bold text-lg">
-                              {coupon.code}
+                              {coupon.couponProgram.code}
                             </Text>
                             <Text className="text-gray-500">
-                              Giảm {coupon.discountPercent}% - Đơn tối thiểu{" "}
-                              {coupon.minimumAmount.toLocaleString("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                                minimumFractionDigits: 0,
-                              })}
+                              Giảm {coupon.couponProgram.discountPercent}% - Đơn
+                              tối thiểu{" "}
+                              {coupon.couponProgram.minimumAmount.toLocaleString(
+                                "vi-VN",
+                                {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                }
+                              )}
                             </Text>
                             <Text className="text-gray-500">
-                              HSD: {coupon.expiryDate.slice(0, 10)}
+                              HSD:{" "}
+                              {coupon.couponProgram.expiryDate.slice(0, 10)}
                             </Text>
                           </View>
                         </View>
                         <View className="mr-2">
                           <MaterialIcons
                             name={
-                              selectedCouponIds.includes(coupon.couponProgramId)
+                              selectedCouponIds.includes(coupon.couponId)
                                 ? "radio-button-checked"
                                 : "radio-button-unchecked"
                             }
                             size={24}
                             color={
-                              selectedCouponIds.includes(coupon.couponProgramId)
+                              selectedCouponIds.includes(coupon.couponId)
                                 ? "#EDAA16"
                                 : "gray"
                             }
@@ -205,29 +228,34 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
                     </Text>
                     {invalidCoupons.map((coupon) => (
                       <TouchableOpacity
-                        key={coupon.couponProgramId}
+                        key={coupon.couponId}
                         className="flex-row items-center justify-between p-4 mb-4 rounded-lg bg-gray-200"
                         disabled={true}
                       >
                         <View className="flex-row items-center opacity-50">
                           <Image
-                            source={{ uri: coupon.img }}
+                            source={{ uri: coupon.couponProgram.img }}
                             className="w-32 h-20 rounded mr-4"
                           />
                           <View>
                             <Text className="font-bold text-lg">
-                              {coupon.code}
+                              {coupon.couponProgram.code}
                             </Text>
                             <Text className="text-gray-500">
-                              Giảm {coupon.discountPercent}% - Đơn tối thiểu{" "}
-                              {coupon.minimumAmount.toLocaleString("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                                minimumFractionDigits: 0,
-                              })}
+                              Giảm {coupon.couponProgram.discountPercent}% - Đơn
+                              tối thiểu{" "}
+                              {coupon.couponProgram.minimumAmount.toLocaleString(
+                                "vi-VN",
+                                {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                }
+                              )}
                             </Text>
                             <Text className="text-gray-500">
-                              HSD: {coupon.expiryDate.slice(0, 10)}
+                              HSD:{" "}
+                              {coupon.couponProgram.expiryDate.slice(0, 10)}
                             </Text>
                           </View>
                         </View>

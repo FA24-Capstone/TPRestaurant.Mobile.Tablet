@@ -1,120 +1,177 @@
-import React, { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
-import { Card, Button, Portal, Modal, Provider } from "react-native-paper";
-import { ImageSourcePropType } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Image,
+  ImageBackground,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Card, Button, Portal, Modal } from "react-native-paper";
 import PromotionModal from "./Modals/PromotionModal";
+import {
+  getAvailableCouponPrograms,
+  getAvailableCouponsByAccountId,
+} from "@/api/couponApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { ItemCouponPrograms } from "@/app/types/coupon_all_type";
 
-interface Promotion {
-  id: number;
-  image: ImageSourcePropType;
-  title: string;
-  expiryDate: string;
-  description: string;
-}
-
-const promotions: Promotion[] = [
-  {
-    id: 1,
-    image: require("../assets/banner/Banner1.jpg"),
-    title: "Khuyến mãi 1",
-    expiryDate: "01/01/2025",
-    description: "Chi tiết khuyến mãi 1",
-  },
-  {
-    id: 2,
-    image: require("../assets/banner/Banner1.jpg"),
-    title: "Khuyến mãi 2",
-    expiryDate: "01/02/2025",
-    description: "Chi tiết khuyến mãi 1",
-  },
-  {
-    id: 3,
-    image: require("../assets/banner/Banner1.jpg"),
-    title: "Khuyến mãi 2",
-    expiryDate: "01/02/2025",
-    description: "Chi tiết khuyến mãi 1",
-  },
-  {
-    id: 4,
-    image: require("../assets/banner/Banner1.jpg"),
-    title: "Khuyến mãi 2",
-    expiryDate: "01/02/2025",
-    description: "Chi tiết khuyến mãi 1",
-  },
-  {
-    id: 5,
-    image: require("../assets/banner/Banner1.jpg"),
-    title: "Khuyến mãi 2",
-    expiryDate: "01/02/2025",
-    description: "Chi tiết khuyến mãi 1",
-  },
-  {
-    id: 6,
-    image: require("../assets/banner/Banner1.jpg"),
-    title: "Khuyến mãi 2",
-    expiryDate: "01/02/2025",
-    description: "Chi tiết khuyến mãi 1",
-  },
-  {
-    id: 7,
-    image: require("../assets/banner/Banner1.jpg"),
-    title: "Khuyến mãi 2",
-    expiryDate: "01/02/2025",
-    description: "Chi tiết khuyến mãi 1",
-  },
-];
+// interface ItemCouponPrograms {
+//   couponId: string;
+//   couponProgram: {
+//     title: string;
+//     expiryDate: string;
+//     discountPercent: number;
+//     img: string;
+//     minimumAmount: number;
+//   };
+//   isUsedOrExpired: boolean;
+// }
 
 const PromotionList: React.FC = () => {
   const [visible, setVisible] = useState(false);
-  const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(
-    null
-  );
+  const [coupons, setCoupons] = useState<ItemCouponPrograms[]>([]); // State cho danh sách coupon
+  const [selectedCoupon, setSelectedCoupon] =
+    useState<ItemCouponPrograms | null>(null);
 
-  const showModal = (promotion: Promotion) => {
-    setSelectedPromotion(promotion);
+  // Gọi API khi component mount
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      const pageNumber = 1;
+      const pageSize = 10;
+      try {
+        const response = await getAvailableCouponPrograms(pageNumber, pageSize);
+        if (response.isSuccess) {
+          setCoupons(response.result.items);
+        }
+      } catch (error) {
+        console.error("Error fetching coupons:", error);
+      }
+    };
+
+    fetchCoupons();
+  }, []);
+
+  const showModal = (coupon: ItemCouponPrograms) => {
+    setSelectedCoupon(coupon);
     setVisible(true);
   };
 
   const hideModal = () => {
     setVisible(false);
-    setSelectedPromotion(null);
+    setSelectedCoupon(null);
   };
+
   return (
     <>
-      <ScrollView horizontal className="mt-2">
-        {promotions.map((promotion) => (
-          <Card
-            key={promotion.id}
-            className="m-2 w-[250px] shadow-lg bg-[#FFFFFF]"
-            onPress={() => showModal(promotion)}
+      <ScrollView horizontal className="">
+        {coupons.map((coupon) => (
+          <TouchableOpacity
+            onPress={() => showModal(coupon)}
+            key={coupon.couponProgramId}
+            className=" my-4  w-[250px] ml-4 rounded-lg shadow-lg"
           >
-            <Card.Cover source={promotion.image} className="h-[150px]" />
-            <Card.Content>
-              <Text className="font-medium text-lg mt-2">
-                {promotion.title}
+            <ImageBackground
+              source={require("../assets/Icons/bg-coupon.jpg")} // Thay 'your-image.png' bằng đường dẫn đúng
+              style={{
+                borderRadius: 16,
+                overflow: "hidden", // Đảm bảo các góc bo tròn cho hình nền
+                borderColor: "#f0f0f0",
+                paddingHorizontal: 10,
+                paddingVertical: 35,
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontWeight: "900",
+                  fontSize: 14,
+                  textTransform: "uppercase",
+                  color: "#970C1A",
+                }}
+              >
+                Mã giảm {coupon.couponProgramType.vietnameseName}
               </Text>
-              <Text className="text-gray-500">
-                Hết hạn: {promotion.expiryDate}
+              <Image
+                source={{ uri: coupon.img }}
+                style={{
+                  width: 50,
+                  height: 50,
+                  alignSelf: "center",
+                  marginVertical: 6,
+                }}
+                resizeMode="contain"
+              />
+              <Text
+                style={{
+                  color: "#970C1A",
+                  fontSize: 24,
+                  fontWeight: "700",
+                  textAlign: "center",
+                }}
+              >
+                GIẢM {coupon.discountPercent}%
               </Text>
-            </Card.Content>
-            <Card.Actions>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 16,
+                  color: "#555",
+                  fontWeight: "600",
+                  marginVertical: 8,
+                }}
+              >
+                Cho đơn hàng từ{" "}
+                {coupon.minimumAmount.toLocaleString("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                  minimumFractionDigits: 0,
+                })}
+              </Text>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 14,
+                  color: "#888",
+                  fontWeight: "500",
+                  marginBottom: 16,
+                }}
+              >
+                {coupon.title}
+              </Text>
               <Button
                 mode="contained"
-                className="mt-2 bg-[#970C1A]"
-                labelStyle={{ fontWeight: "600", fontSize: 16 }} // Semibold
+                onPress={() => showModal(coupon)}
+                style={{
+                  backgroundColor: "#970C1A",
+                  // paddingVertical: 2,
+                  width: "80%",
+                  marginHorizontal: "auto",
+                  marginTop: 35,
+                }}
+                className="mx-auto"
+                labelStyle={{
+                  fontWeight: "600",
+                  fontSize: 14,
+                  textTransform: "uppercase",
+                }}
               >
-                Dùng ngay
+                Xem thêm
               </Button>
-            </Card.Actions>
-          </Card>
+            </ImageBackground>
+          </TouchableOpacity>
         ))}
       </ScrollView>
 
-      <PromotionModal
-        visible={visible}
-        promotion={selectedPromotion}
-        onDismiss={hideModal}
-      />
+      {selectedCoupon && (
+        <PromotionModal
+          visible={visible}
+          promotion={selectedCoupon}
+          onDismiss={hideModal}
+          setVisible={setVisible}
+        />
+      )}
     </>
   );
 };
