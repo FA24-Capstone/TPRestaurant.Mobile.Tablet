@@ -124,7 +124,10 @@ const DishCard: React.FC<DishCardProps> = ({
 
   const renderDishSizeDetail = ({ item }: { item: DishSizeDetail }) => {
     const isSelected = item.dishSizeDetailId === selectedSizeId;
-    const isOutOfStock = item.quantityLeft === 0 || item.isAvailable === false;
+    const isOutOfStock =
+      item.quantityLeft === 0 ||
+      item.quantityLeft === null ||
+      item.isAvailable === false;
 
     // Translation function
     const translateSize = (size: string) => {
