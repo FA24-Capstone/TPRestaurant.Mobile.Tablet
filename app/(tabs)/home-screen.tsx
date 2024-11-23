@@ -45,14 +45,12 @@ const HomeScreen: React.FC = () => {
             />
           </View>
         </View>
-        {customerId && (
-          <View className=" m-4">
-            <Text className="font-semibold uppercase ml-4 text-xl">
-              Ưu đãi từ nhà hàng thiên phú
-            </Text>
-            <PromotionList />
-          </View>
-        )}
+        <View className=" m-4">
+          <Text className="font-semibold uppercase ml-4 text-xl">
+            Ưu đãi từ nhà hàng thiên phú
+          </Text>
+          <PromotionList />
+        </View>
       </ScrollView>
       {/* <View className="absolute bottom-0 left-0 right-0 flex-row justify-around bg-[#FFF] p-4">
         <TouchableOpacity
