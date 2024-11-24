@@ -2,7 +2,7 @@
   "expo": {
     "name": "Thiên Phú Restaurant",
     "slug": "thienphu-restaurant",
-    "version": "1.0.0",
+    "version": "11.0.0",
     "orientation": "landscape",
     "icon": "./assets/logoTP.jpg",
     "scheme": "thienphurestaurant",
