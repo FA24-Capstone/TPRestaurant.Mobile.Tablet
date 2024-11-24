@@ -271,6 +271,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
         onClose={() => setCouponModalVisible(false)}
         onSelectCoupon={handleSelectCoupon}
         totalAmount={totalAmount}
+        selectedCoupon={selectedCoupon || []}
       />
     </>
   );

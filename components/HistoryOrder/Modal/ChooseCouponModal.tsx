@@ -20,6 +20,7 @@ interface ChooseCouponModalProps {
   visible: boolean;
   onClose: () => void;
   onSelectCoupon: (coupon: Coupon[]) => void;
+  selectedCoupon: Coupon[];
   totalAmount: number; // Pass the total amount to check conditions
 }
 
@@ -28,10 +29,13 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
   onClose,
   onSelectCoupon,
   totalAmount,
+  selectedCoupon,
 }) => {
   const [coupons, setCoupons] = useState<Coupon[]>([]); // State cho danh sách coupon
   const [loading, setLoading] = useState(false);
-  const [selectedCouponIds, setSelectedCouponIds] = useState<string[]>([]);
+  const [selectedCouponIds, setSelectedCouponIds] = useState<string[]>(
+    selectedCoupon.map((coupon) => coupon.couponId)
+  );
 
   const reservationData = useSelector(
     (state: RootState) => state.reservation.data
@@ -56,6 +60,7 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
           );
           if (response.isSuccess && response.result?.items) {
             setCoupons(response.result.items);
+            console.log("customerId", customerId);
           } else {
             showErrorMessage(
               response.messages?.[0] || "Failed to fetch coupons."
@@ -75,13 +80,12 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
   }, [visible]);
 
   const handleConfirmCoupon = () => {
+    console.log("hihihii");
     const selectedCoupons = coupons.filter((coupon) =>
       selectedCouponIds.includes(coupon.couponId)
     );
-    if (selectedCoupons.length > 0) {
-      onSelectCoupon(selectedCoupons);
-      onClose();
-    }
+    onSelectCoupon(selectedCoupons);
+    onClose();
   };
 
   const toggleCouponSelection = (couponId: string) => {
@@ -123,7 +127,6 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
               <TouchableOpacity
                 className="bg-[#EDAA16] p-2 rounded-lg w-1/3 self-center"
                 onPress={handleConfirmCoupon}
-                disabled={selectedCouponIds.length === 0}
               >
                 <Text className="text-white text-center font-semibold text-lg uppercase">
                   Chọn Coupon

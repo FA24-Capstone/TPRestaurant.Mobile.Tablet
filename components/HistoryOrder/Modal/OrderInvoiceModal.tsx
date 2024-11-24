@@ -129,10 +129,10 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
         cashReceived: 0,
         changeReturned: 0,
         paymentMethod,
-        couponIds: selectedCoupon?.map((coupon) => coupon.couponProgramId),
+        couponIds: selectedCoupon?.map((coupon) => coupon.couponId),
         chooseCashRefund: true,
       };
-
+      console.log("paymentRequest", paymentRequest);
       // Conditionally add accountId if it exists
       if (accountByPhone?.id) {
         paymentRequest.accountId = accountByPhone.id;
