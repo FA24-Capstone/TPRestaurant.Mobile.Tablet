@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { View, Text } from "react-native";
 import moment from "moment-timezone";
 import { TouchableOpacity } from "react-native";
-import { ItemCoupons } from "@/app/types/coupon_type";
+import { Coupon, ItemCoupons } from "@/app/types/coupon_type";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import ChooseCouponModal from "./ChooseCouponModal";
 import { useSelector } from "react-redux";
@@ -17,8 +17,8 @@ interface OrderDetailsProps {
   numOfPeople?: number;
   tableName?: string;
   orderId?: string;
-  setSelectedCoupon: (coupon: ItemCoupons[]) => void;
-  selectedCoupon?: ItemCoupons[] | null;
+  setSelectedCoupon: (coupon: Coupon[]) => void;
+  selectedCoupon?: Coupon[] | null;
   totalAmount: number;
   usePoints: boolean;
   setUsePoints: (value: boolean) => void;
@@ -52,11 +52,31 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
     setUsePoints(!usePoints); // Toggle the state
   };
 
-  const handleSelectCoupon = (coupon: ItemCoupons[]) => {
+  const handleSelectCoupon = (coupon: Coupon[]) => {
     setSelectedCoupon(coupon);
     setCouponModalVisible(false);
   };
   console.log("accountByPhone", JSON.stringify(accountByPhone, null, 2));
+
+  const deposit = reservationData?.result?.order?.deposit || 0;
+  const totalCouponDiscount =
+    (totalAmount *
+      (selectedCoupon?.reduce(
+        (acc, coupon) => acc + (coupon.couponProgram.discountPercent || 0),
+        0
+      ) || 0)) /
+    100;
+
+  // Tính tổng hóa đơn cuối cùng sau giảm giá và cọc
+  const grandTotal = totalAmount - deposit - totalCouponDiscount;
+
+  // Tính số điểm tối đa áp dụng (10% của grandTotal)
+  const maxPointsDiscount = Math.min(
+    grandTotal * 0.1,
+    accountByPhone?.loyalPoint ||
+      reservationData?.result?.order?.account?.loyaltyPoint ||
+      0
+  );
 
   return (
     <>
@@ -111,30 +131,43 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             </Text>
           </View>
           {(accountByPhone || reservationData) && (
-            <View className="flex-row justify-between">
-              <Text className=" text-base font-semibold text-gray-500">
-                Dùng điểm:
-              </Text>
-              <TouchableOpacity onPress={handleTogglePoints}>
-                <FontAwesome
-                  name={usePoints ? "toggle-on" : "toggle-off"}
-                  size={30}
-                  disabled={
-                    accountByPhone?.loyalPoint === 0 ||
-                    reservationData?.result?.order?.account?.loyaltyPoint === 0
-                  }
-                  color={usePoints ? "#4CAF50" : "#757575"}
-                />
-              </TouchableOpacity>
-              <Text className=" text-base font-semibold text-gray-800">
-                {accountByPhone?.loyalPoint
-                  ? accountByPhone?.loyalPoint
-                  : reservationData?.result?.order?.account?.loyaltyPoint
-                  ? reservationData?.result?.order?.account?.loyaltyPoint
-                  : 0}{" "}
-                điểm
-              </Text>
+            <View>
+              <View className="flex-row justify-between">
+                <Text className=" text-base font-semibold text-gray-500">
+                  Dùng điểm:
+                </Text>
+                <TouchableOpacity onPress={handleTogglePoints}>
+                  <FontAwesome
+                    name={usePoints ? "toggle-on" : "toggle-off"}
+                    size={30}
+                    disabled={
+                      accountByPhone?.loyalPoint === 0 ||
+                      reservationData?.result?.order?.account?.loyaltyPoint ===
+                        0
+                    }
+                    color={usePoints ? "#4CAF50" : "#757575"}
+                  />
+                </TouchableOpacity>
+                <Text className=" text-base font-semibold text-gray-800">
+                  {accountByPhone?.loyalPoint
+                    ? accountByPhone?.loyalPoint
+                    : reservationData?.result?.order?.account?.loyaltyPoint
+                    ? reservationData?.result?.order?.account?.loyaltyPoint
+                    : 0}{" "}
+                  điểm
+                </Text>
+              </View>
+              {usePoints && (
+                <Text className="text-right text-base font-semibold text-red-500">
+                  - {Math.floor(maxPointsDiscount)} điểm
+                </Text>
+              )}
             </View>
+          )}
+          {(accountByPhone || reservationData) && (
+            <Text className="text-red-500 mt-2 font-semibold">
+              Lưu ý: Dùng điểm được tối đa 10% trên tổng hoá đơn
+            </Text>
           )}
         </View>
 
@@ -183,17 +216,19 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
           </View>
           {(accountByPhone || reservationData) && (
             <View className="flex-row justify-between items-center mt-2">
-              <Text className="text-base font-semibold text-gray-500">
+              <Text className="text-base font-semibold w-[40%] text-gray-500">
                 Coupon áp dụng:
               </Text>
               {selectedCoupon ? (
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-base font-semibold text-gray-800">
-                    {selectedCoupon.map((coupon) => coupon.code).join(", ")}
+                <View className="flex-row items-center gap-2  w-[60%]">
+                  <Text className="text-base font-semibold w-[80%] text-gray-800">
+                    {selectedCoupon
+                      .map((coupon) => coupon.couponProgram.code)
+                      .join(", ")}
                   </Text>
                   <TouchableOpacity
                     onPress={() => setCouponModalVisible(true)}
-                    // className="py-2 px-3 rounded-lg bg-[#EDAA16]"
+                    className=" w-[20%]"
                   >
                     <FontAwesome
                       name="pencil-square"

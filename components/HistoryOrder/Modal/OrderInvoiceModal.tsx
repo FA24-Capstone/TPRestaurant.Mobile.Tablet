@@ -20,7 +20,7 @@ import SuccessModal from "@/components/Payment/SuccessModal";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import OrderDetails from "./OrderInfo";
 import { showErrorMessage } from "@/components/FlashMessageHelpers";
-import { ItemCoupons } from "@/app/types/coupon_type";
+import { Coupon, ItemCoupons } from "@/app/types/coupon_type";
 
 interface OrderInvoiceModalProps {
   visible: boolean;
@@ -59,9 +59,9 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   const [successVisible, setSuccessVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [invoiceVisible, setInvoiceVisible] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState<
-    ItemCoupons[] | undefined
-  >(undefined);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon[] | undefined>(
+    undefined
+  );
   const [usePoints, setUsePoints] = useState(false);
 
   console.log("selectedCoupon", selectedCoupon);
@@ -104,7 +104,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
     (reservationData?.result?.order?.deposit || 0) -
     (totalAmount *
       (selectedCoupon?.reduce(
-        (acc, coupon) => acc + (coupon.discountPercent || 0),
+        (acc, coupon) => acc + (coupon.couponProgram.discountPercent || 0),
         0
       ) || 0)) /
       100;
@@ -116,7 +116,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
       0) -
     (totalAmount *
       (selectedCoupon?.reduce(
-        (acc, coupon) => acc + (coupon.discountPercent || 0),
+        (acc, coupon) => acc + (coupon.couponProgram.discountPercent || 0),
         0
       ) || 0)) /
       100;
@@ -286,7 +286,8 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                             totalAmount *
                               (selectedCoupon.reduce(
                                 (acc, coupon) =>
-                                  acc + (coupon.discountPercent || 0),
+                                  acc +
+                                  (coupon.couponProgram.discountPercent || 0),
                                 0
                               ) /
                                 100)

@@ -1,11 +1,13 @@
 import MarqueeText from "@/components/MarqueeText";
 import PromotionList from "@/components/PromotionList";
 import SliderBanner from "@/components/SliderBanner";
+import { RootState } from "@/redux/store";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "expo-router";
 import React from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Provider as PaperProvider } from "react-native-paper";
+import { useSelector } from "react-redux";
 
 type RootStackParamList = {
   transaction: { isSuccess: string };
@@ -14,15 +16,22 @@ type RootStackParamList = {
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
+  const accountByPhone = useSelector((state: RootState) => state.account.data);
+
+  const customerId =
+    reservationData?.result?.order.accountId || accountByPhone?.id;
   return (
     <PaperProvider>
       <MarqueeText />
       <ScrollView className="bg-[#FFFFFF] flex-1">
-        <View className="flex-row justify-center mx-auto w-fit">
+        {/* <View className="flex-row justify-center mx-auto w-fit">
           <Text className="uppercase font-bold text-[28px] text-center my-8 pb-4 border-b-2 text-[#970C1A] border-[#970C1A]">
             CHÀO MỪNG BẠN ĐẾN VỚI NHÀ HÀNG THIÊN PHÚ!
           </Text>
-        </View>
+        </View> */}
 
         <View className="flex-row justify-around">
           <View className="w-[50%] overflow-hidden">
@@ -36,12 +45,14 @@ const HomeScreen: React.FC = () => {
             />
           </View>
         </View>
-        {/* <View className=" m-4">
-          <Text className="font-semibold ml-4 text-xl">Khuyến mãi hot</Text>
+        <View className=" m-4">
+          <Text className="font-semibold uppercase ml-4 text-xl">
+            Ưu đãi từ nhà hàng thiên phú
+          </Text>
           <PromotionList />
-        </View> */}
+        </View>
       </ScrollView>
-      <View className="absolute bottom-0 left-0 right-0 flex-row justify-around bg-[#FFF] p-4">
+      {/* <View className="absolute bottom-0 left-0 right-0 flex-row justify-around bg-[#FFF] p-4">
         <TouchableOpacity
           onPress={() =>
             navigation.navigate("transaction", { isSuccess: "true" })
@@ -62,7 +73,7 @@ const HomeScreen: React.FC = () => {
             Test Transaction False
           </Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </PaperProvider>
   );
 };

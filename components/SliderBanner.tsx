@@ -10,9 +10,9 @@ interface DataItem {
 }
 
 const data: DataItem[] = [
-  { id: "1", image: require("../assets/banner/Banner1.jpg") },
-  { id: "2", image: require("../assets/banner/banner2.jpg") },
-  { id: "3", image: require("../assets/banner/banner3.jpg") },
+  { id: "1", image: require("../assets/banner/banner.jpg") },
+  { id: "2", image: require("../assets/banner/banner.jpg") },
+  { id: "3", image: require("../assets/banner/banner.jpg") },
 ];
 
 const styles = StyleSheet.create({

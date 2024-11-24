@@ -57,6 +57,8 @@ const OrderingDetail: React.FC = () => {
   const dishes = useSelector((state: RootState) => state.dishes.selectedDishes);
   const combos = useSelector((state: RootState) => state.dishes.selectedCombos);
 
+  const accountByPhone = useSelector((state: RootState) => state.account.data);
+
   console.log("isLoadingNha", isLoading);
 
   // Function to update note for a specific item (dish/combo)
@@ -84,7 +86,8 @@ const OrderingDetail: React.FC = () => {
       return;
     }
 
-    const customerId = reservationData?.result?.order.accountId;
+    const customerId =
+      reservationData?.result?.order.accountId || accountByPhone?.id;
     const orderType = reservationData?.result?.order.reservationDate ? 1 : 3; // 1 cho Reservation, 3 cho MealWithoutReservation
 
     const orderDetailsDtos: OrderDetailsDto[] = [
@@ -108,12 +111,20 @@ const OrderingDetail: React.FC = () => {
       orderType,
       note, // Ghi chú tổng của order
       orderDetailsDtos,
-      ...(!customerId
+      ...(!customerId && !reservationData
         ? {
             mealWithoutReservation: {
               numberOfPeople: 0, // Có thể chỉnh sửa tuỳ thuộc vào logic của bạn
               tableIds: [tableId], // Sử dụng tableId từ state
             },
+          }
+        : customerId && !reservationData
+        ? {
+            mealWithoutReservation: {
+              numberOfPeople: 0, // Có thể chỉnh sửa tuỳ thuộc vào logic của bạn
+              tableIds: [tableId], // Sử dụng tableId từ state
+            },
+            customerId: customerId,
           }
         : {
             customerId: customerId,
