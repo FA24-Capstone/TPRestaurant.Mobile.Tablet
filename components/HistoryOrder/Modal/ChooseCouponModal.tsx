@@ -45,6 +45,14 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
   const customerId =
     reservationData?.result?.order.accountId || accountByPhone?.id;
 
+  // Cập nhật selectedCouponIds khi modal mở
+  useEffect(() => {
+    if (visible && selectedCoupon) {
+      // Gán lại danh sách coupon đã chọn
+      setSelectedCouponIds(selectedCoupon.map((coupon) => coupon.couponId));
+    }
+  }, [visible, selectedCoupon]);
+
   useEffect(() => {
     const fetchCoupons = async () => {
       setLoading(true);
@@ -88,6 +96,12 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
     onClose();
   };
 
+  const handleCancelCoupon = () => {
+    const selectedCoupons = [];
+    onSelectCoupon(selectedCoupons);
+    onClose();
+  };
+
   const toggleCouponSelection = (couponId: string) => {
     setSelectedCouponIds((prevSelectedCouponIds) =>
       prevSelectedCouponIds.includes(couponId)
@@ -123,15 +137,25 @@ const ChooseCouponModal: React.FC<ChooseCouponModalProps> = ({
                   Quay lại
                 </Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                className="bg-[#EDAA16] p-2 rounded-lg w-1/3 self-center"
-                onPress={handleConfirmCoupon}
-              >
-                <Text className="text-white text-center font-semibold text-lg uppercase">
-                  Chọn Coupon
-                </Text>
-              </TouchableOpacity>
+              {selectedCouponIds.length > 0 ? (
+                <TouchableOpacity
+                  className="bg-[#EDAA16] p-2 rounded-lg w-1/3 self-center"
+                  onPress={handleConfirmCoupon}
+                >
+                  <Text className="text-white text-center font-semibold text-lg uppercase">
+                    Chọn Coupon
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  className="bg-[#C01D2E] p-2 rounded-lg w-1/3 self-center"
+                  onPress={handleCancelCoupon}
+                >
+                  <Text className="text-white text-center font-semibold text-lg uppercase">
+                    Không áp dụng coupon
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             <Text className="text-xl font-semibold my-4 uppercase text-[#EDAA16] text-center">

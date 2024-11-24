@@ -146,25 +146,16 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
       const response = await makeDineInOrderBill(paymentRequest);
 
       if (response.isSuccess) {
-        if (paymentMethod === 1) {
-          // Cash payment success
-          setSuccessMessage(
-            "Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi! Xin mời quý khách di chuyển đến quầy lễ tân để thanh toán tiền mặt! Nhà hàng Thiên Phú xin cảm ơn và hẹn gặp lại quý khách!"
-          );
-          setSuccessVisible(true);
-          onClose();
+        // Online payment (VNPay or Momo)
+        if (response.result?.paymentLink) {
+          Linking.openURL(response.result.paymentLink).catch((err) => {
+            console.error("Failed to open payment URL:", err);
+            showErrorMessage("Không thể mở liên kết thanh toán.");
+          });
         } else {
-          // Online payment (VNPay or Momo)
-          if (response.result?.paymentLink) {
-            Linking.openURL(response.result.paymentLink).catch((err) => {
-              console.error("Failed to open payment URL:", err);
-              showErrorMessage("Không thể mở liên kết thanh toán.");
-            });
-          } else {
-            showErrorMessage("Không thể lấy liên kết thanh toán.");
-          }
-          onClose();
+          showErrorMessage("Không thể lấy liên kết thanh toán.");
         }
+        onClose();
       } else {
         const errorMessage =
           response.messages?.[0] || "Tạo thanh toán thất bại.";

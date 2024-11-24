@@ -1,6 +1,7 @@
 // src/app/types/payment_type.ts
 export interface CreatePaymentRequest {
   orderId: string;
+  accountId?: string;
   paymentMethod: number;
 }
 
