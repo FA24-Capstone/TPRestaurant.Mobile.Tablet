@@ -18,6 +18,15 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
   const order = paymentDetails?.result?.order?.order;
   const orderDishes = paymentDetails?.result?.order?.orderDishes;
 
+  // Tính tổng đơn từ cột "Thành tiền"
+  const calculatedTotal =
+    orderDishes?.reduce((total, dish) => {
+      const dishPrice =
+        dish?.dishSizeDetail?.price || dish?.comboDish?.combo?.price || 0;
+      const totalPrice = dishPrice * (dish?.quantity || 0);
+      return total + totalPrice;
+    }, 0) || 0;
+
   return (
     <ScrollView className="flex-1 w-[75%] bg-gray-100 p-4 rounded-lg">
       {/* Header */}
@@ -180,9 +189,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
           <Text className="flex-[1] text-right text-white font-semibold text-base">
             Giá (VND)
           </Text>
-          <Text className="flex-[1] text-right text-white font-semibold text-base">
-            Giảm giá (%)
-          </Text>
+
           <Text className="flex-[1.5] text-right text-white font-semibold text-base">
             Thành tiền (VND)
           </Text>
@@ -192,15 +199,10 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
         <View className="border-t border-gray-300">
           {orderDishes?.length > 0 ? (
             orderDishes?.map((dish, index) => {
-              const totalPrice =
-                dish?.dishSizeDetail?.price *
-                dish?.quantity *
-                (1 - dish?.dishSizeDetail?.discount / 100);
+              const totalPrice = dish?.dishSizeDetail?.price * dish?.quantity;
 
               const totalPriceCombo =
-                dish?.comboDish?.combo?.price *
-                dish?.quantity *
-                (1 - dish?.comboDish?.combo?.discount / 100);
+                dish?.comboDish?.combo?.price * dish?.quantity;
 
               return (
                 <View key={dish?.orderDetailsId}>
@@ -229,11 +231,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
                         dish?.comboDish?.combo?.price
                       ).toLocaleString("vi-VN")}{" "}
                     </Text>
-                    <Text className="flex-[1] text-right text-base">
-                      {dish?.dishSizeDetail?.discount ||
-                        dish?.comboDish?.combo?.discount ||
-                        0}
-                    </Text>
+
                     <Text className="flex-[1.5] text-right  font-semibold text-base">
                       {(totalPrice || totalPriceCombo)?.toLocaleString("vi-VN")}{" "}
                     </Text>
@@ -248,8 +246,45 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
         </View>
         {/* Total Information */}
         <View className="text-right mt-1 mx-4">
+          <Text className="text-lg text-right text-gray-600 font-semibold">
+            Tổng đơn:
+            <Text className="text-gray-700 font-bold text-lg">
+              {"  "}
+              {calculatedTotal.toLocaleString("vi-VN")} VND{" "}
+            </Text>{" "}
+          </Text>
+        </View>
+        {order.deposit > 0 && (
+          <View className="text-right mt-1 mx-4">
+            <Text className="text-lg text-gray-600 text-right font-semibold">
+              Tiền cọc:
+              <Text className="text-gray-700 font-bold text-lg">
+                {"  "}- {order.deposit.toLocaleString("vi-VN")} VND{" "}
+              </Text>{" "}
+            </Text>
+          </View>
+        )}
+        {/* <View className="text-right mt-1 mx-4">
+          <Text className="text-lg text-gray-600 text-right font-semibold">
+            Dùng điểm:
+            <Text className="text-gray-700 font-bold text-lg">
+              {"  "}- 200.000 VND{" "}
+            </Text>{" "}
+          </Text>
+        </View>
+
+        <View className="text-right mt-1 mx-4">
+          <Text className="text-lg text-gray-600 text-right font-semibold">
+            Giảm ưu đãi:
+            <Text className="text-gray-700 font-bold text-lg">
+              {"  "}- 200.000 VND{" "}
+            </Text>{" "}
+          </Text>
+        </View> */}
+
+        <View className="text-right mt-1 mx-4">
           <Text className="text-xl text-right font-semibold">
-            Tổng (đã bao gồm thuế và phí):{" "}
+            Tổng (đã bao gồm thuế và phí giảm):{" "}
             <Text className="text-red-700 font-bold text-2xl">
               {(order.totalAmount ?? 0).toLocaleString("vi-VN")} VND
             </Text>

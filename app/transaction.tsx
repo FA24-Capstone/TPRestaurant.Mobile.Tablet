@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { useNavigation, useRouter } from "expo-router";
@@ -13,7 +14,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "@/redux/slices/authSlice";
 import { Asset } from "expo-asset";
 import { PaymentDetailReponse } from "./types/payment_type";
-import { getPaymentById } from "@/api/paymentApi";
+import { createPayment, getPaymentById } from "@/api/paymentApi";
 import InvoiceTable from "@/components/Payment/InvoiceTable";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import {
@@ -51,7 +52,7 @@ const TransactionScreen = () => {
   const [loading, setLoading] = useState(true);
 
   const transactionIdNE =
-    transactionId || "58efcac5-826a-4850-b540-f476e19fac64";
+    transactionId || "e53e2d5e-b0a0-4922-9763-04a584daf30b";
 
   console.log("isSuccess", isSuccess, "transactionId", transactionIdNE);
   useEffect(() => {
@@ -88,6 +89,30 @@ const TransactionScreen = () => {
     }
   }, [transactionIdNE]);
 
+  const handleRetryPayment = async () => {
+    try {
+      const paymentRequest = {
+        orderId: paymentDetails?.result.order.order.orderId || "", // Sử dụng transactionId từ route hoặc state
+        paymentMethod: paymentDetails?.result.transaction.paymentMethodId || 1, // Ví dụ: 1 có thể là một phương thức thanh toán cụ thể
+        accountId: paymentDetails?.result?.order?.order?.accountId || undefined, // Truyền nếu có accountId
+      };
+
+      const response = await createPayment(paymentRequest);
+
+      if (response.isSuccess && response.result) {
+        showSuccessMessage("Redirecting to payment gateway...");
+        Linking.openURL(response.result); // Mở liên kết trong trình duyệt
+      } else {
+        const errorMessage =
+          response.messages?.[0] || "Failed to initiate retry payment.";
+        showErrorMessage(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error during retry payment:", error);
+      showErrorMessage("An error occurred while retrying payment.");
+    }
+  };
+
   const handleLogout = () => {
     // Dispatch actions to clear reservation and dish data
     dispatch(clearReservationData());
@@ -99,14 +124,16 @@ const TransactionScreen = () => {
     navigation.navigate("index");
   };
 
-  // // Tự động logout sau 1 phút nếu không có hành động gì
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => {
-  //     handleLogout();
-  //   }, 60000); // 60000 ms = 1 phút
+  // Tự động logout sau 1 phút nếu không có hành động gì
+  useEffect(() => {
+    if (isSuccess === "true") {
+      const timeout = setTimeout(() => {
+        handleLogout();
+      }, 60000); // 60000 ms = 1 phút
 
-  //   return () => clearTimeout(timeout); // Clear timeout nếu người dùng hành động
-  // }, []);
+      return () => clearTimeout(timeout); // Clear timeout nếu người dùng hành động
+    } // Không tự động logout nếu thanh toán thành công
+  }, []);
 
   return (
     <ScrollView
@@ -188,14 +215,25 @@ const TransactionScreen = () => {
         </>
       )}
 
-      <TouchableOpacity
-        className=" bg-[#C01D2E] absolute top-10 right-10 mb-10 p-2 rounded-lg w-[200px] self-center"
-        onPress={handleLogout}
-      >
-        <Text className="text-white text-center font-semibold text-lg uppercase">
-          Thoát ra
-        </Text>
-      </TouchableOpacity>
+      {isSuccess === "true" ? (
+        <TouchableOpacity
+          className=" bg-[#C01D2E] absolute top-10 right-10 mb-10 p-2 rounded-lg w-[200px] self-center"
+          onPress={handleLogout}
+        >
+          <Text className="text-white text-center font-semibold text-lg uppercase">
+            Thoát ra
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          className=" bg-[#EDAA16] absolute top-10 right-10  mb-10 p-2 rounded-lg w-[200px] self-center"
+          onPress={handleRetryPayment}
+        >
+          <Text className="text-white text-center font-semibold uppercase text-lg">
+            Thanh toán lại
+          </Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 };
