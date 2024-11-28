@@ -81,3 +81,15 @@ export const updateOrderStatus = async (
   );
   return response.data;
 };
+
+// ==================== Get Table Session ====================
+
+export const cancelOrderDetailsBeforeCooking = async (
+  orderDetailsIds: string[]
+): Promise<AppActionResult<null>> => {
+  const response = await apiClient.put<AppActionResult<null>>(
+    `/order/cancel-order-detail-before-cooking`,
+    orderDetailsIds
+  );
+  return response.data;
+};

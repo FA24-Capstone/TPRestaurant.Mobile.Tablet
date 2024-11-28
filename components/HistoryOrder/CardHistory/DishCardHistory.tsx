@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment-timezone";
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, Checkbox } from "react-native-paper";
 import RenderHTML from "react-native-render-html";
 
 interface DishCardHistoryProps {
@@ -12,6 +12,8 @@ interface DishCardHistoryProps {
   itemWidth: number;
   showModal: (content: any) => void; // Function để hiển thị modal
   noteOrder: string;
+  isSelected: boolean; // Prop mới để xác định trạng thái đã chọn
+  toggleSelect: (id: string) => void; // Prop mới để xử lý chọn/bỏ chọn
 }
 
 const DishCardHistory: React.FC<DishCardHistoryProps> = ({
@@ -19,6 +21,8 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
   itemWidth,
   showModal,
   noteOrder,
+  isSelected,
+  toggleSelect,
 }) => {
   // console.log("DishCardHistory", dish);
 
@@ -42,13 +46,14 @@ const DishCardHistory: React.FC<DishCardHistoryProps> = ({
       />
       <View className="p-2">
         <Text className="mt-2 text-lg font-bold">{dish.name}</Text>
-        {/* <Text
-          className="text-gray-500"
-          numberOfLines={1} // Số dòng tối đa
-          ellipsizeMode="tail"
-        >
-          {dish.description ?? "chưa có mô tả"}
-        </Text> */}
+        {dish.statusId === 2 && (
+          <View style={{ position: "absolute", top: 5, right: 5 }}>
+            <Checkbox
+              status={isSelected ? "checked" : "unchecked"}
+              onPress={() => toggleSelect(dish.orderDetailsId)}
+            />
+          </View>
+        )}
         <View className="max-w-[600px] -my-2">
           <RenderHTML
             contentWidth={100}
