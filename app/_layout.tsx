@@ -80,7 +80,7 @@ function MyDrawer() {
         options={{
           drawerLabel: "MENU",
           drawerIcon: ({ color }) => (
-            <Entypo name="open-book" size={24} color={color} />
+            <MaterialCommunityIcons name="book" size={24} color={color} />
           ),
         }}
       />
@@ -110,7 +110,7 @@ function MyDrawer() {
         options={{
           drawerLabel: "CÀI ĐẶT",
           drawerIcon: ({ color }) => (
-            <Entypo name="cog" size={24} color={color} />
+            <MaterialCommunityIcons name="cog" size={24} color={color} />
           ),
         }}
       />

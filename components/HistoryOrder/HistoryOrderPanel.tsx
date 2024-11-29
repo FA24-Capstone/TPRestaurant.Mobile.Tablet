@@ -31,7 +31,10 @@ import {
   DishSizeDetail,
   OrderDish,
 } from "@/app/types/order_type";
-import { getHistoryOrderId } from "@/api/ordersApi";
+import {
+  cancelOrderDetailsBeforeCooking,
+  getHistoryOrderId,
+} from "@/api/ordersApi";
 import { formatPriceVND } from "../Format/formatPrice";
 import { useNavigation } from "expo-router";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -59,6 +62,7 @@ const HistoryOrderPanel: React.FC = () => {
     (state: RootState) => state.reservation.data
   );
   const { tableId, tableName } = useSelector((state: RootState) => state.auth);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [dishes, setDishes] = useState<OrderDish[]>([]);
@@ -68,12 +72,13 @@ const HistoryOrderPanel: React.FC = () => {
   const [modalContent, setModalContent] = useState<any>(null); // State for modal content
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [invoiceVisible, setInvoiceVisible] = useState(false);
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
   const currentOrder = useSelector(
     (state: RootState) => state.orders.currentOrder
   );
 
-  // console.log("orders nè", JSON.stringify(orderDetails, null, 2));
+  console.log("selectedOrders nè", JSON.stringify(selectedOrders, null, 2));
   // Log ra => {"orderId":"6e5b9440-9478-4559-b572-da37d6ca6e1b","orderDate":"0001-01-01T00:00:00","deliveryTime":null,"reservationDate":null,"mealTime":"2024-09-14T13:14:13.6363496","endTime":null,"totalAmount":700000,"statusId":3,"status":null,"customerId":null,"customerInfo":null,"paymentMethodId":2,"paymentMethod":null,"loyalPointsHistoryId":null,"loyalPointsHistory":null,"note":"","orderTypeId":3,"orderType":null,"numOfPeople":0,"deposit":null,"isPrivate":null}
   const orderId = currentOrder?.orderId;
   const noteOrder = currentOrder?.note;
@@ -202,6 +207,56 @@ const HistoryOrderPanel: React.FC = () => {
     }
   }, [orderDetails]);
 
+  const toggleSelectOrder = (orderDetailsId: string) => {
+    setSelectedOrders((prevSelected) => {
+      if (prevSelected.includes(orderDetailsId)) {
+        // Nếu đã chọn, bỏ chọn
+        return prevSelected.filter((id) => id !== orderDetailsId);
+      } else {
+        // Nếu chưa chọn, thêm vào
+        return [...prevSelected, orderDetailsId];
+      }
+    });
+  };
+
+  const openCancelModal = () => {
+    if (selectedOrders.length === 0) {
+      showErrorMessage("Vui lòng chọn ít nhất một món để hủy.");
+      return;
+    }
+    setIsCancelModalVisible(true);
+  };
+
+  const closeCancelModal = () => {
+    setIsCancelModalVisible(false);
+  };
+
+  const handleCancelOrders = async () => {
+    // Cập nhật trạng thái mới nhất trước khi hủy
+
+    if (selectedOrders.length === 0) {
+      showErrorMessage("Vui lòng chọn món cần hủy!");
+      return;
+    }
+    await fetchOrderDetails();
+    try {
+      const response = await cancelOrderDetailsBeforeCooking(selectedOrders);
+      if (response.isSuccess) {
+        showSuccessMessage("Hủy món thành công!");
+        setSelectedOrders([]); // Xóa danh sách đã chọn
+        setIsCancelModalVisible(false); // Đóng modal
+        fetchOrderDetails(); // Tải lại danh sách món
+      } else {
+        showErrorMessage(
+          response.messages?.[0] || "Không thể hủy món. Vui lòng thử lại."
+        );
+      }
+    } catch (error) {
+      console.error("Error cancelling orders:", error);
+      showErrorMessage("Có lỗi xảy ra khi hủy món. Vui lòng thử lại.");
+    }
+  };
+
   // Function to show modal with content
   const showModal = (content: any) => {
     setModalContent(content);
@@ -318,6 +373,10 @@ const HistoryOrderPanel: React.FC = () => {
                         itemWidth={itemWidth}
                         showModal={showModal}
                         noteOrder={noteOrder || ""} // Truyền noteOrder vào DishCardHistory
+                        isSelected={selectedOrders.includes(
+                          item.orderDetailsId
+                        )}
+                        toggleSelect={toggleSelectOrder}
                       />
                     );
                   }}
@@ -359,6 +418,10 @@ const HistoryOrderPanel: React.FC = () => {
                         showModal={showModal}
                         comboDetails={item?.comboDetails}
                         noteOrder={noteOrder || ""} // Truyền noteOrder vào DishCardHistory
+                        isSelected={selectedOrders.includes(
+                          item.orderDetailsId
+                        )}
+                        toggleSelect={toggleSelectOrder}
                       />
                     );
                   }}
@@ -516,10 +579,57 @@ const HistoryOrderPanel: React.FC = () => {
           </View>
         </Modal>
 
+        <Modal
+          transparent={true}
+          visible={isCancelModalVisible}
+          animationType="fade"
+        >
+          <View className="flex-1 justify-center items-center bg-[#00000099]">
+            <View className="bg-white rounded-lg p-6  w-2/3">
+              <Text className="text-2xl font-bold mb-4 text-center text-gray-700">
+                Xác nhận hủy món
+              </Text>
+              <Text className="text-center text-lg mb-6 text-gray-500">
+                Bạn có chắc chắn muốn hủy {selectedOrders.length} món đã chọn
+                không?
+              </Text>
+              <View className="flex-row justify-around">
+                <TouchableOpacity
+                  className="mt-4 bg-gray-500 p-2 rounded-lg w-[35%] mr-6"
+                  onPress={closeCancelModal}
+                >
+                  <Text className="text-white text-center font-semibold text-lg uppercase">
+                    Hủy
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleCancelOrders}
+                  className="mt-4 bg-[#C01D2E] p-2 rounded-lg w-[35%] mr-6"
+                >
+                  <Text className="text-white font-bold text-lg uppercase text-center">
+                    Xác nhận
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         {/* Other components and logic */}
         {(dataDishWithEmptySpaces.length > 0 ||
           dataComboWithEmptySpaces.length > 0) && (
           <View className="flex-row justify-center items-center">
+            {selectedOrders.length > 0 && (
+              <TouchableOpacity
+                onPress={openCancelModal}
+                className="py-2 px-4 bg-[#C01D2E] w-1/3 rounded-lg"
+              >
+                <Text className="text-white text-center font-semibold text-lg uppercase">
+                  Hủy món đã chọn
+                </Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               className="py-2 px-4 bg-[#EDAA16] w-1/3 rounded-lg m-6"
               onPress={() => setInvoiceVisible(true)} // Show modal when button is pressed
