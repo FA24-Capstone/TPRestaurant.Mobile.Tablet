@@ -3,7 +3,7 @@ import {
   showErrorMessage,
   showSuccessMessage,
 } from "@/components/FlashMessageHelpers";
-import { login } from "@/redux/slices/authSlice";
+import { login, logout } from "@/redux/slices/authSlice";
 import { AppDispatch } from "@/redux/store";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
@@ -70,12 +70,25 @@ export const loginDevice = async (
     }
   } catch (error: any) {
     console.error("Login error:", error);
+
     if (axios.isAxiosError(error)) {
-      const backendMessage =
-        error.response?.data?.messages?.[0] ||
-        "An error occurred during login.";
-      showErrorMessage(backendMessage);
-      throw new Error(backendMessage);
+      if (error.response?.status === 401) {
+        // Handle unauthorized error by logging out
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("deviceCode");
+        await SecureStore.deleteItemAsync("password");
+        await SecureStore.deleteItemAsync("rememberMe");
+
+        dispatch(logout()); // Dispatch a logout action
+        showErrorMessage("Session expired. Please log in again.");
+        throw new Error("Session expired. Please log in again.");
+      } else {
+        const backendMessage =
+          error.response?.data?.messages?.[0] ||
+          "An error occurred during login.";
+        showErrorMessage(backendMessage);
+        throw new Error(backendMessage);
+      }
     } else {
       showErrorMessage("An unexpected error occurred.");
       throw new Error("An unexpected error occurred.");
