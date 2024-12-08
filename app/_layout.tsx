@@ -21,6 +21,7 @@ import * as SecureStore from "expo-secure-store";
 import { LoginResponse } from "./types/login_type";
 import axios from "axios";
 import { login } from "@/redux/slices/authSlice";
+import { setupInterceptors } from "@/api/config/interceptors";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -125,6 +126,11 @@ function RootLayout() {
 
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const dispatch = useDispatch();
+
+  // Kích hoạt interceptor với store
+  useEffect(() => {
+    setupInterceptors(store);
+  }, []); // Chỉ cần chạy một lần khi ứng dụng khởi động
 
   useEffect(() => {
     const loadToken = async () => {
