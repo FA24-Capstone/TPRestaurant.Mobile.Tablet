@@ -43,6 +43,7 @@ import StatusLabel from "../StatusLabel";
 import OrderInvoiceModal from "./Modal/OrderInvoiceModal";
 import { showErrorMessage, showSuccessMessage } from "../FlashMessageHelpers";
 import RenderHTML from "react-native-render-html";
+import * as signalR from "@microsoft/signalr";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -73,6 +74,10 @@ const HistoryOrderPanel: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [invoiceVisible, setInvoiceVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(
+    null
+  );
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
   const currentOrder = useSelector(
     (state: RootState) => state.orders.currentOrder
@@ -126,6 +131,55 @@ const HistoryOrderPanel: React.FC = () => {
       fetchOrderDetails();
     }, [fetchOrderDetails])
   );
+
+  useEffect(() => {
+    // Create connection
+    const newConnection = new signalR.HubConnectionBuilder()
+      .withUrl(`${API_URL}/notifications`)
+      .withAutomaticReconnect()
+      .build();
+
+    setConnection(newConnection);
+  }, []);
+
+  useEffect(() => {
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 3000; // 3 seconds
+
+    const startConnection = async () => {
+      if (connection) {
+        // Start the connection
+        connection
+          .start()
+          .then(() => {
+            console.log("Connected to SignalR");
+            showSuccessMessage("Connected to SignalR");
+            // Subscribe to SignalR event
+            console.log("connection", connection);
+            connection.on("LOAD_ORDER", () => {
+              console.log("Received LOAD_NOTIFICATION event");
+              fetchOrderDetails();
+            });
+          })
+          .catch((error) => {
+            if (retryCount < MAX_RETRIES) {
+              retryCount++;
+              setTimeout(startConnection, RETRY_DELAY);
+            } else {
+              console.log("Max retries reached. Could not connect to SignalR.");
+            }
+          });
+      }
+    };
+    startConnection();
+    return () => {
+      if (connection) {
+        connection.stop();
+      }
+    };
+  }, [connection]);
+
 
   // Giả sử bạn đã có orderDetails từ API trả về
   useEffect(() => {

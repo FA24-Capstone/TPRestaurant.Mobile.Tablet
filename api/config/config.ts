@@ -14,6 +14,8 @@
 //   },
 // };
 
+import { logout } from "@/redux/slices/authSlice";
+import store from "@/redux/store";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
