@@ -90,15 +90,16 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   const statusInfo = getStatusInfo(
     reservationData?.result?.order?.statusId || currentOrder?.statusId
   );
-  // console.log("statusInfo", statusInfo);
 
-  const totalAmount = orderDetails.reduce(
-    (total, item) =>
-      total +
-      (item.dishSizeDetail?.price || item.comboDish?.combo.price || 0) *
-        item.quantity,
-    0
-  );
+  const totalAmount = orderDetails
+    .filter((item) => item.status.id !== 5)
+    .reduce(
+      (total, item) =>
+        total +
+        (item.dishSizeDetail?.price || item.comboDish?.combo.price || 0) *
+          item.quantity,
+      0
+    );
   const grandTotal =
     totalAmount -
     (reservationData?.result?.order?.deposit || 0) -
@@ -108,18 +109,17 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
         0
       ) || 0)) /
       100;
-  const grandTotalUsePoint =
-    totalAmount -
-    (reservationData?.result?.order?.deposit || 0) -
-    (accountByPhone?.loyalPoint ??
-      reservationData?.result?.order?.account?.loyaltyPoint ??
-      0) -
-    (totalAmount *
-      (selectedCoupon?.reduce(
-        (acc, coupon) => acc + (coupon.couponProgram.discountPercent || 0),
-        0
-      ) || 0)) /
-      100;
+
+  console.log("totalAmount", totalAmount);
+
+  // Tính số điểm tối đa áp dụng (10% của grandTotal)
+  const maxPointsDiscount = Math.min(
+    grandTotal * 0.1,
+    accountByPhone?.loyalPoint ||
+      reservationData?.result?.order?.account?.loyaltyPoint ||
+      0
+  );
+  const grandTotalUsePoint = grandTotal - maxPointsDiscount;
 
   const handlePayment = async (paymentMethod: number) => {
     setLoading(true);
@@ -139,7 +139,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
       }
       // Conditionally add loyalPointsToUse if usePoints is true
       if (usePoints && accountByPhone?.loyalPoint) {
-        paymentRequest.loyalPointsToUse = accountByPhone.loyalPoint;
+        paymentRequest.loyalPointsToUse = maxPointsDiscount;
       }
 
       // Call API
@@ -183,7 +183,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
 
             {/* Use FlatList for the entire modal content */}
             <FlatList
-              data={orderDetails}
+              data={orderDetails.filter((item) => item.status.id !== 5)}
               keyExtractor={(item) => item.orderDetailsId}
               ListHeaderComponent={() => (
                 <OrderDetails
@@ -200,6 +200,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                   totalAmount={totalAmount}
                   setUsePoints={setUsePoints}
                   usePoints={usePoints}
+                  grandTotal={grandTotal}
                 />
               )}
               renderItem={({ item, index }) => (
@@ -286,32 +287,25 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                         </Text>
                       </View>
                     )}
-                    {usePoints &&
-                      (accountByPhone?.loyalPoint ||
-                        reservationData?.result?.order?.account
-                          ?.loyaltyPoint) && (
-                        <View className="flex-row justify-between mt-2">
-                          <Text className="font-semibold text-gray-700">
-                            Dùng Điểm:
-                          </Text>
-                          <Text className="font-semibold  text-gray-800">
-                            -{" "}
-                            {formatPriceVND(
-                              accountByPhone?.loyalPoint ??
-                                reservationData?.result?.order?.account
-                                  ?.loyaltyPoint ??
-                                0
-                            )}
-                          </Text>
-                        </View>
-                      )}
+                    {usePoints && maxPointsDiscount && (
+                      <View className="flex-row justify-between mt-2">
+                        <Text className="font-semibold text-gray-700">
+                          Dùng Điểm:
+                        </Text>
+                        <Text className="font-semibold  text-gray-800">
+                          - {formatPriceVND(maxPointsDiscount)}
+                        </Text>
+                      </View>
+                    )}
                     <View className="flex-row justify-between mt-2">
                       <Text className="font-semibold text-xl text-[#C01D2E]">
                         Tổng cộng:
                       </Text>
                       <Text className="font-semibold text-xl text-[#C01D2E]">
                         {formatPriceVND(
-                          usePoints ? grandTotalUsePoint : grandTotal
+                          Math.ceil(
+                            (usePoints ? grandTotalUsePoint : grandTotal) / 1000
+                          ) * 1000
                         )}
                       </Text>
                     </View>
