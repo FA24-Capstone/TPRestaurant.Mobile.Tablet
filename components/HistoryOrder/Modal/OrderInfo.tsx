@@ -27,6 +27,7 @@ interface OrderDetailsProps {
     color: string;
     text: string;
   };
+  grandTotal: number;
 }
 
 const OrderDetails: React.FC<OrderDetailsProps> = ({
@@ -43,6 +44,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   totalAmount,
   usePoints,
   setUsePoints,
+  grandTotal,
 }) => {
   const [couponModalVisible, setCouponModalVisible] = useState(false);
   const accountByPhone = useSelector((state: RootState) => state.account.data);
@@ -57,6 +59,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
     setCouponModalVisible(false);
   };
   console.log("accountByPhone", JSON.stringify(accountByPhone, null, 2));
+  console.log("grandTotal", grandTotal);
 
   const deposit = reservationData?.result?.order?.deposit || 0;
   const totalCouponDiscount =
@@ -66,9 +69,6 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
         0
       ) || 0)) /
     100;
-
-  // Tính tổng hóa đơn cuối cùng sau giảm giá và cọc
-  const grandTotal = totalAmount - deposit - totalCouponDiscount;
 
   // Tính số điểm tối đa áp dụng (10% của grandTotal)
   const maxPointsDiscount = Math.min(

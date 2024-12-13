@@ -13,7 +13,7 @@ import {
 import ListOrder from "../List/ListOrder";
 import { Order } from "@/app/types/dishes_type";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+import store, { AppDispatch, RootState } from "@/redux/store";
 import DishCardHistory from "./CardHistory/DishCardHistory";
 import ComboCardHistory from "./CardHistory/ComboCardHistory";
 import {
@@ -44,6 +44,8 @@ import OrderInvoiceModal from "./Modal/OrderInvoiceModal";
 import { showErrorMessage, showSuccessMessage } from "../FlashMessageHelpers";
 import RenderHTML from "react-native-render-html";
 import * as signalR from "@microsoft/signalr";
+import { clearReservationData } from "@/redux/slices/reservationSlice";
+import { clearDishes } from "@/redux/slices/dishesSlice";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -52,6 +54,7 @@ const itemWidth = (width - 21 - (numColumns + 1) * spacing) / numColumns;
 
 type RootStackParamList = {
   "list-dish": undefined; // Add this line
+  index: undefined;
 };
 
 const HistoryOrderPanel: React.FC = () => {
@@ -103,7 +106,6 @@ const HistoryOrderPanel: React.FC = () => {
 
     try {
       setLoading(true);
-
       const response = await getHistoryOrderId(
         orderId || reservationData?.result?.order?.orderId || ""
       );
@@ -157,9 +159,27 @@ const HistoryOrderPanel: React.FC = () => {
             showSuccessMessage("Connected to SignalR");
             // Subscribe to SignalR event
             console.log("connection", connection);
-            connection.on("LOAD_ORDER", () => {
+            connection.on("LOAD_USER_ORDER", async () => {
+              await fetchOrderDetails();
+
+              if (reservationData?.result.order.orderId) {
+                const response = await getHistoryOrderId(
+                  reservationData?.result?.order.orderId
+                );
+                if (
+                  response.isSuccess &&
+                  response.result.order.statusId === 9
+                ) {
+                  showSuccessMessage(
+                    "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 2s"
+                  );
+                  setTimeout(() => {
+                    handleLogout();
+                  }, 2000);
+                }
+              }
+
               console.log("Received LOAD_NOTIFICATION event");
-              fetchOrderDetails();
             });
           })
           .catch((error) => {
@@ -179,7 +199,6 @@ const HistoryOrderPanel: React.FC = () => {
       }
     };
   }, [connection]);
-
 
   // Giả sử bạn đã có orderDetails từ API trả về
   useEffect(() => {
@@ -363,7 +382,13 @@ const HistoryOrderPanel: React.FC = () => {
     // Navigate to the "history-order" screen
     navigation.navigate("list-dish");
   };
+  const handleLogout = () => {
+    dispatch(clearReservationData());
+    dispatch(clearDishes());
+    console.log("Reservation data cleared:", store.getState().reservation.data);
 
+    navigation.navigate("index");
+  };
   return (
     <>
       {loading && (
