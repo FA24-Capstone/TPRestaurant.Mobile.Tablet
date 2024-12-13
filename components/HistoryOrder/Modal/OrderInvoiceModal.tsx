@@ -93,13 +93,17 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
 
   const totalAmount = orderDetails
     .filter((item) => item.status.id !== 5)
-    .reduce(
-      (total, item) =>
-        total +
-        (item.dishSizeDetail?.price || item.comboDish?.combo.price || 0) *
-          item.quantity,
-      0
-    );
+    .reduce((total, item) => {
+      const price =
+        item.dishSizeDetail?.price || item.comboDish?.combo.price || 0;
+      const discount =
+        (item.dishSizeDetail?.discount ||
+          item.comboDish?.combo?.discount ||
+          0) / 100;
+      const discountedPrice = price * (1 - discount); // Giá sau khi trừ discount
+      return total + discountedPrice * item.quantity;
+    }, 0);
+
   const grandTotal =
     totalAmount -
     (reservationData?.result?.order?.deposit || 0) -
@@ -215,14 +219,22 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                           item.dishSizeDetail?.dish.image ||
                           item.comboDish?.combo.image,
                       }}
-                      className="w-10 h-10 rounded mr-4"
+                      className=" h-10 w-12 rounded mr-4"
                     />
                     <Text className="font-semibold">
                       {item.dishSizeDetail?.dish.name ||
                         item.comboDish?.combo.name}
                     </Text>
                   </View>
-                  <Text className="w-16 ml-4 text-left">Vừa</Text>
+                  <Text className="w-16 ml-4 text-left">
+                    {item.dishSizeDetail?.dishSize?.name === "LARGE"
+                      ? "LỚN"
+                      : item.dishSizeDetail?.dishSize?.name === "MEDIUM"
+                      ? "VỪA"
+                      : item.dishSizeDetail?.dishSize?.name === "SMALL"
+                      ? "NHỎ"
+                      : "COMBO"}
+                  </Text>
                   <Text className="w-20 text-center">
                     {formatPriceVND(
                       item.dishSizeDetail?.price ||
@@ -230,12 +242,25 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                         0
                     )}
                   </Text>
+                  <Text className="w-10 text-center">
+                    {item?.dishSizeDetail?.discount ||
+                      item.comboDish?.combo?.discount ||
+                      0}
+                    %
+                  </Text>
+
                   <Text className="w-10 text-center">{item.quantity}</Text>
                   <Text className="w-20 text-center font-semibold">
                     {formatPriceVND(
                       (item.dishSizeDetail?.price ||
                         item.comboDish?.combo.price ||
-                        0) * item.quantity
+                        0) *
+                        (1 -
+                          (item.dishSizeDetail?.discount ||
+                            item.comboDish?.combo?.discount ||
+                            0) /
+                            100) *
+                        item.quantity
                     )}
                   </Text>
                   <Text className="w-52 text-center">{item.note || ""}</Text>
@@ -287,7 +312,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                         </Text>
                       </View>
                     )}
-                    {usePoints && maxPointsDiscount && (
+                    {usePoints && maxPointsDiscount > 0 && (
                       <View className="flex-row justify-between mt-2">
                         <Text className="font-semibold text-gray-700">
                           Dùng Điểm:

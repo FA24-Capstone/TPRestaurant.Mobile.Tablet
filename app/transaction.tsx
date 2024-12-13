@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { useNavigation, useRouter } from "expo-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/slices/authSlice";
 import { Asset } from "expo-asset";
 import { PaymentDetailReponse } from "./types/payment_type";
@@ -25,7 +25,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { clearReservationData } from "@/redux/slices/reservationSlice";
 import { clearDishes } from "@/redux/slices/dishesSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import store from "@/redux/store";
+import store, { RootState } from "@/redux/store";
+import * as signalR from "@microsoft/signalr";
 
 Asset.loadAsync(require("../assets/Icons/iconAI.jpg"));
 
@@ -44,45 +45,61 @@ const TransactionScreen = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(
+    null
+  );
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
   const route = useRoute<RouteProp<RouteParams, "TransactionScreen">>();
   const [paymentDetails, setPaymentDetails] =
     useState<PaymentDetailReponse | null>(null);
   const { isSuccess, transactionId } = route.params || {};
   const [loading, setLoading] = useState(true);
+  const reservationData = useSelector(
+    (state: RootState) => state.reservation.data
+  );
 
   const transactionIdNE =
     transactionId || "e53e2d5e-b0a0-4922-9763-04a584daf30b";
 
-  console.log("isSuccess", isSuccess, "transactionId", transactionIdNE);
+  // console.log("isSuccess", isSuccess, "transactionId", transactionIdNE);
+
+  const fetchPaymentDetails = async () => {
+    try {
+      // const data = await getPaymentById(transactionId);
+      const data = await getPaymentById(transactionIdNE); // Call API to fetch payment details
+
+      console.log("datagetPaymentById", data);
+
+      if (data.isSuccess) {
+        setPaymentDetails(data); // Update the state with payment details
+        showSuccessMessage("Payment details fetched successfully!");
+        if (data.result.order.order.statusId === 9) {
+          showSuccessMessage(
+            "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 60s"
+          );
+          setTimeout(() => {
+            handleLogout();
+          }, 60000);
+        }
+      } else {
+        const errorMessage =
+          data.messages?.[0] || "Failed to fetch payment details.";
+        showErrorMessage(errorMessage);
+      }
+    } catch (error) {
+      setLoading(false);
+
+      console.error("Error fetching payment details:", error);
+      showErrorMessage("An error occurred while fetching payment details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (transactionIdNE) {
       setLoading(true);
-      const fetchPaymentDetails = async () => {
-        try {
-          // const data = await getPaymentById(transactionId);
-          const data = await getPaymentById(transactionIdNE); // Call API to fetch payment details
-
-          console.log("datagetPaymentById", data);
-
-          if (data.isSuccess) {
-            setPaymentDetails(data); // Update the state with payment details
-            showSuccessMessage("Payment details fetched successfully!");
-          } else {
-            const errorMessage =
-              data.messages?.[0] || "Failed to fetch payment details.";
-            showErrorMessage(errorMessage);
-          }
-        } catch (error) {
-          setLoading(false);
-
-          console.error("Error fetching payment details:", error);
-          showErrorMessage("An error occurred while fetching payment details.");
-        } finally {
-          setLoading(false);
-        }
-      };
-
       fetchPaymentDetails();
     } else {
       setLoading(false);
@@ -114,7 +131,6 @@ const TransactionScreen = () => {
   };
 
   const handleLogout = () => {
-    // Dispatch actions to clear reservation and dish data
     dispatch(clearReservationData());
     dispatch(clearDishes());
     // Xác nhận dữ liệu đã bị xóa trong Redux
@@ -124,16 +140,54 @@ const TransactionScreen = () => {
     navigation.navigate("index");
   };
 
-  // Tự động logout sau 1 phút nếu không có hành động gì
   useEffect(() => {
-    if (isSuccess === "true") {
-      const timeout = setTimeout(() => {
-        handleLogout();
-      }, 60000); // 60000 ms = 1 phút
+    // Create connection
+    const newConnection = new signalR.HubConnectionBuilder()
+      .withUrl(`${API_URL}/notifications`)
+      .withAutomaticReconnect()
+      .build();
 
-      return () => clearTimeout(timeout); // Clear timeout nếu người dùng hành động
-    } // Không tự động logout nếu thanh toán thành công
+    setConnection(newConnection);
   }, []);
+
+  useEffect(() => {
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 3000; // 3 seconds
+
+    const startConnection = async () => {
+      if (connection) {
+        // Start the connection
+        connection
+          .start()
+          .then(() => {
+            console.log("Connected to SignalR");
+            showSuccessMessage("Connected to SignalR");
+            // Subscribe to SignalR event
+            console.log("connection", connection);
+            connection.on("LOAD_USER_ORDER", async () => {
+              await fetchPaymentDetails();
+
+              console.log("Received LOAD_NOTIFICATION event");
+            });
+          })
+          .catch((error) => {
+            if (retryCount < MAX_RETRIES) {
+              retryCount++;
+              setTimeout(startConnection, RETRY_DELAY);
+            } else {
+              console.log("Max retries reached. Could not connect to SignalR.");
+            }
+          });
+      }
+    };
+    startConnection();
+    return () => {
+      if (connection) {
+        connection.stop();
+      }
+    };
+  }, [connection]);
 
   return (
     <ScrollView

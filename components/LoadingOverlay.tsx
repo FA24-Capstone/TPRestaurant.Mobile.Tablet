@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.3)", // Semi-transparent background
   },
   indicator: {
-    transform: [{ scale: 1.5 }], // Increase size by scaling
+    transform: [{ scale: 3 }], // Increase size by scaling
   },
 });
 

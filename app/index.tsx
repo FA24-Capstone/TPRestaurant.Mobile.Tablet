@@ -41,6 +41,7 @@ import { AppDispatch } from "@/redux/store";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { Ionicons } from "@expo/vector-icons";
 import { updateOrderStatus } from "@/api/ordersApi";
+import { clearAccountData } from "@/redux/slices/accountSlice";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
@@ -239,6 +240,17 @@ const App = () => {
       ).unwrap(); // Unwrap to handle success or error
 
       if (result?.isSuccess && result.result) {
+        if (result.result.mainRole !== "CUSTOMER") {
+          // Xóa dữ liệu trong Redux nếu role không phải là CUSTOMER
+          dispatch(clearAccountData());
+          setIsLoading(false);
+
+          // Hiển thị lỗi
+          showErrorMessage("Hãy điền account KHÁCH HÀNG.");
+          return;
+        }
+
+        // Nếu mainRole là CUSTOMER, tiếp tục xử lý
         setIsLoading(false);
         showSuccessMessage("Tài khoản đã được xác nhận!");
         setCurrentModal(null);

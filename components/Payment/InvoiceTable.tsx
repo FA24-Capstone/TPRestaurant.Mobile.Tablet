@@ -22,8 +22,12 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
   const calculatedTotal =
     orderDishes?.reduce((total, dish) => {
       const dishPrice =
-        dish?.dishSizeDetail?.price || dish?.comboDish?.combo?.price || 0;
-      const totalPrice = dishPrice * (dish?.quantity || 0);
+        (dish?.dishSizeDetail?.price || dish?.comboDish?.combo?.price || 0) *
+        (1 - dish?.dishSizeDetail?.discount / 100);
+      const totalPrice =
+        dishPrice *
+        (dish?.quantity || 0) *
+        (1 - dish?.comboDish?.combo?.discount / 100);
       return total + totalPrice;
     }, 0) || 0;
 
@@ -189,7 +193,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
           <Text className="flex-[1] text-right text-white font-semibold text-base">
             Giá (VND)
           </Text>
-
+          <Text className="flex-[1] text-right text-white font-semibold text-base">
+            Giảm giá (%)
+          </Text>
           <Text className="flex-[1.5] text-right text-white font-semibold text-base">
             Thành tiền (VND)
           </Text>
@@ -199,10 +205,15 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
         <View className="border-t border-gray-300">
           {orderDishes?.length > 0 ? (
             orderDishes?.map((dish, index) => {
-              const totalPrice = dish?.dishSizeDetail?.price * dish?.quantity;
+              const totalPrice =
+                dish?.dishSizeDetail?.price *
+                dish?.quantity *
+                (1 - dish?.dishSizeDetail?.discount / 100);
 
               const totalPriceCombo =
-                dish?.comboDish?.combo?.price * dish?.quantity;
+                dish?.comboDish?.combo?.price *
+                dish?.quantity *
+                (1 - dish?.comboDish?.combo?.discount / 100);
 
               return (
                 <View key={dish?.orderDetailsId}>
@@ -231,7 +242,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
                         dish?.comboDish?.combo?.price
                       ).toLocaleString("vi-VN")}{" "}
                     </Text>
-
+                    <Text className="flex-[1] text-right text-base">
+                      {dish?.dishSizeDetail?.discount ||
+                        dish?.comboDish?.combo?.discount ||
+                        0}
+                    </Text>
                     <Text className="flex-[1.5] text-right  font-semibold text-base">
                       {(totalPrice || totalPriceCombo)?.toLocaleString("vi-VN")}{" "}
                     </Text>
@@ -284,7 +299,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
 
         <View className="text-right mt-1 mx-4">
           <Text className="text-xl text-right font-semibold">
-            Tổng (đã bao gồm thuế và phí giảm):{" "}
+            Tổng (đã bao gồm thuế và phí dịch vụ):{" "}
             <Text className="text-red-700 font-bold text-2xl">
               {(order.totalAmount ?? 0).toLocaleString("vi-VN")} VND
             </Text>
