@@ -107,7 +107,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   const grandTotal =
     totalAmount -
     (reservationData?.result?.order?.deposit || 0) -
-    (totalAmount *
+    ((totalAmount - (reservationData?.result?.order?.deposit || 0)) *
       (selectedCoupon?.reduce(
         (acc, coupon) => acc + (coupon.couponProgram.discountPercent || 0),
         0
