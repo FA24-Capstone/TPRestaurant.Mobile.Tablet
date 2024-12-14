@@ -6,8 +6,8 @@ import {
 import { login, logout } from "@/redux/slices/authSlice";
 import { AppDispatch } from "@/redux/store";
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
 import apiClient from "./config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment-timezone";
 import { fetchReservationWithTime } from "./reservationApi";
 
@@ -36,7 +36,7 @@ export const loginDevice = async (
       showSuccessMessage("Login successful!");
 
       const { token, deviceResponse } = data.result;
-      await SecureStore.setItemAsync("token", token);
+      await AsyncStorage.setItem("token", token);
 
       // Dispatch to Redux store
       dispatch(
@@ -67,16 +67,16 @@ export const loginDevice = async (
 
       if (rememberMe) {
         // Store credentials securely if 'rememberMe' is true
-        await SecureStore.setItemAsync("token", token);
-        await SecureStore.setItemAsync("deviceCode", deviceCode);
-        await SecureStore.setItemAsync("password", password);
-        await SecureStore.setItemAsync("rememberMe", "true");
+        await AsyncStorage.setItem("token", token);
+        await AsyncStorage.setItem("deviceCode", deviceCode);
+        await AsyncStorage.setItem("password", password);
+        await AsyncStorage.setItem("rememberMe", "true");
       } else {
         // Remove stored credentials if 'rememberMe' is false
-        await SecureStore.deleteItemAsync("token");
-        await SecureStore.deleteItemAsync("deviceCode");
-        await SecureStore.deleteItemAsync("password");
-        await SecureStore.deleteItemAsync("rememberMe");
+        await AsyncStorage.removeItem("token");
+        await AsyncStorage.removeItem("deviceCode");
+        await AsyncStorage.removeItem("password");
+        await AsyncStorage.removeItem("rememberMe");
       }
     } else {
       const errorMessage = data.messages?.[0] || "Login failed.";
@@ -89,10 +89,10 @@ export const loginDevice = async (
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401) {
         // Handle unauthorized error by logging out
-        await SecureStore.deleteItemAsync("token");
-        await SecureStore.deleteItemAsync("deviceCode");
-        await SecureStore.deleteItemAsync("password");
-        await SecureStore.deleteItemAsync("rememberMe");
+        await AsyncStorage.removeItem("token");
+        await AsyncStorage.removeItem("deviceCode");
+        await AsyncStorage.removeItem("password");
+        await AsyncStorage.removeItem("rememberMe");
 
         dispatch(logout()); // Dispatch a logout action
         showErrorMessage("Session expired. Please log in again.");

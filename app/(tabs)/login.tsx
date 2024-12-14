@@ -3,23 +3,19 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   Alert,
   ScrollView,
   TouchableOpacity,
-  Image,
-  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { loginDevice } from "../../api/loginApi";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "@/redux/slices/authSlice";
 import { Feather } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { Checkbox } from "react-native-paper";
 import { AppDispatch, RootState } from "@/redux/store";
-import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen: React.FC = () => {
   const [deviceCode, setDeviceCode] = useState("");
@@ -44,13 +40,17 @@ const LoginScreen: React.FC = () => {
   useEffect(() => {
     const loadSavedCredentials = async () => {
       try {
-        const savedRememberMe = await SecureStore.getItemAsync("rememberMe");
+        const savedRememberMe = await AsyncStorage.getItem("rememberMe");
         if (savedRememberMe === "true") {
-          const savedDeviceCode = await SecureStore.getItemAsync("deviceCode");
-          const savedPassword = await SecureStore.getItemAsync("password");
+          const savedDeviceCode = await AsyncStorage.getItem("deviceCode");
+          const savedPassword = await AsyncStorage.getItem("password");
           if (savedDeviceCode && savedPassword) {
-            setDeviceCode(savedDeviceCode);
-            setPassword(savedPassword);
+            const deviceCodeValue = savedDeviceCode;
+            const passwordValue = savedPassword;
+            if (deviceCodeValue && passwordValue) {
+              setDeviceCode(deviceCodeValue);
+              setPassword(passwordValue);
+            }
             setRememberMe(true);
           }
         }

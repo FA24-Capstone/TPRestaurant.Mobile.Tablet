@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import * as ExpoSplashScreen from "expo-splash-screen"; // Sử dụng alias để tránh xung đột tên
 
-import { SplashScreen, Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -11,17 +10,16 @@ import { Provider } from "react-redux";
 import store, { persistor, RootState } from "@/redux/store";
 import CustomHeader from "@/components/CustomHeader";
 import CustomDrawerContent from "@/components/CustomDrawerContent"; // Import your custom drawer content
-import Colors from "@/constants/Colors";
-import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import LoginScreen from "./(tabs)/login";
 import FlashMessage from "react-native-flash-message";
 import { PersistGate } from "redux-persist/integration/react";
 import LoadingOverlay from "@/components/LoadingOverlay";
-import * as SecureStore from "expo-secure-store";
 import { LoginResponse } from "./types/login_type";
 import axios from "axios";
 import { login } from "@/redux/slices/authSlice";
 import { setupInterceptors } from "@/api/config/interceptors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -135,8 +133,8 @@ function RootLayout() {
   useEffect(() => {
     const loadToken = async () => {
       try {
-        const token = await SecureStore.getItemAsync("token");
-        const deviceId = await SecureStore.getItemAsync("deviceId"); // Lấy deviceId từ SecureStore
+        const token = await AsyncStorage.getItem("token");
+        const deviceId = await AsyncStorage.getItem("deviceId"); // Lấy deviceId từ SecureStore
 
         if (token && deviceId) {
           // Nếu token và deviceId tồn tại, gọi API để lấy thông tin thiết bị
@@ -169,10 +167,10 @@ function RootLayout() {
             );
           } else {
             // Nếu token không hợp lệ, xóa nó cùng với deviceId
-            await SecureStore.deleteItemAsync("token");
-            await SecureStore.deleteItemAsync("deviceId");
-            await SecureStore.deleteItemAsync("password");
-            await SecureStore.deleteItemAsync("rememberMe");
+            await AsyncStorage.removeItem("token");
+            await AsyncStorage.removeItem("deviceId");
+            await AsyncStorage.removeItem("password");
+            await AsyncStorage.removeItem("rememberMe");
           }
         }
       } catch (error) {
