@@ -43,7 +43,6 @@ const authSlice = createSlice({
       }>
     ) {
       state.isLoggedIn = true;
-      state.token = action.payload.token;
       state.deviceId = action.payload.deviceResponse.deviceId;
       state.deviceCode = action.payload.deviceResponse.deviceCode;
       state.tableId = action.payload.deviceResponse.tableId;
@@ -53,7 +52,6 @@ const authSlice = createSlice({
     },
     logout(state) {
       state.isLoggedIn = false;
-      state.token = null;
       state.deviceId = null;
       state.deviceCode = null;
       state.tableId = null;
