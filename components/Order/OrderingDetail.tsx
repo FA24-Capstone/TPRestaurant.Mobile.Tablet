@@ -157,6 +157,7 @@ const OrderingDetail: React.FC = () => {
           const errorMessage =
             response.messages?.[0] || "Đặt món thất bại. Vui lòng thử lại!";
           showErrorMessage(errorMessage);
+          throw new Error(errorMessage);
         }
       } else {
         // Nếu đã có order và trạng thái khác 7 và 8 thì thêm món vào order
@@ -165,6 +166,7 @@ const OrderingDetail: React.FC = () => {
             "reservationData.result.order.orderId",
             reservationData?.result.order.orderId
           );
+          console.log("currentOrder", currentOrder);
           const addOrderResponse = await addPrelistOrder(
             {
               orderId:
@@ -193,6 +195,7 @@ const OrderingDetail: React.FC = () => {
               addOrderResponse.messages?.[0] ||
               "Đặt món thất bại. Vui lòng thử lại!";
             showErrorMessage(errorMessage);
+            throw new Error(errorMessage);
           }
         }
       }

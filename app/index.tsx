@@ -89,29 +89,6 @@ const App = () => {
     console.log("Current Modal Changed:", currentModal);
   }, [currentModal]);
 
-  useEffect(() => {
-    const fetchReservation = async () => {
-      if (tableId !== null && tableId !== undefined) {
-        const now = moment()
-          .tz("Asia/Ho_Chi_Minh")
-          .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-        console.log("now", now);
-
-        // Dispatch async thunk để fetch dữ liệu
-        // dispatch(fetchReservationWithTime({ tableId, time: now }));
-        dispatch(
-          fetchReservationWithTime({
-            tableId: tableId ?? "",
-            // time: "2024-11-11 21:29:13.1140000",
-            time: now,
-          })
-        );
-      }
-    };
-
-    fetchReservation();
-  }, [dispatch, tableId]);
-
   // Compute reservationText based on reservationData
   const reservationText = useMemo(() => {
     if (reservationData && reservationData.result) {

@@ -70,7 +70,12 @@ const LoginScreen: React.FC = () => {
 
     try {
       setLoading(true);
-      await loginDevice(deviceCode, password, rememberMe, dispatch);
+      const response = await loginDevice(
+        deviceCode,
+        password,
+        rememberMe,
+        dispatch
+      );
       // Với redux-persist, trạng thái sẽ được tự động lưu trữ dựa trên rememberMe
     } catch (error) {
       console.error("Login error:", error);

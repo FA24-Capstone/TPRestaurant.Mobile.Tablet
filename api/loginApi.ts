@@ -8,6 +8,8 @@ import { AppDispatch } from "@/redux/store";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import apiClient from "./config";
+import moment from "moment-timezone";
+import { fetchReservationWithTime } from "./reservationApi";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -34,7 +36,6 @@ export const loginDevice = async (
       showSuccessMessage("Login successful!");
 
       const { token, deviceResponse } = data.result;
-
       // Dispatch to Redux store
       dispatch(
         login({
@@ -47,6 +48,18 @@ export const loginDevice = async (
             mainRole: deviceResponse.mainRole,
           },
           rememberMe,
+        })
+      );
+
+      const now = moment()
+        .tz("Asia/Ho_Chi_Minh")
+        .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
+      console.log("now", now);
+
+      dispatch(
+        fetchReservationWithTime({
+          tableId: deviceResponse.tableId,
+          time: now,
         })
       );
 

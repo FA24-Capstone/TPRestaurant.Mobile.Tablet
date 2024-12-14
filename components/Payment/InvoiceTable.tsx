@@ -17,17 +17,18 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({ paymentDetails }) => {
   const transaction = paymentDetails?.result?.transaction;
   const order = paymentDetails?.result?.order?.order;
   const orderDishes = paymentDetails?.result?.order?.orderDishes;
+  // console.log("dishOrderNe", JSON.stringify(orderDishes, null, 2));
 
   // Tính tổng đơn từ cột "Thành tiền"
   const calculatedTotal =
     orderDishes?.reduce((total, dish) => {
       const dishPrice =
         (dish?.dishSizeDetail?.price || dish?.comboDish?.combo?.price || 0) *
-        (1 - dish?.dishSizeDetail?.discount / 100);
+        (1 - (dish?.dishSizeDetail?.discount || 0) / 100);
       const totalPrice =
         dishPrice *
         (dish?.quantity || 0) *
-        (1 - dish?.comboDish?.combo?.discount / 100);
+        (1 - (dish?.comboDish?.combo?.discount || 0) / 100);
       return total + totalPrice;
     }, 0) || 0;
 

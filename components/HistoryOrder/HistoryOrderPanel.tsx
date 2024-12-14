@@ -109,7 +109,7 @@ const HistoryOrderPanel: React.FC = () => {
       const response = await getHistoryOrderId(
         orderId || reservationData?.result?.order?.orderId || ""
       );
-      console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
+      // console.log("API responseGetOrder:", JSON.stringify(response, null, 2));
       // Check if the API call was successful
       if (response.isSuccess) {
         setOrderDetails(response.result.orderDishes);

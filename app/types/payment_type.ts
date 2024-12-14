@@ -468,6 +468,35 @@ export interface OrderDish {
   status: Status4;
 }
 
+// Define types for combo dish within the reservation
+export interface ComboDish {
+  comboId: string;
+  combo: Combo;
+  dishCombos: DishCombo[];
+}
+
+export interface Combo {
+  comboId: string;
+  name: string;
+  description: string;
+  image: string;
+  price: number;
+  discount: number;
+  categoryId: number;
+  category: any | null; // You may define a specific type for category if necessary
+  startDate: string;
+  endDate: string;
+}
+
+export interface DishCombo {
+  dishComboId: string;
+  quantity: number;
+  dishSizeDetailId: string;
+  dishSizeDetail: DishSizeDetail;
+  comboOptionSetId: string;
+  comboOptionSet: any | null; // You may define a specific type for comboOptionSet if necessary
+}
+
 export interface DishSizeDetail {
   dishSizeDetailId: string;
   isAvailable: boolean;
