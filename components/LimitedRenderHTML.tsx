@@ -27,7 +27,7 @@ const LimitedRenderHTML: React.FC<LimitedRenderHTMLProps> = ({
 
 const styles = StyleSheet.create({
   truncatedView: {
-    maxHeight: 100, // Limit height to simulate truncation
+    maxHeight: 200, // Limit height to simulate truncation
     overflow: "hidden",
   },
 });

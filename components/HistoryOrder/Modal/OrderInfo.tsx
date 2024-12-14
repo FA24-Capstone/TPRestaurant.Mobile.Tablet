@@ -261,6 +261,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
         <Text className="w-52 ml-4 font-semibold">Tên món ăn</Text>
         <Text className="w-16 ml-4 font-semibold">Size</Text>
         <Text className="w-20 text-center font-semibold">Đơn giá</Text>
+        <Text className="w-10 text-center font-semibold">Giảm</Text>
         <Text className="w-10 text-center font-semibold">SL</Text>
         <Text className="w-20 text-center font-semibold">Thành tiền</Text>
         <Text className="w-52 text-center font-semibold">Ghi chú</Text>

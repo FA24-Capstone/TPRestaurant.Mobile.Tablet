@@ -311,7 +311,7 @@ const DishCard: React.FC<DishCardProps> = ({
                     </View>
                   </View>
 
-                  <View className="max-w-[600px]">
+                  <View className="max-w-[600px] ">
                     <LimitedRenderHTML
                       htmlContent={description || "No description available"}
                     />
