@@ -104,17 +104,19 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
       return total + discountedPrice * item.quantity;
     }, 0);
 
-  const grandTotal =
-    totalAmount -
-    (reservationData?.result?.order?.deposit || 0) -
+  const totalAfterCoupon =
     ((totalAmount - (reservationData?.result?.order?.deposit || 0)) *
       (selectedCoupon?.reduce(
         (acc, coupon) => acc + (coupon.couponProgram.discountPercent || 0),
         0
       ) || 0)) /
-      100;
+    100;
 
-  console.log("totalAmount", totalAmount);
+  const grandTotal =
+    totalAmount -
+    (reservationData?.result?.order?.deposit || 0) -
+    totalAfterCoupon;
+  console.log("totalAfterCoupon", totalAfterCoupon);
 
   // Tính số điểm tối đa áp dụng (10% của grandTotal)
   const maxPointsDiscount = Math.min(
@@ -298,17 +300,7 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
                           Dùng Coupon:
                         </Text>
                         <Text className="font-semibold  text-gray-800">
-                          -{" "}
-                          {formatPriceVND(
-                            totalAmount *
-                              (selectedCoupon.reduce(
-                                (acc, coupon) =>
-                                  acc +
-                                  (coupon.couponProgram.discountPercent || 0),
-                                0
-                              ) /
-                                100)
-                          )}
+                          - {formatPriceVND(totalAfterCoupon)}
                         </Text>
                       </View>
                     )}

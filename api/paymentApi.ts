@@ -36,6 +36,9 @@ export const createPayment = async (
 export const getPaymentById = async (
   paymentId: string
 ): Promise<AppActionResult<PaymentDetailReult>> => {
+  console.log("====================================");
+  console.log("paymentIdNE", paymentId);
+  console.log("====================================");
   const response = await apiClient.get<AppActionResult<PaymentDetailReult>>(
     `/transaction/get-payment-by-id/${paymentId}`
   );
