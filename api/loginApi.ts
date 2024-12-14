@@ -36,6 +36,8 @@ export const loginDevice = async (
       showSuccessMessage("Login successful!");
 
       const { token, deviceResponse } = data.result;
+      await SecureStore.setItemAsync("token", token);
+
       // Dispatch to Redux store
       dispatch(
         login({
