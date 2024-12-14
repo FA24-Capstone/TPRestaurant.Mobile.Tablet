@@ -52,7 +52,6 @@ export const loginDevice = async (
       await AsyncStorage.setItem("rememberMe", "true");
     } else {
       // Đảm bảo không lưu token và xóa các thông tin đăng nhập
-      await AsyncStorage.removeItem("token");
       await AsyncStorage.removeItem("deviceCode");
       await AsyncStorage.removeItem("password");
       await AsyncStorage.removeItem("rememberMe");
