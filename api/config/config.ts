@@ -1,23 +1,5 @@
-// // src/api/config.ts
-
-// const API_URL = process.env.REACT_APP_API_URL;
-// console.log("API_URL:", API_URL); // Check if API_URL is defined
-
-// if (!API_URL) {
-//   throw new Error("API_URL is not defined. Check your .env file.");
-// }
-
-// export const apiConfig = {
-//   baseURL: API_URL,
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-// };
-
-import { logout } from "@/redux/slices/authSlice";
-import store from "@/redux/store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -35,7 +17,7 @@ const apiClient = axios.create({
 
 // Hàm để lấy token từ SecureStore
 const getToken = async () => {
-  return await SecureStore.getItemAsync("token");
+  return await AsyncStorage.getItem("token");
 };
 
 // Interceptor để thêm token vào headers

@@ -1,7 +1,7 @@
 // src/api/config/interceptors.ts
 import apiClient from "./config";
-import * as SecureStore from "expo-secure-store";
 import { logout } from "../../redux/slices/authSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const setupInterceptors = (store: any) => {
   apiClient.interceptors.response.use(
@@ -15,7 +15,7 @@ export const setupInterceptors = (store: any) => {
         );
 
         // Xóa SecureStore
-        await SecureStore.deleteItemAsync("token");
+        await AsyncStorage.removeItem("token");
 
         // Dispatch hành động logout từ Redux
         store.dispatch(logout());
