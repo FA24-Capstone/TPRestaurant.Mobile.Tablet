@@ -1,112 +1,65 @@
 import { LoginResponse } from "@/app/types/login_type";
-import {
-  showErrorMessage,
-  showSuccessMessage,
-} from "@/components/FlashMessageHelpers";
-import { login, logout } from "@/redux/slices/authSlice";
+import { login } from "@/redux/slices/authSlice";
 import { AppDispatch } from "@/redux/store";
-import axios from "axios";
-import apiClient from "./config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import moment from "moment-timezone";
-import { fetchReservationWithTime } from "./reservationApi";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
-// ==================== Login Device ====================
+// Định nghĩa hàm loginDevice với thứ tự tham số đúng
 export const loginDevice = async (
   deviceCode: string,
   password: string,
-  rememberMe: boolean,
+  rememberMe: boolean, // Thêm rememberMe vào tham số
   dispatch: AppDispatch
 ): Promise<void> => {
   try {
-    const response = await apiClient.post<LoginResponse>(
-      `/device/login-device`,
+    const response = await axios.post<LoginResponse>(
+      `${API_URL}/device/login-device`,
       {
         deviceCode,
         password,
       }
     );
 
-    const data = response.data;
+    const { token, deviceResponse } = response.data.result;
+    console.log("token1", token);
+    await AsyncStorage.setItem("token", token);
 
-    // Check if the API call was successful
-    if (data.isSuccess) {
-      showSuccessMessage("Login successful!");
-
-      const { token, deviceResponse } = data.result;
-      await AsyncStorage.setItem("token", token);
-
-      // Dispatch to Redux store
-      dispatch(
-        login({
-          token,
-          deviceResponse: {
-            deviceId: deviceResponse.deviceId,
-            deviceCode: deviceResponse.deviceCode,
-            tableId: deviceResponse.tableId,
-            tableName: deviceResponse.tableName,
-            mainRole: deviceResponse.mainRole,
-          },
-          rememberMe,
-        })
-      );
-
-      const now = moment()
-        .tz("Asia/Ho_Chi_Minh")
-        .format("YYYY-MM-DD HH:mm:ss.SSSSSSS");
-      console.log("now", now);
-
-      dispatch(
-        fetchReservationWithTime({
+    // Dispatch to Redux store
+    dispatch(
+      login({
+        token,
+        deviceResponse: {
+          deviceId: deviceResponse.deviceId,
+          deviceCode: deviceResponse.deviceCode,
           tableId: deviceResponse.tableId,
-          time: now,
-        })
-      );
+          tableName: deviceResponse.tableName,
+          mainRole: deviceResponse.mainRole,
+        },
+        rememberMe, // Thêm rememberMe vào payload
+      })
+    );
 
-      if (rememberMe) {
-        // Store credentials securely if 'rememberMe' is true
-        await AsyncStorage.setItem("token", token);
-        await AsyncStorage.setItem("deviceCode", deviceCode);
-        await AsyncStorage.setItem("password", password);
-        await AsyncStorage.setItem("rememberMe", "true");
-      } else {
-        // Remove stored credentials if 'rememberMe' is false
-        await AsyncStorage.removeItem("token");
-        await AsyncStorage.removeItem("deviceCode");
-        await AsyncStorage.removeItem("password");
-        await AsyncStorage.removeItem("rememberMe");
-      }
+    if (rememberMe) {
+      // Lưu token vào SecureStore nếu nhớ tài khoản
+      // await AsyncStorage.setItem("token", token);
+      // Lưu deviceCode và password vào SecureStore
+      await AsyncStorage.setItem("deviceCode", deviceCode);
+      await AsyncStorage.setItem("password", password);
+      // Lưu rememberMe vào SecureStore
+      await AsyncStorage.setItem("rememberMe", "true");
     } else {
-      const errorMessage = data.messages?.[0] || "Login failed.";
-      showErrorMessage(errorMessage);
-      throw new Error(errorMessage);
+      // Đảm bảo không lưu token và xóa các thông tin đăng nhập
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("deviceCode");
+      await AsyncStorage.removeItem("password");
+      await AsyncStorage.removeItem("rememberMe");
     }
-  } catch (error: any) {
+    console.log("token2", await AsyncStorage.getItem("token"));
+  } catch (error) {
     console.error("Login error:", error);
-
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        // Handle unauthorized error by logging out
-        await AsyncStorage.removeItem("token");
-        await AsyncStorage.removeItem("deviceCode");
-        await AsyncStorage.removeItem("password");
-        await AsyncStorage.removeItem("rememberMe");
-
-        dispatch(logout()); // Dispatch a logout action
-        showErrorMessage("Session expired. Please log in again.");
-        throw new Error("Session expired. Please log in again.");
-      } else {
-        const backendMessage =
-          error.response?.data?.messages?.[0] ||
-          "An error occurred during login.";
-        showErrorMessage(backendMessage);
-        throw new Error(backendMessage);
-      }
-    } else {
-      showErrorMessage("An unexpected error occurred.");
-      throw new Error("An unexpected error occurred.");
-    }
+    throw error;
   }
 };

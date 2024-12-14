@@ -25,22 +25,14 @@ export const fetchReservationWithTime = createAsyncThunk<
   async ({ tableId, time }, { rejectWithValue }) => {
     try {
       // Tạo một promise timeout để hủy yêu cầu sau 10 giây (10000 milliseconds)
-      const timeoutPromise = new Promise<ReservationApiResponse>((_, reject) =>
-        setTimeout(() => {
-          reject("Request timed out. Please try again.");
-        }, 10000)
-      );
 
       // Kết hợp timeoutPromise với yêu cầu API để lấy dữ liệu
-      const response = await Promise.race([
-        apiClient.get<ReservationApiResponse>(
-          `/order/get-table-reservation-with-time`,
-          {
-            params: { tableId, time },
-          }
-        ),
-        timeoutPromise,
-      ]);
+      const response = await apiClient.get<ReservationApiResponse>(
+        `/order/get-table-reservation-with-time`,
+        {
+          params: { tableId, time },
+        }
+      );
 
       const data = (response as any).data; // Ép kiểu để sử dụng `data`
       console.log("responseReservationWithTime ", data);
