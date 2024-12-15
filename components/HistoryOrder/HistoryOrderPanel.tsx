@@ -161,7 +161,21 @@ const HistoryOrderPanel: React.FC = () => {
             console.log("connection", connection);
             connection.on("LOAD_USER_ORDER", async () => {
               await fetchOrderDetails();
-
+              console.log("Received LOAD_USER_ORDER event");
+              if (currentOrder) {
+                const response = await getHistoryOrderId(currentOrder.orderId);
+                if (
+                  response.isSuccess &&
+                  response.result.order.statusId === 9
+                ) {
+                  showSuccessMessage(
+                    "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 2s"
+                  );
+                  setTimeout(() => {
+                    handleLogout();
+                  }, 2000);
+                }
+              }
               if (reservationData?.result.order.orderId) {
                 const response = await getHistoryOrderId(
                   reservationData?.result?.order.orderId
