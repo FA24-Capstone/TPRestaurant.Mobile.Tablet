@@ -6,7 +6,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
-
+console.log("API_URL", API_URL);
 // Định nghĩa hàm loginDevice với thứ tự tham số đúng
 export const loginDevice = async (
   deviceCode: string,

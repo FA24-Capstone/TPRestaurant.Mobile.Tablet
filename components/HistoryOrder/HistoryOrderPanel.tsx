@@ -46,6 +46,7 @@ import RenderHTML from "react-native-render-html";
 import * as signalR from "@microsoft/signalr";
 import { clearReservationData } from "@/redux/slices/reservationSlice";
 import { clearDishes } from "@/redux/slices/dishesSlice";
+import { clearOrders } from "@/redux/slices/ordersSlice";
 
 const { width } = Dimensions.get("window");
 const numColumns = 4;
@@ -160,20 +161,20 @@ const HistoryOrderPanel: React.FC = () => {
             // Subscribe to SignalR event
             console.log("connection", connection);
             connection.on("LOAD_USER_ORDER", async () => {
-              await fetchOrderDetails();
-              console.log("Received LOAD_USER_ORDER event");
-              if (currentOrder) {
-                const response = await getHistoryOrderId(currentOrder.orderId);
-                if (
-                  response.isSuccess &&
-                  response.result.order.statusId === 9
-                ) {
-                  showSuccessMessage(
-                    "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 2s"
-                  );
-                  setTimeout(() => {
-                    handleLogout();
-                  }, 2000);
+              if (orderId) {
+                const response = await getHistoryOrderId(currentOrder?.orderId);
+                console.log("response order", response);
+                if (response.isSuccess) {
+                  setOrderDetails(response.result.orderDishes);
+
+                  if (response.result.order.statusId === 9) {
+                    showSuccessMessage(
+                      "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 2s"
+                    );
+                    setTimeout(() => {
+                      handleLogout();
+                    }, 10000);
+                  }
                 }
               }
               if (reservationData?.result.order.orderId) {
@@ -397,6 +398,7 @@ const HistoryOrderPanel: React.FC = () => {
     navigation.navigate("list-dish");
   };
   const handleLogout = () => {
+    dispatch(clearOrders());
     dispatch(clearReservationData());
     dispatch(clearDishes());
     console.log("Reservation data cleared:", store.getState().reservation.data);
