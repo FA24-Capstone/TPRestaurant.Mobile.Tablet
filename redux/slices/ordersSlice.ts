@@ -26,9 +26,14 @@ const ordersSlice = createSlice({
     setCurrentOrder: (state, action) => {
       state.currentOrder = action.payload;
     },
+    clearOrders: (state) => {
+      state.orders = [];
+      state.currentOrder = null;
+    },
   },
 });
 
-export const { setOrders, addOrder, setCurrentOrder } = ordersSlice.actions;
+export const { setOrders, addOrder, setCurrentOrder, clearOrders } =
+  ordersSlice.actions;
 
 export default ordersSlice.reducer;
