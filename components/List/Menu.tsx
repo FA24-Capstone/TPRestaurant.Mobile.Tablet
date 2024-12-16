@@ -13,6 +13,7 @@ import ListDishes from "./ListDishes";
 import LoadingOverlay from "../LoadingOverlay";
 import * as signalR from "@microsoft/signalr";
 import { showSuccessMessage } from "../FlashMessageHelpers";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface MenuProps {
   isPanelOpen: boolean;
@@ -70,25 +71,41 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   };
 
   const loadMenuItems = useCallback(async () => {
+    console.log("====================================");
+    console.log("loadMenuItems");
+    console.log("====================================");
     try {
       setLoading(true);
       setError(null); // Reset error before fetching
-      const [fetchedDishes, fetchedCombos] = await Promise.all([
-        fetchDishes(1, pageSize),
-        fetchCombos(1, pageSize),
-      ]);
-      // console.log("fetchedDishesCombo", fetchedDishes, "VA", fetchedCombos);
 
-      setDishes(fetchedDishes);
-      setCombos(fetchedCombos);
+      // Fetch combos first
+      let fetchedCombos: Combo[] = [];
+      try {
+        fetchedCombos = await fetchCombos(1, pageSize);
+        setCombos(fetchedCombos);
+        console.log("Fetched combos:", fetchedCombos);
+      } catch (error) {
+        console.error("Error fetching combos:", error);
+        setCombos([]);
+      }
 
-      if (fetchedDishes.length < pageSize || fetchedCombos.length < pageSize) {
+      // Fetch dishes
+      let fetchedDishes: Dish[] = [];
+      try {
+        fetchedDishes = await fetchDishes(1, pageSize);
+        setDishes(fetchedDishes);
+        console.log("Fetched dishes:", fetchedDishes);
+      } catch (error) {
+        console.error("Error fetching dishes:", error);
+        setDishes([]);
+      }
+
+      if (fetchedDishes.length < pageSize && fetchedCombos.length < pageSize) {
         setHasMore(false);
       } else {
         setHasMore(true);
       }
     } catch (err: any) {
-      // TypeScript type for better error handling
       console.error("Error loading menu items:", err);
       if (err.response && err.response.data && err.response.data.message) {
         setError(`Failed to load menu items: ${err.response.data.message}`);
@@ -99,6 +116,17 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
       setLoading(false);
     }
   }, [pageSize]);
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>{error}</Text>
+        <TouchableOpacity onPress={loadMenuItems} style={{ marginTop: 20 }}>
+          <Text style={{ color: "blue" }}>Thử lại</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   useEffect(() => {
     // Create connection
@@ -186,12 +214,21 @@ const Menu: React.FC<MenuProps> = ({ isPanelOpen }) => {
   return (
     <View className="flex-1 bg-[#F9F9F9]">
       {/* <MarqueeText /> */}
+
       <View className="p-4 mx-2">
         <View className="flex-row items-center justify-between mx-2 mb-4 mt-2">
-          <Text className="text-[25px] font-bold uppercase pb-2 border-b-2 text-[#970C1A] border-[#970C1A]">
-            Thực đơn hôm nay
-          </Text>
-
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              onPress={loadMenuItems}
+              disabled={loading}
+              className="bg-[#A1011A] p-2 rounded-full mr-4  w-fit flex-row items-center justify-center"
+            >
+              <MaterialCommunityIcons name="reload" size={24} color="white" />
+            </TouchableOpacity>
+            <Text className="text-[25px] font-bold uppercase pb-2 border-b-2 text-[#970C1A] border-[#970C1A]">
+              Thực đơn hôm nay
+            </Text>
+          </View>
           <SearchBar
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
