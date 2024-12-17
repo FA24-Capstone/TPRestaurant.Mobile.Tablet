@@ -59,33 +59,34 @@ const TransactionScreen = () => {
     (state: RootState) => state.reservation.data
   );
 
-  const transactionIdNE =
-    transactionId || "D231646A-1B5B-4383-BD66-2FD4B6D61625";
+  const transactionIdNE = transactionId;
 
   // console.log("isSuccess", isSuccess, "transactionId", transactionIdNE);
 
   const fetchPaymentDetails = async () => {
     try {
       // const data = await getPaymentById(transactionId);
-      const data = await getPaymentById(transactionIdNE); // Call API to fetch payment details
+      if (transactionId) {
+        const data = await getPaymentById(transactionIdNE); // Call API to fetch payment details
 
-      console.log("datagetPaymentById", data);
+        console.log("datagetPaymentById", data);
 
-      if (data.isSuccess) {
-        setPaymentDetails(data); // Update the state with payment details
-        showSuccessMessage("Payment details fetched successfully!");
-        if (data.result.order.order.statusId === 9) {
-          showSuccessMessage(
-            "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 60s"
-          );
-          setTimeout(() => {
-            handleLogout();
-          }, 60000);
+        if (data.isSuccess) {
+          setPaymentDetails(data); // Update the state with payment details
+          showSuccessMessage("Payment details fetched successfully!");
+          if (data.result.order.order.statusId === 9) {
+            showSuccessMessage(
+              "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 60s"
+            );
+            setTimeout(() => {
+              handleLogout();
+            }, 60000);
+          }
+        } else {
+          const errorMessage =
+            data.messages?.[0] || "Failed to fetch payment details.";
+          showErrorMessage(errorMessage);
         }
-      } else {
-        const errorMessage =
-          data.messages?.[0] || "Failed to fetch payment details.";
-        showErrorMessage(errorMessage);
       }
     } catch (error) {
       setLoading(false);

@@ -12,7 +12,7 @@ import { setCurrentSession } from "@/redux/slices/tableSessionSlice";
 import { OrderDetailsDto, OrderRequest } from "@/app/types/order_type";
 import { addPrelistOrder, createOrderinTablet } from "@/api/ordersApi";
 import { Combo } from "@/app/types/combo_type";
-import { addOrder } from "@/redux/slices/ordersSlice";
+import { addOrder, setCurrentOrder } from "@/redux/slices/ordersSlice";
 import { useNavigation } from "expo-router";
 import { StackNavigationProp } from "@react-navigation/stack";
 import LoadingOverlay from "../LoadingOverlay";
@@ -138,7 +138,41 @@ const OrderingDetail: React.FC = () => {
       console.log("reservationDataNha", reservationData);
       setIsLoading(true);
       // Kiểm tra currentOrder và trạng thái của nó
-      if ((!currentOrder || currentOrder.statusId === 8) && !reservationData) {
+      if (currentOrder || reservationData?.result?.order.orderId) {
+        console.log(
+          "reservationData.result.order.orderId",
+          reservationData?.result.order.orderId
+        );
+        console.log("currentOrder", currentOrder);
+        const addOrderResponse = await addPrelistOrder(
+          {
+            orderId:
+              currentOrder?.orderId ||
+              reservationData?.result?.order.orderId ||
+              "",
+            orderDetailsDtos,
+          },
+          currentOrder?.orderId || reservationData?.result?.order.orderId || ""
+        );
+        setIsLoading(false);
+
+        // console.log(
+        //   "addOrderResponseNe",
+        //   JSON.stringify(addOrderResponse, null, 2)
+        // );
+
+        if (addOrderResponse.isSuccess) {
+          showSuccessMessage("Thêm món thành công!");
+          dispatch(clearDishes());
+          // Optionally, update the order after adding the dish
+        } else {
+          const errorMessage =
+            addOrderResponse.messages?.[0] ||
+            "Đặt món thất bại. Vui lòng thử lại!";
+          showErrorMessage(errorMessage);
+          throw new Error(errorMessage);
+        }
+      } else if (!currentOrder && !reservationData) {
         console.log(
           "orderRequestVaoCreate",
           JSON.stringify(orderRequest, null, 2)
@@ -152,51 +186,15 @@ const OrderingDetail: React.FC = () => {
         if (response.isSuccess) {
           showSuccessMessage("Đặt món thành công!");
           dispatch(clearDishes());
-          dispatch(addOrder(response.result.order)); // Store the new order in state
+          dispatch(addOrder(response.result.order));
+          console.log("responseCreateOrder", response.result);
+          // Store the new order in state
+          dispatch(setCurrentOrder(response.result.order));
         } else {
           const errorMessage =
             response.messages?.[0] || "Đặt món thất bại. Vui lòng thử lại!";
           showErrorMessage(errorMessage);
           throw new Error(errorMessage);
-        }
-      } else {
-        // Nếu đã có order và trạng thái khác 7 và 8 thì thêm món vào order
-        if (currentOrder || reservationData?.result?.order.orderId) {
-          console.log(
-            "reservationData.result.order.orderId",
-            reservationData?.result.order.orderId
-          );
-          console.log("currentOrder", currentOrder);
-          const addOrderResponse = await addPrelistOrder(
-            {
-              orderId:
-                currentOrder?.orderId ||
-                reservationData?.result?.order.orderId ||
-                "",
-              orderDetailsDtos,
-            },
-            currentOrder?.orderId ||
-              reservationData?.result?.order.orderId ||
-              ""
-          );
-          setIsLoading(false);
-
-          // console.log(
-          //   "addOrderResponseNe",
-          //   JSON.stringify(addOrderResponse, null, 2)
-          // );
-
-          if (addOrderResponse.isSuccess) {
-            showSuccessMessage("Thêm món thành công!");
-            dispatch(clearDishes());
-            // Optionally, update the order after adding the dish
-          } else {
-            const errorMessage =
-              addOrderResponse.messages?.[0] ||
-              "Đặt món thất bại. Vui lòng thử lại!";
-            showErrorMessage(errorMessage);
-            throw new Error(errorMessage);
-          }
         }
       }
     } catch (error) {

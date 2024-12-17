@@ -92,7 +92,7 @@ const HistoryOrderPanel: React.FC = () => {
   const orderId = currentOrder?.orderId;
   const noteOrder = currentOrder?.note;
   console.log("orderId nè", orderId);
-
+  console.log("currentOrder history nè", JSON.stringify(currentOrder, null, 2));
   // console.log("modalContent nè", JSON.stringify(modalContent, null, 2));
   // console.log("dishes nè", JSON.stringify(dishes, null, 2));
 
@@ -144,7 +144,45 @@ const HistoryOrderPanel: React.FC = () => {
 
     setConnection(newConnection);
   }, []);
+  const handleBack = async () => {
+    console.log("orderId nè", orderId);
+    console.log("reservationData", reservationData);
+    if (currentOrder != null) {
+      console.log("orderId nè", currentOrder.orderId);
 
+      const response = await getHistoryOrderId(currentOrder.orderId);
+      console.log("response order", response);
+      if (response.isSuccess) {
+        setOrderDetails(response.result.orderDishes);
+
+        if (response.result.order.statusId === 9) {
+          showSuccessMessage(
+            "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 2s"
+          );
+          setTimeout(() => {
+            handleLogout();
+          }, 10000);
+        }
+      }
+    } else if (reservationData != null) {
+      const response = await getHistoryOrderId(
+        reservationData.result.order.orderId
+      );
+      console.log("response order", response);
+      if (response.isSuccess) {
+        setOrderDetails(response.result.orderDishes);
+
+        if (response.result.order.statusId === 9) {
+          showSuccessMessage(
+            "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 2s"
+          );
+          setTimeout(() => {
+            handleLogout();
+          }, 10000);
+        }
+      }
+    }
+  };
   useEffect(() => {
     let retryCount = 0;
     const MAX_RETRIES = 5;
@@ -161,40 +199,8 @@ const HistoryOrderPanel: React.FC = () => {
             // Subscribe to SignalR event
             console.log("connection", connection);
             connection.on("LOAD_USER_ORDER", async () => {
-              if (orderId) {
-                const response = await getHistoryOrderId(currentOrder?.orderId);
-                console.log("response order", response);
-                if (response.isSuccess) {
-                  setOrderDetails(response.result.orderDishes);
-
-                  if (response.result.order.statusId === 9) {
-                    showSuccessMessage(
-                      "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 2s"
-                    );
-                    setTimeout(() => {
-                      handleLogout();
-                    }, 10000);
-                  }
-                }
-              }
-              if (reservationData?.result.order.orderId) {
-                const response = await getHistoryOrderId(
-                  reservationData?.result?.order.orderId
-                );
-                if (
-                  response.isSuccess &&
-                  response.result.order.statusId === 9
-                ) {
-                  showSuccessMessage(
-                    "Đã thanh toán thành công, chúng tôi sẽ đăng xuất sau 2s"
-                  );
-                  setTimeout(() => {
-                    handleLogout();
-                  }, 2000);
-                }
-              }
-
-              console.log("Received LOAD_NOTIFICATION event");
+              handleBack();
+              console.log("Received LOAD_USER_ORDER event");
             });
           })
           .catch((error) => {
@@ -402,7 +408,6 @@ const HistoryOrderPanel: React.FC = () => {
     dispatch(clearReservationData());
     dispatch(clearDishes());
     console.log("Reservation data cleared:", store.getState().reservation.data);
-
     navigation.navigate("index");
   };
   return (
