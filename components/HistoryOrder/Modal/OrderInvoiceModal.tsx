@@ -130,23 +130,37 @@ const OrderInvoiceModal: React.FC<OrderInvoiceModalProps> = ({
   const handlePayment = async (paymentMethod: number) => {
     setLoading(true);
     try {
-      const paymentRequest: any = {
+      console.log("accountByPhone", accountByPhone);
+      let accountId = accountByPhone
+        ? accountByPhone.id
+        : reservationData?.result?.order?.account?.id;
+      let loyalPoints = usePoints ? maxPointsDiscount : 0;
+
+      let paymentRequest: any = {
         orderId,
         cashReceived: 0,
         changeReturned: 0,
         paymentMethod,
         couponIds: selectedCoupon?.map((coupon) => coupon.couponId),
         chooseCashRefund: true,
+        accountId: accountId,
+        loyalPointsToUse: loyalPoints,
       };
       console.log("paymentRequest", paymentRequest);
       // Conditionally add accountId if it exists
-      if (accountByPhone?.id) {
-        paymentRequest.accountId = accountByPhone.id;
-      }
-      // Conditionally add loyalPointsToUse if usePoints is true
-      if (usePoints && accountByPhone?.loyalPoint) {
-        paymentRequest.loyalPointsToUse = maxPointsDiscount;
-      }
+      // if (accountByPhone?.id) {
+      //   paymentRequest = { ...paymentRequest, accountId: accountByPhone.id };
+      //   // paymentRequest.accountId = accountByPhone.id;
+      // }
+      // // Conditionally add loyalPointsToUse if usePoints is true
+      // if (usePoints && accountByPhone?.loyalPoint) {
+      //   // paymentRequest.loyalPointsToUse = maxPointsDiscount;
+      //   paymentRequest = {
+      //     ...paymentRequest,
+      //     loyalPointsToUse: maxPointsDiscount,
+      //   };
+      // }
+      console.log("paymentRequest", paymentRequest);
 
       // Call API
       const response = await makeDineInOrderBill(paymentRequest);
